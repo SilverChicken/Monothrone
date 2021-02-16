@@ -60,7 +60,7 @@ void Window::initialize_objects()
 	map = new Map();
 	player = new Player(0, map);
 
-	player->setLoc(map->getloc(4,4));
+	player->setLoc(map->getloc(16,12));
 	player->setBotLeft(map->getloc(0, 0));
 	//can do that in player too, eventually should.
 
@@ -69,14 +69,14 @@ void Window::initialize_objects()
 	glActiveTexture(GL_TEXTURE0);
 
 	//setup ressources around map
-	//SpawnStartRessource(map, MTNRangeCT, Vmtn, NRGRangeCT, Vnrg, CRYRangeCT, Vcry);
+	SpawnStartRessource(map, MTNRangeCT, Vmtn, NRGRangeCT, Vnrg, CRYRangeCT, Vcry);
 
 
 	//setup basic units
 	//testing out worm spawning
 	Worm* worm;
 	for (int i = 0; i < 5; i++) {
-		worm = new Worm(player->getPID(), map->getloc(4, 4), map);
+		worm = new Worm(player->getPID(), map->getloc(12,12), map);
 		worms.push_back(worm);
 	}
 

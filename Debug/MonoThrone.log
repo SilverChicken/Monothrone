@@ -1,2 +1,16 @@
-﻿  Player.cpp
+﻿  ImLoader.cpp
+d:\games\monothrone\monothrone\imloader.h(7): warning C4091: 'static ': ignored on left of 'ImLoader' when no variable is declared
+  Window.cpp
+d:\games\monothrone\monothrone\imloader.h(7): warning C4091: 'static ': ignored on left of 'ImLoader' when no variable is declared
+d:\games\monothrone\monothrone\window.cpp(357): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(355): warning C4101: 'pixel_diff': unreferenced local variable
+d:\games\monothrone\monothrone\window.cpp(376): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(383): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(397): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(398): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(417): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(419): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(429): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(438): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  Generating Code...
   MonoThrone.vcxproj -> D:\Games\MonoThrone\Debug\MonoThrone.exe

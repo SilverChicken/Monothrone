@@ -16,7 +16,7 @@
 bool ImLoader::Loadtextures()  //Load all the textures we need to play
 {
 	int texCt = 32;
-	const char* textLoc[32] = {  "../art/Player.jpg",  "../art/Char_P.png", "../art/Char_R.png",				// 0,1,2            Player
+	const char* textLoc[32] = {  "../art/Char_B.png",  "../art/Char_P.png", "../art/Char_R.png",				// 0,1,2            Player
 						    "../art/Manuf_B.png", "../art/Manuf_P.png", "../art/Manuf_R.png",					// 3,4,5            Manuf
 						    "../art/Throne_B.png", "../art/Throne_P.png", "../art/Throne_R.png",				// 6,7,8            Throne
 							"../art/Ref_B.png", "../art/Ref_P.png", "../art/Ref_R.png",							// 9,10,11          Refrac
