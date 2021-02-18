@@ -13,7 +13,7 @@ public:
 
 	int getTexLoc();
 
-	bool move(int x, int y);   // 0- Move
+	bool move(Location*, Map*);   // 0- Move
 	bool collect(int x, int y);  // 1- Collect something at (x,y)  maybe actually takes a ressource pointer
 	bool build(int x, int y, std::string obj);		  // 2- Build obj *string* at x,y
 	Unit* spawn(std::string baby, glm::vec2 place);   // 3- Spawn a unit *string* at a location

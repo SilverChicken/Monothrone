@@ -24,13 +24,15 @@ public:
 
 	void draw(GLuint);
 
+	void update();
+
 	bool select(int);
 	void deselect();
 
 	//ALL possible abilities
 
 	
-	virtual bool move(int x, int y);   // 0- Move
+	bool move(Location *, Map*);   // 0- Move
 	
 	virtual bool collect(int x, int y);  // 1- Collect something at (x,y)  maybe actually takes a ressource pointer
 

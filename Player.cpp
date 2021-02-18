@@ -157,6 +157,9 @@ bool Player::select()
 				selection.push_back(target);  //If we actually own the unit, add it to the selection
 				return true;
 			}
+			else {   //Then we tried to select a unit that isn't ours
+				vecRemove(target, selection); //So we remove it from selection
+			}
 		}
 	}
 	return false;
