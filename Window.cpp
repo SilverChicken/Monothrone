@@ -11,12 +11,14 @@
 #include "Crystal.h"
 #include "Energy.h"
 #include "Worm.h"
-
+#include "Timer.h"
 
 const char* window_title = "GLFW Starter Project";
 
 GLint shaderProgram;
 
+//Timer for tick function
+Timer ticker = Timer::getInstance();
 
 //Objects were rendering
 Map* map;
@@ -155,8 +157,16 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 void Window::idle_callback()
 {
+	ticker.inc();
+	if (ticker.state) { //Update all objects! 
+		//Update unit positions who has their references?
 
-	//obj->spin((*obj).getspinfact());
+		//for now just update worms
+		for (Worm* worm : worms) {
+			worm->update();
+		}
+
+	}
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -291,39 +301,6 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 
 void Window::character_callback(GLFWwindow* window, unsigned int codepoint)
 {
-	if (codepoint == 119) { //w
-		//spot->dtheta(-1.0f);
-		std::cout << "w" << std::endl;
-	}
-
-	if (codepoint == 87) { //W
-		//spot->dtheta(1.0f);
-		std::cout << "W" << std::endl;
-	}
-
-	if (codepoint == 101) { //e
-		//spot->dexp(1.1f);
-		std::cout << "e" << std::endl;
-	}
-
-	if (codepoint == 69) { //E
-		//spot->dexp(0.9f);
-		std::cout << "E" << std::endl;
-	}
-
-	if (codepoint == 118) { //v
-		std::cout << "v" << std::endl;
-		//spon = !spon;
-	}
-
-	if (codepoint == 98) { //b
-		std::cout << "b" << std::endl;
-	}
-
-	if (codepoint == 110) { //n
-		std::cout << "n" << std::endl;
-
-	}
 
 }
 
@@ -352,7 +329,7 @@ void Window::cursor_pos_callback(GLFWwindow * window, double xpos, double ypos)
 	int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
 	glm::vec3 direction, curPoint;
-	float pixel_diff;
+//	float pixel_diff;
 	float rot_angle, velocity;
 	curPoint = trackBallMapping(xpos, ypos); // Map the mouse position to a logical sphere location.
 	direction = curPoint - Window::lastPoint;

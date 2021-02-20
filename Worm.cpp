@@ -14,7 +14,7 @@ int Worm::getTexLoc()
 	return textLoc;
 }
 
-bool Worm::move(int x, int y)
+bool Worm::move(Location*, Map*)
 {
 
 	return false;
