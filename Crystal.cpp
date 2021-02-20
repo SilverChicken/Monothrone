@@ -22,39 +22,7 @@ Crystal::Crystal(Location * location, Map* map)
 	//Set class identifier
 	classType = 3;
 
-		//while the location this object was given was invalid
-	int tries = 0; //so that we don't loop for too long
-
-	while (!location->state) {
-		int dir = rand() % 5;
-		switch (dir) {
-		case 0:
-			bias += glm::vec2(1.0, 0.0);
-			location = map->getloc(bias);
-			break;
-		case 1:
-			bias += glm::vec2(1.0, 0.0);
-			location = map->getloc(bias);
-			break;
-		case 2:
-			bias += glm::vec2(1.0, 0.0);
-			location = map->getloc(bias);
-			break;
-		case 3:
-			bias += glm::vec2(1.0, 0.0);
-			location = map->getloc(bias);
-			break;
-		default:
-			bias += glm::vec2(1.0, 1.0);
-			location = map->getloc(bias);
-			break;
-		}
-		tries++;
-
-		if (tries > 20) {
-			location = map->getloc(rand() % MAPSIZE, rand() % MAPSIZE);
-		}
-	} //now we know that location is free!
+	location = spawnLoc(location, map);   //Finds a free nearby position by jiggling
 
 	if (setLoc(location)) { //This *should* be true because of the previous check
 
@@ -78,7 +46,7 @@ Crystal::Crystal(Location * location, Map* map)
 
 Crystal::~Crystal()
 {
-
+	delete(textLocs);
 }
 
 int Crystal::getTextLoc()

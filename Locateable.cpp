@@ -71,18 +71,22 @@ Location* Locateable::getLoc()
 bool Locateable::setLoc(Location* newLoc)
 {
 	if (loc != NULL) {
-		if (loc->release(this)) {
-			if (newLoc->take(this)) {
-				loc = newLoc;
-				return true;
+		if (newLoc->state) {              //Like this we never lose ownership of every lock
+			if (loc->release(this)) {
+				if (newLoc->take(this)) {
+					loc = newLoc;
+					return true;
+				}
 			}
 		}
 		return false;
 	}
 	else {
-		if (newLoc->take(this)) {
-			loc = newLoc;
-			return true;
+		if (newLoc->state) {
+			if (newLoc->take(this)) {
+				loc = newLoc;
+				return true;
+			}
 		}
 		return false;
 	}

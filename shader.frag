@@ -7,7 +7,7 @@ struct Material {
     float shininess;
 }; 
 
-
+#define SCREENSIZE 20.0  //# of tiles on screen by default, modified by zoom
 
 // Inputs to the fragment shader are the outputs of the same name from the vertex shader.
 // Note that you do not have access to the vertex shader's default output, gl_Position.
@@ -79,16 +79,14 @@ vec4 renderMap(){
 	vec4 linecolor = vec4(0.01f, 0.01f, 0.01f, 1.0);
 	vec4 backcolor = vec4(0.95f, 0.95f, 0.95f, 1.0);
 
+	//Has constants set for zoom = 0, then modded if zoom non 0
+	float gap = 0.1; // - zoom / SCREENSIZE;
+	float posSide = 0.0975f; // - zoom / SCREENSIZE;
+	float negSide = gap - posSide; // - zoom / SCREENSIZE;
 
-    // Properties
-    //vec3 norm = normalize(normal);
-	//vec3 result;
-
-	//vec3 viewDir = normalize(viewPos - FragPos);
-
-	if( (mod(FragPos.x, 0.1) > 0.0975f) || (mod(FragPos.x, 0.1) < 0.0025f) ){
+	if( (mod(FragPos.x , gap) > posSide) || (mod(FragPos.x, 0.1) < negSide) ){
 		color = linecolor;
-	} else if( (mod(FragPos.y, 0.1) > 0.0975f) || (mod(FragPos.y, 0.1) < 0.0025f) ){
+	} else if( (mod(FragPos.y, gap) > posSide) || (mod(FragPos.y, gap) < negSide) ){
 		return linecolor;
 	}
 	else{

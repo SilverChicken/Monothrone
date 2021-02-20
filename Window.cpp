@@ -11,12 +11,14 @@
 #include "Crystal.h"
 #include "Energy.h"
 #include "Worm.h"
-
+#include "Timer.h"
 
 const char* window_title = "GLFW Starter Project";
 
 GLint shaderProgram;
 
+//Timer for tick function
+Timer ticker = Timer::getInstance();
 
 //Objects were rendering
 Map* map;
@@ -75,11 +77,12 @@ void Window::initialize_objects()
 	//setup basic units
 	//testing out worm spawning
 	Worm* worm;
-	for (int i = 0; i < 5; i++) {
-		worm = new Worm(player->getPID(), map->getloc(12,12), map);
+	for (int i = 0; i < 6; i++) {
+		worm = new Worm(player->getPID(), map->getloc(2,2), map);
 		worms.push_back(worm);
 	}
 
+	worm->move(map->getloc(20, 15), map);
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -155,8 +158,17 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 void Window::idle_callback()
 {
+	ticker.inc();
+	if (ticker.state) { //Update all objects! 
+		//Update unit positions who has their references?
 
-	//obj->spin((*obj).getspinfact());
+		//for now just update worms
+		for (Worm* worm : worms) {
+			//std::cout << "worm is update" << std::endl;
+			worm->update();
+		}
+
+	}
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -208,7 +220,7 @@ void Window::display_callback(GLFWwindow* window)
 	glfwSwapBuffers(window);
 }
 
-void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) //Eventually check for non-US layouts
 {
 
 	// Check for a key press
@@ -254,7 +266,29 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			player->incEnergy(5);
 			break;
 
+		case GLFW_KEY_Q:
+			player->actionQ();
+			break;
 
+		case GLFW_KEY_W:
+			player->actionW();
+			break;
+
+		case GLFW_KEY_E:
+			player->actionE();
+			break;
+
+		case GLFW_KEY_R:
+			player->actionR();
+			break;
+
+		case GLFW_KEY_T:
+			player->actionT();
+			break;
+
+		case GLFW_KEY_Y:
+			player->actionY();
+			break;
 
 
 		default:
@@ -291,39 +325,6 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 
 void Window::character_callback(GLFWwindow* window, unsigned int codepoint)
 {
-	if (codepoint == 119) { //w
-		//spot->dtheta(-1.0f);
-		std::cout << "w" << std::endl;
-	}
-
-	if (codepoint == 87) { //W
-		//spot->dtheta(1.0f);
-		std::cout << "W" << std::endl;
-	}
-
-	if (codepoint == 101) { //e
-		//spot->dexp(1.1f);
-		std::cout << "e" << std::endl;
-	}
-
-	if (codepoint == 69) { //E
-		//spot->dexp(0.9f);
-		std::cout << "E" << std::endl;
-	}
-
-	if (codepoint == 118) { //v
-		std::cout << "v" << std::endl;
-		//spon = !spon;
-	}
-
-	if (codepoint == 98) { //b
-		std::cout << "b" << std::endl;
-	}
-
-	if (codepoint == 110) { //n
-		std::cout << "n" << std::endl;
-
-	}
 
 }
 
@@ -331,18 +332,12 @@ void Window::character_callback(GLFWwindow* window, unsigned int codepoint)
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	if (yoffset > 0) {
-		//obj->scale(yoffset * 5);
-		//light_model->scale(yoffset * 5);
-		//light->transform(light_model->getToWorld(), shaderProgram);
-		//light_model_I->scale(yoffset * 5);
-		//spot->transform(light_model_I->getToWorld(), shaderProgram);
+		player->changeZoom(1.0);
+		std::cout << player->getZoom() << std::endl;
 	}
 	else if (yoffset < 0) {
-		//obj->scale(-yoffset * 3);
-		//light_model->scale(-yoffset * 3);
-		//light->transform(light_model->getToWorld(), shaderProgram);
-		//light_model_I->scale(-yoffset * 3);
-		//spot->transform(light_model_I->getToWorld(), shaderProgram);
+		player->changeZoom(-1.0);
+		std::cout << player->getZoom() << std::endl;
 	}
 
 }
@@ -352,7 +347,7 @@ void Window::cursor_pos_callback(GLFWwindow * window, double xpos, double ypos)
 	int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
 
 	glm::vec3 direction, curPoint;
-	float pixel_diff;
+//	float pixel_diff;
 	float rot_angle, velocity;
 	curPoint = trackBallMapping(xpos, ypos); // Map the mouse position to a logical sphere location.
 	direction = curPoint - Window::lastPoint;

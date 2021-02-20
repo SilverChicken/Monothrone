@@ -117,7 +117,7 @@ Location * Map::getloc(int x, int y)
 	}
 	else if (y < 0) {
 		//std::cout << "invalid location: " << x << " " << y << std::endl;
-		y = MAPSIZE - 1;
+		y = 0;
 	}
 
 	return map[x][y];    //This will always be valid!
@@ -156,6 +156,11 @@ bool Map::addEnergies(Ressource * nrg)
 	return true;              //bool if we ever change type
 }
 
+void Map::addUnit(Unit * unit)
+{
+	Units.push_back(unit);
+}
+
 bool ** Map::getBox(glm::vec2 a, glm::vec2 b)
 {
 	return getBox(a.x, a.y, b.x, b.y);
@@ -173,13 +178,15 @@ bool ** Map::getBox(int x, int y, int x2, int y2)   //This function may be usele
 Location * Map::findClosest(Location * base) //Maybe a bit slow so don't use for huge bunches at once, cache for group spawn?
 {
 	std::list<Location*> visited; //visited Locations pass it by &, search it from the back to the front for best chances
+	//The above var needs to be changed to a map which we may want to keep around for caching
+	//std::map<Location*, &bool> visited
 	std::list<Location*> stack;   //the current stack to look through
 
 	return findClosestRecc(base, visited, stack);
 
 }
 
-
+//Location *  Map::findClosestRecc(Location * base, std::map<Location*, &bool>& visited, std::list<Location*>& stack)
 Location *  Map::findClosestRecc(Location * base, std::list<Location*>& visited, std::list<Location*>& stack)
 {
 	if (base->state) {
@@ -192,12 +199,14 @@ Location *  Map::findClosestRecc(Location * base, std::list<Location*>& visited,
 		int y2 = 0;
 		Location * newVert;
 
+		//visited[base] = &base->state;
 		visited.push_back(base); //we have now visited this vertex
 
 		if (x > 0) { //there's a vertex on the left
 			x2 = x - 1;
 			y2 = y;
 			newVert = getloc(x2, y2);
+			//if (!listSearch(newVert, stack) && visited.find(newVert) = visted.end())
 			if (!listSearch(newVert, stack) && !listSearch(newVert, visited)) {    //Check if the vertex isn't going to be checked AND hasn't already been
 				stack.push_back(newVert);        //If it wasn't then we add it to the visited list
 			}
