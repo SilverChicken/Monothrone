@@ -72,12 +72,14 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)\MonoThrone\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)\MonoThrone\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -170,27 +172,27 @@
     <ClCompile Include="Worm.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Crystal.h" />
-    <ClInclude Include="Energy.h" />
-    <ClInclude Include="ImLoader.h" />
-    <ClInclude Include="Mountain.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="Locateable.h" />
-    <ClInclude Include="Location.h" />
-    <ClInclude Include="main.h" />
-    <ClInclude Include="Map.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="Ressource.h" />
-    <ClInclude Include="shader.h" />
-    <ClInclude Include="Timer.h" />
-    <ClInclude Include="Unit.h" />
-    <ClInclude Include="Window.h" />
-    <ClInclude Include="Worm.h" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="packages.config" />
     <None Include="shader.frag" />
     <None Include="shader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Crystal.h" />
+    <ClInclude Include="include\Energy.h" />
+    <ClInclude Include="include\ImLoader.h" />
+    <ClInclude Include="include\Locateable.h" />
+    <ClInclude Include="include\Location.h" />
+    <ClInclude Include="include\main.h" />
+    <ClInclude Include="include\Map.h" />
+    <ClInclude Include="include\Mountain.h" />
+    <ClInclude Include="include\Player.h" />
+    <ClInclude Include="include\Ressource.h" />
+    <ClInclude Include="include\shader.h" />
+    <ClInclude Include="include\stb_image.h" />
+    <ClInclude Include="include\Timer.h" />
+    <ClInclude Include="include\Unit.h" />
+    <ClInclude Include="include\Window.h" />
+    <ClInclude Include="include\Worm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
