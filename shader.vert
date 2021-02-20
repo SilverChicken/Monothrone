@@ -32,10 +32,13 @@ out float alpha;
 out vec2 texCoord;
 out vec4 FragPos;
 
+
+float screenhf;
+
 void main()
 {
 
-	float screenhf = SCREENSIZE / 2.0;
+	screenhf = (SCREENSIZE ) / 2.0; // - zoom
 
 	if(renderRout == 1){   //Tile
 		//we need to normalize the coordinates in terms of the size of the size of the map but also keep track of where the 'camera' is 

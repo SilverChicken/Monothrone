@@ -24,10 +24,12 @@ Player::Player(int Npid, Map * mapo)
 	energy = 0;
 	crystal = 0;
 	hasThrone = true;
-	zoom = 1;
+	zoom = 0;
 	camBoxX = 5; 
 	camBoxY = 5;
 
+
+	bindings = new int[6];
 
 	//get reference to the map
 	map = mapo;
@@ -38,7 +40,11 @@ Player::Player(int Npid, Map * mapo)
 
 Player::~Player()
 {
+	for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
+		delete(it->first);
+	}
 
+	delete(bindings);
 }
 
 
@@ -57,6 +63,11 @@ const int Player::getTexLoc()
 Location * Player::getLoc()
 {
 	return loc;
+}
+
+float Player::getZoom()
+{
+	return zoom;
 }
 
 bool Player::setLoc(Location * newLoc)
@@ -84,7 +95,7 @@ bool Player::setLoc(glm::vec2 locate)
 	return false;
 }
 
-std::list<Unit*> Player::getSelection()
+std::map<Unit*, bool> Player::getSelection()
 {
 	return selection;
 }
@@ -103,11 +114,11 @@ bool Player::move(int dir)
 	switch (dir) {
 		case 0:
 			locate = loc->getPos();
-			if (locate.y < MAPSIZE - 1) {
+			if (locate.y < MAPSIZE - 1) {        //Make sure we're not on an edge
 				locate += glm::vec2(0.0, 1.0);
-				setLoc(map->getloc(locate));
-				checkCameraChange();
-				return true;
+				setLoc(map->getloc(locate));     //Set new location
+				checkCameraChange();             //Adjust Camera if Necessary
+				return true;  
 			}
 			break;
 		case -1:
@@ -152,13 +163,13 @@ bool Player::select()
 	}
 	else if(unit->getClassType() == 4) {  //This is the code for units
 		Unit * target = (Unit*)unit;      //Then this is a safe cast
-		if (!vecSearch(target, selection)) {		  //Internal logic for the unit being selected
+
+		if (selection.find(target) == selection.end()) {
+		//if (!vecSearch(target, selection)) {		  //Internal logic for the unit being selected
 			if (target->select(PID)) { //make sure it wasn't already selected
-				selection.push_back(target);  //If we actually own the unit, add it to the selection
+				//selection.push_back(target);  //If we actually own the unit, add it to the selection
+				selection[target] = true;
 				return true;
-			}
-			else {   //Then we tried to select a unit that isn't ours
-				vecRemove(target, selection); //So we remove it from selection
 			}
 		}
 	}
@@ -173,8 +184,11 @@ Unit * Player::deselect()
 	}
 	else if (unit->getClassType() == 4) {						//This is the code for units
 		Unit * target = (Unit*)unit;							//Then this is a safe cast
-		std::list<Unit*>::iterator it = selection.begin();
-		if (vecRemove(target, selection)) {						//Make sure it's currently selected and erase it
+		//if(selection.erase(target) != selection.end());
+		//std::list<Unit*>::iterator it = selection.begin();
+		//if (vecRemove(target, selection)) {						//Make sure it's currently selected and erase it
+		if(selection.find(target) != selection.end()){
+			selection.erase(target);							//Erase
 			target->deselect();									//Unit logic for being deselected
 			return target;
 		}
@@ -222,6 +236,43 @@ bool Player::decCrystal(int val)
 	return false;
 }
 
+void Player::actionQ()
+{
+	//switch (abilities[0]) {
+
+	//}
+
+
+
+//for now it's just move
+	for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it ) {
+		if (it->second) {
+			it->first->move(loc, map);
+		}
+	}
+
+}
+
+void Player::actionW()
+{
+}
+
+void Player::actionE()
+{
+}
+
+void Player::actionR()
+{
+}
+
+void Player::actionT()
+{
+}
+
+void Player::actionY()
+{
+}
+
 
 //Render fcts
 
@@ -246,12 +297,15 @@ void Player::setBotLeft(glm::vec2 locate)
 
 bool Player::checkCameraChange()
 {
-	glm::vec2 BL = botLeft->getPos();
-	glm::vec2 Tloc = loc->getPos();
+	glm::vec2 BL = botLeft->getPos();     //Location of bottom left of the screen
+	glm::vec2 Tloc = loc->getPos();       //Location of Character
 
 
-	if ( (Tloc.x - BL.x > (ZOOMDEF)/2 + camBoxX) && BL.x + ZOOMDEF < MAPSIZE) {    // zoomdef * some value of zoom?
-		BL += glm::vec2(1.0, 0.0);
+	// zoomdef * some value of zoom?
+	// ZOOMDEF is the default size of the grid on screen ie there are 20 squares in x and y by default
+
+	if ( (Tloc.x - BL.x > (ZOOMDEF)/2 + camBoxX) && BL.x + ZOOMDEF < MAPSIZE) {   //Check to see if the on screen position passes the camera movement box
+		BL += glm::vec2(1.0, 0.0);                                                // and if the camera is currently hitting one edge of the map
 		setBotLeft(BL);
 		return true;
 	}
@@ -291,9 +345,24 @@ bool Player::removeCloud(Location *)
 	return false;
 }
 
-float Player::changeZoom(float)
+float Player::changeZoom(float delta)
 {
-	return 0.0f;
+
+	//Make sure out zoom is within bounds
+
+	zoom += delta; // so now we will see 2*delta fewer squares on screen. This means:
+	if (zoom > MAXZOOM) {
+		zoom = MAXZOOM;
+	}
+	else if (zoom < MINZOOM) {
+		zoom = MINZOOM;
+	}
+	//camBoxX -= delta; // The camera will move tighter
+	//camBoxY -= delta; //Probably change so it's not exactly linear
+
+
+	return zoom;
+	
 }
 
 void Player::draw(unsigned int texture, GLuint shaderprog)

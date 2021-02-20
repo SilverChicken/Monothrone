@@ -77,11 +77,12 @@ void Window::initialize_objects()
 	//setup basic units
 	//testing out worm spawning
 	Worm* worm;
-	for (int i = 0; i < 5; i++) {
-		worm = new Worm(player->getPID(), map->getloc(12,12), map);
+	for (int i = 0; i < 6; i++) {
+		worm = new Worm(player->getPID(), map->getloc(2,2), map);
 		worms.push_back(worm);
 	}
 
+	worm->move(map->getloc(20, 15), map);
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -163,6 +164,7 @@ void Window::idle_callback()
 
 		//for now just update worms
 		for (Worm* worm : worms) {
+			//std::cout << "worm is update" << std::endl;
 			worm->update();
 		}
 
@@ -218,7 +220,7 @@ void Window::display_callback(GLFWwindow* window)
 	glfwSwapBuffers(window);
 }
 
-void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) //Eventually check for non-US layouts
 {
 
 	// Check for a key press
@@ -264,7 +266,29 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			player->incEnergy(5);
 			break;
 
+		case GLFW_KEY_Q:
+			player->actionQ();
+			break;
 
+		case GLFW_KEY_W:
+			player->actionW();
+			break;
+
+		case GLFW_KEY_E:
+			player->actionE();
+			break;
+
+		case GLFW_KEY_R:
+			player->actionR();
+			break;
+
+		case GLFW_KEY_T:
+			player->actionT();
+			break;
+
+		case GLFW_KEY_Y:
+			player->actionY();
+			break;
 
 
 		default:
@@ -308,18 +332,12 @@ void Window::character_callback(GLFWwindow* window, unsigned int codepoint)
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	if (yoffset > 0) {
-		//obj->scale(yoffset * 5);
-		//light_model->scale(yoffset * 5);
-		//light->transform(light_model->getToWorld(), shaderProgram);
-		//light_model_I->scale(yoffset * 5);
-		//spot->transform(light_model_I->getToWorld(), shaderProgram);
+		player->changeZoom(1.0);
+		std::cout << player->getZoom() << std::endl;
 	}
 	else if (yoffset < 0) {
-		//obj->scale(-yoffset * 3);
-		//light_model->scale(-yoffset * 3);
-		//light->transform(light_model->getToWorld(), shaderProgram);
-		//light_model_I->scale(-yoffset * 3);
-		//spot->transform(light_model_I->getToWorld(), shaderProgram);
+		player->changeZoom(-1.0);
+		std::cout << player->getZoom() << std::endl;
 	}
 
 }

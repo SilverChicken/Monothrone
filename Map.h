@@ -16,6 +16,7 @@
 
 
 class Ressource;
+class Unit;
 
 
 #define MAPSIZE 64
@@ -38,9 +39,13 @@ private:
 	};
 	Location* map[MAPSIZE][MAPSIZE];    //2D array 
 	//Location ** map;
-	std::vector<Ressource *> Mountains; //Locations of the mountains
-	std::vector<Ressource *> Crystals;  //Locations of the crystals
-	std::vector<Ressource *> Energies;  //Locations of the energies
+	std::vector<Ressource *> Mountains; //Refs to the mountains
+	std::vector<Ressource *> Crystals;  //Refs to the crystals
+	std::vector<Ressource *> Energies;  //Refs to the energies
+
+
+	std::vector<Unit *> Units;  //Really this is just here to keep the references and delete them at the end
+
 public:
 	Map();  //setup drawing of shapes too
 	~Map();
@@ -54,9 +59,10 @@ public:
 	std::vector<Ressource *> getMountains();
 	std::vector<Ressource *> getCrystals();
 	std::vector<Ressource *> getEnergies();
-	bool addMountain(Ressource *);
-	bool addCrystals(Ressource *);
-	bool addEnergies(Ressource *);
+	bool addMountain(Ressource *);        //------------------ Mountain
+	bool addCrystals(Ressource *);        //------------------ Crystal
+	bool addEnergies(Ressource *);        //Called whenever an Energy is Spawned
+	void addUnit(Unit *);                 //Called whenever we spawn a Unit so we can delete it later
 
 
 	//render/gameplay fct

@@ -1,6 +1,8 @@
 #pragma once
 #include"Locateable.h"
 
+class Map;
+
 class Ressource : public Locateable
 {	
 protected:                //Mostly variables set for spawning
@@ -11,6 +13,9 @@ protected:                //Mostly variables set for spawning
 
 	//rendervars
 	//const int texLoc = 2;                    //indicates where the tile's texture is within the texture array
+
+	//Helper function to get a spawning location
+	Location * spawnLoc(Location* location, Map* map);
 
 
 public:

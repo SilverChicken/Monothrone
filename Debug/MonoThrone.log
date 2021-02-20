@@ -1,3 +1,20 @@
-﻿  Unit.cpp
+﻿  Player.cpp
+  Unit.cpp
 d:\games\monothrone\monothrone\imloader.h(7): warning C4091: 'static ': ignored on left of 'ImLoader' when no variable is declared
+d:\games\monothrone\monothrone\unit.cpp(31): warning C4156: deletion of an array expression without using the array form of 'delete'; array form substituted
+d:\games\monothrone\monothrone\unit.cpp(31): warning C4154: deletion of an array expression; conversion to pointer supplied
+d:\games\monothrone\monothrone\unit.cpp(190): warning C4244: 'return': conversion from 'float' to 'int', possible loss of data
+  Window.cpp
+d:\games\monothrone\monothrone\imloader.h(7): warning C4091: 'static ': ignored on left of 'ImLoader' when no variable is declared
+d:\games\monothrone\monothrone\window.cpp(352): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(371): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(378): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(392): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(393): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(412): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(414): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(424): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+d:\games\monothrone\monothrone\window.cpp(433): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  Worm.cpp
+  Generating Code...
   MonoThrone.vcxproj -> D:\Games\MonoThrone\Debug\MonoThrone.exe

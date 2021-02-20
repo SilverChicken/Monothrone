@@ -2,6 +2,7 @@
 #include"Locateable.h"
 #include<string>
 #include<vector>
+#include<list>
 
 class Map;
 
@@ -9,12 +10,18 @@ class Unit : Locateable
 {
 private:
 	int owner;
+	std::vector<int> abilities; //Each function has an ID, this holds the functions that a given unit implements
+
+	std::list<Location *> path; //could use a stack instead
+
+	bool selected;
+
+protected:
 	int hp;
 	int atk;
 	int speed;
-	std::vector<int> abilities; //Each function has an ID, this holds the functions that a given unit implements
 
-	bool selected;
+	int actions[6];
 
 public:
 	Unit(int, Location*, Map*);

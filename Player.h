@@ -4,9 +4,12 @@
 #include"Unit.h"
 #include<vector>
 #include<list>
+#include<map>
 
 
 #define ZOOMDEF 20
+#define MAXZOOM 4
+#define MINZOOM -4
 
 class Map;
 
@@ -21,7 +24,12 @@ private:
 	int energy;
 	int crystal;
 	bool hasThrone;
-	std::list<Unit*> selection;
+	//std::list<Unit*> selection;
+	std::map<Unit*, bool> selection;   //  map of all units you own, bool true if selected
+
+	//array of functions that are bound to AZERTY how it it set? Selection. When Selection is updated we iterate through it
+	int* bindings;
+
 
 
 	//rendering Vars
@@ -43,11 +51,13 @@ public:
 	int getPID();
 	const int getTexLoc();
 	Location* getLoc();
+	float getZoom();
 	bool setLoc(Location*);
 	bool setLoc(int, int);  //overloads for coordinates
 	bool setLoc(glm::vec2);
 
-	std::list<Unit*> getSelection();
+	std::map<Unit*, bool> getSelection();
+	//std::list<Unit*> getSelection();
 
 	//Gameplay fcts
 	bool move(int);
@@ -60,6 +70,13 @@ public:
 	bool decEnergy(int);
 	bool decCrystal(int);
 
+	//Action buttons
+	void actionQ();
+	void actionW();
+	void actionE();
+	void actionR();
+	void actionT();
+	void actionY();
 
 	//render fcts
 	void setBotLeft(Location*);
