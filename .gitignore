@@ -33,8 +33,9 @@
 
 
 #Ignore stbi_image.h bc it's a library
-stbi_image.h
+include/stbi_image.h
+
 
 #Ignore anything in the Debug folder
-
 Debug/*
+
