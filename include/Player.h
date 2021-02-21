@@ -1,7 +1,6 @@
 #pragma once
 
-#include"Locateable.h"  //This one is optional
-#include"Unit.h"
+#include"Locateable.h"  
 #include<vector>
 #include<list>
 #include<map>
@@ -12,6 +11,7 @@
 #define MINZOOM -4
 
 class Map;
+class Unit;
 
 
 class Player : Locateable
@@ -25,16 +25,19 @@ private:
 	int crystal;
 	bool hasThrone;
 	//std::list<Unit*> selection;
-	std::map<Unit*, bool> selection;   //  map of all units you own, bool true if selected
+	std::map<Unit*, bool> selection;   //  map of selected units, subset of units map
+
+	//Vector of all units you own? Or set Or Hashmap?
+	std::map<Unit*, bool> units;
 
 	//array of functions that are bound to AZERTY how it it set? Selection. When Selection is updated we iterate through it
 	int* bindings;
 
 
-
 	//rendering Vars
+	const int textLocs[3] = { 0, 1, 2 };
 
-	const int texLoc = 1;                    //indicates where the tile's texture is within the texture array
+	int texLoc;                    //indicates where the tile's texture is within the texture array
 	float zoom;
 	int camBoxX;                       //indicates when we move the camera as distance from center
 	int camBoxY;
@@ -56,8 +59,12 @@ public:
 	bool setLoc(int, int);  //overloads for coordinates
 	bool setLoc(glm::vec2);
 
+
+	//Unit management
 	std::map<Unit*, bool> getSelection();
-	//std::list<Unit*> getSelection();
+	void update();
+
+	
 
 	//Gameplay fcts
 	bool move(int);
@@ -70,6 +77,11 @@ public:
 	bool decEnergy(int);
 	bool decCrystal(int);
 
+	template <class T> 
+	Unit* spawnUnit(Location * location); 
+
+
+
 	//Action buttons
 	void actionQ();
 	void actionW();
@@ -78,19 +90,38 @@ public:
 	void actionT();
 	void actionY();
 
+	
 	//render fcts
+	bool addVision(Location*);
+	bool removeVision(Location*);
+	bool removeCloud(Location*);
+	float changeZoom(float);
+	void draw(unsigned int*, GLuint);
+
+private:
+
+	//Private gameplay fct
+	void updateBindings();
+	void addUnit(Unit*);
+
+	//private render fcts
 	void setBotLeft(Location*);
 	void setBotLeft(int, int);
 	void setBotLeft(glm::vec2);
 
 	bool checkCameraChange();     //will also change the camera if necessary
 
-	bool addVision(Location*);
-	bool removeVision(Location*);
-	bool removeCloud(Location*);
-	float changeZoom(float);
-	void draw(unsigned int, GLuint);
-
-
 };
 
+
+
+
+//Needs to be defined here because it's a template function
+template<class T>
+inline Unit * Player::spawnUnit(Location * location)
+{
+	Unit * unit = new T(PID, location, map);
+	units[unit] = false;                       //Adds the unit to the list of current units
+	return unit;
+
+}

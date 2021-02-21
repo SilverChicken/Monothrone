@@ -1,13 +1,13 @@
 #pragma once
 #include "Unit.h"
-class Worm : public Unit
+class Throne : public Unit
 {
 private:
-	const int textLocs[9] = { 22, 23, 24, 25, 26, 27, 28, 29, 30 };    //locations for mountain are index 12-15 (ImLoader.cpp)
-
+	const int textLocs[3] = { 6, 7, 8 };    //locations for mountain are index 12-15 (ImLoader.cpp)
+	
 public:
-	Worm(int, Location*, Map* map);
-	~Worm();
+	Throne(int, Location*, Map* map);
+	~Throne();
 
 	void draw(unsigned int, GLuint);
 

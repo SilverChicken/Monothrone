@@ -20,13 +20,9 @@ class Window
 public:
 	static int width;
 	static int height;
-	//static glm::vec3 diffs[5];
-	//static glm::vec3 specs[5];
-	//static float shine[5];
+
 	static glm::vec3 lastPoint;
 
-	//static glm::mat4 P; // P for projection
-	//static glm::mat4 V; // V for view
 
 	static void initialize_objects();
 	static void clean_up();

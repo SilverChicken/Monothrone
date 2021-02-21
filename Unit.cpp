@@ -19,8 +19,6 @@ Unit::Unit(int own, Location* loc, Map * map)
 	setLoc(map->findClosest(loc));  //this will always be true;
 	selected = false;
 
-	map->addUnit(this);
-
 	//Set class identifier
 	classType = 4;
 
@@ -28,11 +26,19 @@ Unit::Unit(int own, Location* loc, Map * map)
 
 Unit::~Unit()
 {
-	delete(actions);
+	
 }
 
-void Unit::draw(GLuint shaderprog)
+int Unit::getTexLoc()
 {
+	return textLoc;
+}
+
+void Unit::draw(unsigned int texture, GLuint shaderprog)
+{
+
+	
+
 	//send some info about where you are
 	glUniform2f(glGetUniformLocation(shaderprog, "location"), loc->getPos().x, loc->getPos().y);
 
@@ -46,6 +52,8 @@ void Unit::draw(GLuint shaderprog)
 		glUniform1f(glGetUniformLocation(shaderprog, "overlay"), 0.0f);
 	}
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
@@ -90,6 +98,16 @@ bool Unit::select(int PID)
 void Unit::deselect()
 {
 	selected = false;
+}
+
+bool Unit::isSelected()
+{
+	return selected;
+}
+
+bool * Unit::getActions()
+{
+	return actions;
 }
 
 bool Unit::move(Location* targetLoc, Map* map)
@@ -187,5 +205,5 @@ bool const locComp(std::pair<Location*, int> a, std::pair<Location*, int> b) //c
 int calcDist(Location* a) { //Rounded Euclidian distance
 	float x = a->getPos().x - target->getPos().x;
 	float y = a->getPos().y - target->getPos().y;
-	return round(sqrt(x*x + y*y));
+	return (int)(sqrt(x*x + y*y));
 }

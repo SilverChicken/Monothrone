@@ -156,11 +156,6 @@ bool Map::addEnergies(Ressource * nrg)
 	return true;              //bool if we ever change type
 }
 
-void Map::addUnit(Unit * unit)
-{
-	Units.push_back(unit);
-}
-
 bool ** Map::getBox(glm::vec2 a, glm::vec2 b)
 {
 	return getBox(a.x, a.y, b.x, b.y);

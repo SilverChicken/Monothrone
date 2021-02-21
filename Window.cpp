@@ -12,6 +12,7 @@
 #include "Energy.h"
 #include "Worm.h"
 #include "Timer.h"
+#include "Throne.h"
 
 const char* window_title = "GLFW Starter Project";
 
@@ -23,7 +24,6 @@ Timer ticker = Timer::getInstance();
 //Objects were rendering
 Map* map;
 Player * player;
-std::vector<Worm*> worms;
 unsigned int * ImLoader::textures;
 
 // On some systems you need to change this to the absolute path
@@ -60,7 +60,7 @@ void Window::initialize_objects()
 	
 	
 	map = new Map();
-	player = new Player(0, map);
+	player = new Player(1, map);
 
 	player->setLoc(map->getloc(16,12));
 	player->setBotLeft(map->getloc(0, 0));
@@ -76,13 +76,12 @@ void Window::initialize_objects()
 
 	//setup basic units
 	//testing out worm spawning
-	Worm* worm;
+
 	for (int i = 0; i < 6; i++) {
-		worm = new Worm(player->getPID(), map->getloc(2,2), map);
-		worms.push_back(worm);
+		player->spawnUnit<Worm>(map->getloc(5,5));
 	}
 
-	worm->move(map->getloc(20, 15), map);
+	player->spawnUnit<Throne>(map->getloc(5, 5));
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -160,13 +159,10 @@ void Window::idle_callback()
 {
 	ticker.inc();
 	if (ticker.state) { //Update all objects! 
-		//Update unit positions who has their references?
+		//Update unit positions mostly and anim?
 
-		//for now just update worms
-		for (Worm* worm : worms) {
-			//std::cout << "worm is update" << std::endl;
-			worm->update();
-		}
+		//Player will cascade the update to all its units
+		player->update();
 
 	}
 }
@@ -206,13 +202,7 @@ void Window::display_callback(GLFWwindow* window)
 		nrg->draw(ImLoader::textures[nrg->getTextLoc()], shaderProgram);
 	}
 
-	for (std::vector<Worm*>::iterator it = worms.begin(); it != worms.end(); ++it) {
-		Worm* worm = *it;
-		worm->draw(ImLoader::textures[worm->getTexLoc()], shaderProgram);
-	}
-
-	player->draw(ImLoader::textures[player->getTexLoc()], shaderProgram);
-
+	player->draw(ImLoader::textures, shaderProgram);
 
 
 	glfwPollEvents();
@@ -258,6 +248,10 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 
 		case GLFW_KEY_LEFT_SHIFT:
 			player->deselect();
+			break;
+
+		case GLFW_KEY_LEFT_CONTROL:
+			player->deselectAll();
 			break;
 
 		case GLFW_KEY_N:
@@ -411,7 +405,7 @@ void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg
 
 	srand(time(NULL));  // init rand
 
-	count = (rand() % VarMtn) - round(VarMtn / 2) + MTN;             //# of clusters to spawn around MTN
+	count = (int)(rand() % VarMtn) - round(VarMtn / 2) + MTN;             //# of clusters to spawn around MTN
 	std::cout << "Mountain cluster count: " << count << std::endl;
 
 	for (int i = 0; i < count; i++) {
@@ -421,7 +415,7 @@ void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg
 	}
 
 
-	count = (rand() % Varnrg) - round(Varnrg / 2) + NRG;
+	count = (int)(rand() % Varnrg) - round(Varnrg / 2) + NRG;
 	std::cout << "Energy cluster count: " << count << std::endl;
 
 	for (int i = 0; i < count; i++) {
@@ -430,7 +424,7 @@ void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg
 		res = new Crystal(mapping->getloc(x, y), mapping);
 	}
 
-	count = (rand() % Varcry) - round(Varcry / 2) + CRY;
+	count = (int)(rand() % Varcry) - round(Varcry / 2) + CRY;
 	std::cout << "Energy cluster count: " << count << std::endl;
 
 	for (int i = 0; i < count; i++) {

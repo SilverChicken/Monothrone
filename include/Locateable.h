@@ -22,11 +22,11 @@ protected:
 	// 2 - Energy
 	// 3 - Crystal
 	// 4 - Unit
-	//
-	//
-	//
-	//
-	//
+	// 5 - Throne
+	// 6 - Refactory
+	// 7 - Manufactory
+	// 8 - Worm
+	// 
 	//
 	//
 

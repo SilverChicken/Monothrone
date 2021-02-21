@@ -4,9 +4,13 @@
 #include<vector>
 #include<list>
 
+#define BINDINGCOUNT 6  //Also defined in Player.cpp
+
+
 class Map;
 
-class Unit : Locateable
+
+class Unit : public Locateable
 {
 private:
 	int owner;
@@ -21,23 +25,28 @@ protected:
 	int atk;
 	int speed;
 
-	int actions[6];
+	int textLoc;
+
+	bool actions[BINDINGCOUNT];
 
 public:
 	Unit(int, Location*, Map*);
 	~Unit();
 
+	int getTexLoc();
+
 	static const int selectLoc = 31; //Location of overlay texture for selected units
 
-	void draw(GLuint);
+	void draw(unsigned int,GLuint);
 
 	void update();
 
 	bool select(int);
 	void deselect();
+	bool isSelected();
 
 	//ALL possible abilities
-
+	bool* getActions();
 	
 	bool move(Location *, Map*);   // 0- Move
 	
