@@ -10,12 +10,12 @@ Worm::Worm(int owner, Location* loc, Map* map) :Unit(owner, loc, map)
 	classType = 8;
 
 	//Define which actions are defined
-	actions[0] = 0;
-	actions[1] = 1;
-	actions[2] = 2;
-	actions[3] = 3;
-	actions[4] = 4;
-	actions[5] = -1;
+	actions[0] = true;
+	actions[1] = true;
+	actions[2] = false;
+	actions[3] = false;
+	actions[4] = false;
+	actions[5] = false;
 
 }
 

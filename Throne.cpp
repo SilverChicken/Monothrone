@@ -10,12 +10,12 @@ Throne::Throne(int owner, Location * loc, Map * map):Unit(owner, loc, map)
 	classType = 5;
 
 	//Define which actions are defined
-	actions[0] = -1;
-	actions[1] = 1;
-	actions[2] = 2;
-	actions[3] = 3;
-	actions[4] = 4;
-	actions[5] = -1;
+	actions[0] = false;
+	actions[1] = false;
+	actions[2] = true;
+	actions[3] = true;
+	actions[4] = true;
+	actions[5] = false;
 }
 
 Throne::~Throne()

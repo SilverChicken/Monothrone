@@ -4,6 +4,9 @@
 #include<vector>
 #include<list>
 
+#define BINDINGCOUNT 6  //Also defined in Player.cpp
+
+
 class Map;
 
 
@@ -24,7 +27,7 @@ protected:
 
 	int textLoc;
 
-	int actions[6];
+	bool actions[BINDINGCOUNT];
 
 public:
 	Unit(int, Location*, Map*);
@@ -43,7 +46,7 @@ public:
 	bool isSelected();
 
 	//ALL possible abilities
-
+	bool* getActions();
 	
 	bool move(Location *, Map*);   // 0- Move
 	

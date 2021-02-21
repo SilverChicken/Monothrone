@@ -105,6 +105,11 @@ bool Unit::isSelected()
 	return selected;
 }
 
+bool * Unit::getActions()
+{
+	return actions;
+}
+
 bool Unit::move(Location* targetLoc, Map* map)
 {
 

@@ -34,7 +34,6 @@ private:
 	int* bindings;
 
 
-
 	//rendering Vars
 	const int textLocs[3] = { 0, 1, 2 };
 
@@ -63,7 +62,6 @@ public:
 
 	//Unit management
 	std::map<Unit*, bool> getSelection();
-	void addUnit(Unit*);
 	void update();
 
 	
@@ -92,22 +90,33 @@ public:
 	void actionT();
 	void actionY();
 
+	
 	//render fcts
-	void setBotLeft(Location*);
-	void setBotLeft(int, int);
-	void setBotLeft(glm::vec2);
-
-	bool checkCameraChange();     //will also change the camera if necessary
-
 	bool addVision(Location*);
 	bool removeVision(Location*);
 	bool removeCloud(Location*);
 	float changeZoom(float);
 	void draw(unsigned int*, GLuint);
 
+private:
+
+	//Private gameplay fct
+	void updateBindings();
+	void addUnit(Unit*);
+
+	//private render fcts
+	void setBotLeft(Location*);
+	void setBotLeft(int, int);
+	void setBotLeft(glm::vec2);
+
+	bool checkCameraChange();     //will also change the camera if necessary
 
 };
 
+
+
+
+//Needs to be defined here because it's a template function
 template<class T>
 inline Unit * Player::spawnUnit(Location * location)
 {

@@ -60,7 +60,7 @@ void Window::initialize_objects()
 	
 	
 	map = new Map();
-	player = new Player(0, map);
+	player = new Player(1, map);
 
 	player->setLoc(map->getloc(16,12));
 	player->setBotLeft(map->getloc(0, 0));
@@ -248,6 +248,10 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 
 		case GLFW_KEY_LEFT_SHIFT:
 			player->deselect();
+			break;
+
+		case GLFW_KEY_LEFT_CONTROL:
+			player->deselectAll();
 			break;
 
 		case GLFW_KEY_N:

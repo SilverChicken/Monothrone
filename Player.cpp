@@ -12,9 +12,12 @@
 #include"Map.h"
 #include"Unit.h"
 
-
 #include"Worm.h"
 #include"Throne.h"
+
+#define MINUNITCLASST 4
+#define BINDINGCOUNT 6  //Also defined in Unit.h 
+
 
 bool vecSearch(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector. Iterates forwards
 bool vecRemove(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector, if it is it removes A
@@ -35,7 +38,7 @@ Player::Player(int Npid, Map * mapo)
 
 	texLoc = textLocs[PID];
 
-	bindings = new int[6];
+	bindings = new int[BINDINGCOUNT];
 
 	//get reference to the map
 	map = mapo;
@@ -104,6 +107,18 @@ bool Player::setLoc(glm::vec2 locate)
 std::map<Unit*, bool> Player::getSelection()
 {
 	return selection;
+}
+
+void Player::updateBindings()
+{
+	bool impl; //Tracks if function i is implemented by ALL members of selection
+	for (int i = 0; i < BINDINGCOUNT; i++) {
+		impl = true;
+		for (auto it = selection.begin(); it != selection.end() && impl; it++) { //for loop stops as soon as impl is false
+			impl = impl && it->first->getActions()[i]; //Makes sure that function i is implemented by every element of selection
+		}
+		bindings[i] = impl;
+	}
 }
 
 void Player::addUnit(Unit * newUnit)
@@ -201,12 +216,13 @@ bool Player::select()
 	if ( unit == nullptr) {
 		return false;
 	}
-	else if(unit->getClassType() >= 4) {  //4 is the code for units, all ints above are subclasses of unit
+	else if(unit->getClassType() >= MINUNITCLASST) {  //4 is the code for units, all ints above are subclasses of unit
 		Unit * target = (Unit*)unit;      //Then this is a safe cast
 
 		if (selection.find(target) == selection.end()) {
 			if (target->select(PID)) { //make sure it wasn't already selected
 				selection[target] = true;
+				updateBindings();									//Update the bindings
 				return true;
 			}
 		}
@@ -220,11 +236,12 @@ Unit * Player::deselect()
 	if (unit == nullptr) {
 		return nullptr;
 	}
-	else if (unit->getClassType() >= 4) {						//This is the code for units
+	else if (unit->getClassType() >= MINUNITCLASST) {						//This is the code for units
 		Unit * target = (Unit*)unit;							//Then this is a safe cast					
 		if(selection.find(target) != selection.end()){			//Make sure it's currently selected 
 			selection.erase(target);							//Erase
 			target->deselect();									//Unit logic for being deselected
+			updateBindings();									//Update the bindings
 			return target;
 		}
 	}
@@ -233,6 +250,10 @@ Unit * Player::deselect()
 
 void Player::deselectAll()
 {
+	for (auto it = selection.begin(); it != selection.end(); it++) {
+		it->first->deselect();
+	}
+	updateBindings();									//Update the bindings
 	selection.clear();
 }
 
