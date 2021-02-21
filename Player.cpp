@@ -10,6 +10,11 @@
 
 #include<iostream>
 #include"Map.h"
+#include"Unit.h"
+
+
+#include"Worm.h"
+#include"Throne.h"
 
 bool vecSearch(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector. Iterates forwards
 bool vecRemove(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector, if it is it removes A
@@ -106,6 +111,36 @@ void Player::addUnit(Unit * newUnit)
 	units[newUnit] = newUnit->isSelected();
 }
 
+void Player::update()
+{
+	//This code will happen a few times, but it relies on explicit types so idk how to push this upstream. Will have to do
+
+	for (auto it = units.begin(); it != units.end(); it++) {    
+		int type = it->first->getClassType();
+		switch (type) {   //Only write cases for objects that *SHOULD* be in units
+		case 5: {		//Throne
+			Throne* throne = (Throne*)it->first;
+			throne->update();
+		}
+			break;
+		case 6: {		//Refractory
+			break;
+		}
+		case 7: {		//Manufactory
+			break;
+		}
+		case 8: {	    //Worm
+			Worm* worm = (Worm*)it->first;
+			worm->update();
+			break;
+		}
+		default: {
+			break;
+		}
+		}
+	}
+}
+
 
 //Gameplay fcts
 
@@ -116,7 +151,6 @@ bool Player::move(int dir)
 
 
 	glm::vec2 locate;
-	//Location* locer;    -> to check is Map returns nullptr?
 	switch (dir) {
 		case 0:
 			locate = loc->getPos();
@@ -167,13 +201,11 @@ bool Player::select()
 	if ( unit == nullptr) {
 		return false;
 	}
-	else if(unit->getClassType() == 4) {  //This is the code for units
+	else if(unit->getClassType() >= 4) {  //4 is the code for units, all ints above are subclasses of unit
 		Unit * target = (Unit*)unit;      //Then this is a safe cast
 
 		if (selection.find(target) == selection.end()) {
-		//if (!vecSearch(target, selection)) {		  //Internal logic for the unit being selected
 			if (target->select(PID)) { //make sure it wasn't already selected
-				//selection.push_back(target);  //If we actually own the unit, add it to the selection
 				selection[target] = true;
 				return true;
 			}
@@ -188,12 +220,9 @@ Unit * Player::deselect()
 	if (unit == nullptr) {
 		return nullptr;
 	}
-	else if (unit->getClassType() == 4) {						//This is the code for units
-		Unit * target = (Unit*)unit;							//Then this is a safe cast
-		//if(selection.erase(target) != selection.end());
-		//std::list<Unit*>::iterator it = selection.begin();
-		//if (vecRemove(target, selection)) {						//Make sure it's currently selected and erase it
-		if(selection.find(target) != selection.end()){
+	else if (unit->getClassType() >= 4) {						//This is the code for units
+		Unit * target = (Unit*)unit;							//Then this is a safe cast					
+		if(selection.find(target) != selection.end()){			//Make sure it's currently selected 
 			selection.erase(target);							//Erase
 			target->deselect();									//Unit logic for being deselected
 			return target;
@@ -241,6 +270,13 @@ bool Player::decCrystal(int val)
 	}
 	return false;
 }
+
+
+
+
+
+
+
 
 void Player::actionQ()
 {
@@ -371,19 +407,27 @@ float Player::changeZoom(float delta)
 	
 }
 
-void Player::draw(unsigned int texture, GLuint shaderprog)
+void Player::draw(unsigned int* texture, GLuint shaderprog)
 {
+
+	//All unit draws are the same!
+
+	for (auto it = units.begin(); it != units.end(); it++) {
+		it->first->draw(texture[it->first->getTexLoc()], shaderprog);
+	}
+
+
+
 
 	//send material information to the shader
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture[texLoc]);
 
 	//set overlay false, in case
 	glUniform1f(glGetUniformLocation(shaderprog, "overlay"), 0.0f);
 
 	//send zoom info
 	glUniform1f(glGetUniformLocation(shaderprog, "zoom"), zoom);
-
 
 	//send camera info -> top left corner !
 	glUniform2f(glGetUniformLocation(shaderprog, "BL"), botLeft->getPos().x, botLeft->getPos().y);
@@ -399,6 +443,9 @@ void Player::draw(unsigned int texture, GLuint shaderprog)
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+
+
 
 }
 

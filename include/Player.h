@@ -1,7 +1,6 @@
 #pragma once
 
-#include"Locateable.h"  //This one is optional
-#include"Unit.h"
+#include"Locateable.h"  
 #include<vector>
 #include<list>
 #include<map>
@@ -12,6 +11,7 @@
 #define MINZOOM -4
 
 class Map;
+class Unit;
 
 
 class Player : Locateable
@@ -25,7 +25,7 @@ private:
 	int crystal;
 	bool hasThrone;
 	//std::list<Unit*> selection;
-	std::map<Unit*, bool> selection;   //  map of all units you own, bool true if selected
+	std::map<Unit*, bool> selection;   //  map of selected units, subset of units map
 
 	//Vector of all units you own? Or set Or Hashmap?
 	std::map<Unit*, bool> units;
@@ -60,10 +60,13 @@ public:
 	bool setLoc(int, int);  //overloads for coordinates
 	bool setLoc(glm::vec2);
 
-	std::map<Unit*, bool> getSelection();
-	//std::list<Unit*> getSelection();
 
+	//Unit management
+	std::map<Unit*, bool> getSelection();
 	void addUnit(Unit*);
+	void update();
+
+	
 
 	//Gameplay fcts
 	bool move(int);
@@ -75,6 +78,11 @@ public:
 	bool incCrystal(int);
 	bool decEnergy(int);
 	bool decCrystal(int);
+
+	template <class T> 
+	Unit* spawnUnit(Location * location); 
+
+
 
 	//Action buttons
 	void actionQ();
@@ -95,8 +103,16 @@ public:
 	bool removeVision(Location*);
 	bool removeCloud(Location*);
 	float changeZoom(float);
-	void draw(unsigned int, GLuint);
+	void draw(unsigned int*, GLuint);
 
 
 };
 
+template<class T>
+inline Unit * Player::spawnUnit(Location * location)
+{
+	Unit * unit = new T(PID, location, map);
+	units[unit] = false;                       //Adds the unit to the list of current units
+	return unit;
+
+}

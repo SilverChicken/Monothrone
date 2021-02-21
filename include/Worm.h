@@ -4,14 +4,12 @@ class Worm : public Unit
 {
 private:
 	const int textLocs[9] = { 22, 23, 24, 25, 26, 27, 28, 29, 30 };    //locations for mountain are index 12-15 (ImLoader.cpp)
-	int textLoc;
+
 public:
 	Worm(int, Location*, Map* map);
 	~Worm();
 
 	void draw(unsigned int, GLuint);
-
-	int getTexLoc();
 
 	bool move(Location*, Map*);   // 0- Move
 	bool collect(int x, int y);  // 1- Collect something at (x,y)  maybe actually takes a ressource pointer

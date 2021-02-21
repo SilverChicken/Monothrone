@@ -7,6 +7,8 @@ Throne::Throne(int owner, Location * loc, Map * map):Unit(owner, loc, map)
 	speed = 0;
 	textLoc = textLocs[owner]; //default blue for now, will be f(PID)
 
+	classType = 5;
+
 	//Define which actions are defined
 	actions[0] = -1;
 	actions[1] = 1;
@@ -23,15 +25,10 @@ Throne::~Throne()
 
 void Throne::draw(unsigned int texture, GLuint shaderprog)
 {
-	//send material information to the shader
-	glBindTexture(GL_TEXTURE_2D, texture);
+	//send material information to the shader 
+	//We don't need to do anything special
 
-	Unit::draw(shaderprog);
-}
-
-int Throne::getTexLoc()
-{
-	return textLoc;
+	Unit::draw(texture, shaderprog);
 }
 
 bool Throne::move(Location *, Map *)

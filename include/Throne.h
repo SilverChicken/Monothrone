@@ -4,14 +4,12 @@ class Throne : public Unit
 {
 private:
 	const int textLocs[3] = { 6, 7, 8 };    //locations for mountain are index 12-15 (ImLoader.cpp)
-	int textLoc;
+	
 public:
 	Throne(int, Location*, Map* map);
 	~Throne();
 
 	void draw(unsigned int, GLuint);
-
-	int getTexLoc();
 
 	bool move(Location*, Map*);   // 0- Move
 	bool collect(int x, int y);  // 1- Collect something at (x,y)  maybe actually takes a ressource pointer

@@ -7,7 +7,7 @@
 class Map;
 
 
-class Unit : Locateable
+class Unit : public Locateable
 {
 private:
 	int owner;
@@ -22,15 +22,19 @@ protected:
 	int atk;
 	int speed;
 
+	int textLoc;
+
 	int actions[6];
 
 public:
 	Unit(int, Location*, Map*);
 	~Unit();
 
+	int getTexLoc();
+
 	static const int selectLoc = 31; //Location of overlay texture for selected units
 
-	void draw(GLuint);
+	void draw(unsigned int,GLuint);
 
 	void update();
 
