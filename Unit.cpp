@@ -37,7 +37,7 @@ int Unit::getTexLoc()
 void Unit::draw(unsigned int texture, GLuint shaderprog)
 {
 
-	glBindTexture(GL_TEXTURE_2D, texture);
+	
 
 	//send some info about where you are
 	glUniform2f(glGetUniformLocation(shaderprog, "location"), loc->getPos().x, loc->getPos().y);
@@ -52,6 +52,8 @@ void Unit::draw(unsigned int texture, GLuint shaderprog)
 		glUniform1f(glGetUniformLocation(shaderprog, "overlay"), 0.0f);
 	}
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
