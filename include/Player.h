@@ -27,14 +27,18 @@ private:
 	//std::list<Unit*> selection;
 	std::map<Unit*, bool> selection;   //  map of all units you own, bool true if selected
 
+	//Vector of all units you own? Or set Or Hashmap?
+	std::map<Unit*, bool> units;
+
 	//array of functions that are bound to AZERTY how it it set? Selection. When Selection is updated we iterate through it
 	int* bindings;
 
 
 
 	//rendering Vars
+	const int textLocs[3] = { 0, 1, 2 };
 
-	const int texLoc = 1;                    //indicates where the tile's texture is within the texture array
+	int texLoc;                    //indicates where the tile's texture is within the texture array
 	float zoom;
 	int camBoxX;                       //indicates when we move the camera as distance from center
 	int camBoxY;
@@ -58,6 +62,8 @@ public:
 
 	std::map<Unit*, bool> getSelection();
 	//std::list<Unit*> getSelection();
+
+	void addUnit(Unit*);
 
 	//Gameplay fcts
 	bool move(int);

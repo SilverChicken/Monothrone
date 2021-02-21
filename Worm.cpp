@@ -5,7 +5,7 @@ Worm::Worm(int owner, Location* loc, Map* map) :Unit(owner, loc, map)
 	hp = 1;
 	atk = 1;
 	speed = 1;
-	textLoc = textLocs[0]; //default blue for now, will be f(PID)
+	textLoc = textLocs[owner]; //default blue for now, will be f(PID)
 
 	//Define which actions are defined
 	actions[0] = 0;
@@ -19,6 +19,7 @@ Worm::Worm(int owner, Location* loc, Map* map) :Unit(owner, loc, map)
 
 Worm::~Worm()
 {
+	delete(actions);
 }
 
 int Worm::getTexLoc()

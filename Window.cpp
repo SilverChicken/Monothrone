@@ -12,6 +12,7 @@
 #include "Energy.h"
 #include "Worm.h"
 #include "Timer.h"
+#include "Throne.h"
 
 const char* window_title = "GLFW Starter Project";
 
@@ -23,6 +24,7 @@ Timer ticker = Timer::getInstance();
 //Objects were rendering
 Map* map;
 Player * player;
+Throne * throne;
 std::vector<Worm*> worms;
 unsigned int * ImLoader::textures;
 
@@ -81,6 +83,8 @@ void Window::initialize_objects()
 		worm = new Worm(player->getPID(), map->getloc(2,2), map);
 		worms.push_back(worm);
 	}
+
+	throne = new Throne(player->getPID(), map->getloc(5,5), map);
 
 	worm->move(map->getloc(20, 15), map);
 
@@ -213,7 +217,7 @@ void Window::display_callback(GLFWwindow* window)
 
 	player->draw(ImLoader::textures[player->getTexLoc()], shaderProgram);
 
-
+	throne->draw(ImLoader::textures[throne->getTexLoc()], shaderProgram);
 
 	glfwPollEvents();
 	// Swap buffers

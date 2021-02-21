@@ -28,6 +28,7 @@ Player::Player(int Npid, Map * mapo)
 	camBoxX = 5; 
 	camBoxY = 5;
 
+	texLoc = textLocs[PID];
 
 	bindings = new int[6];
 
@@ -40,7 +41,7 @@ Player::Player(int Npid, Map * mapo)
 
 Player::~Player()
 {
-	for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
+	for (std::map<Unit*, bool>::iterator it = units.begin(); it != units.end(); ++it) {
 		delete(it->first);
 	}
 
@@ -98,6 +99,11 @@ bool Player::setLoc(glm::vec2 locate)
 std::map<Unit*, bool> Player::getSelection()
 {
 	return selection;
+}
+
+void Player::addUnit(Unit * newUnit)
+{
+	units[newUnit] = newUnit->isSelected();
 }
 
 

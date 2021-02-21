@@ -28,7 +28,7 @@ Unit::Unit(int own, Location* loc, Map * map)
 
 Unit::~Unit()
 {
-	delete(actions);
+	
 }
 
 void Unit::draw(GLuint shaderprog)
@@ -90,6 +90,11 @@ bool Unit::select(int PID)
 void Unit::deselect()
 {
 	selected = false;
+}
+
+bool Unit::isSelected()
+{
+	return selected;
 }
 
 bool Unit::move(Location* targetLoc, Map* map)

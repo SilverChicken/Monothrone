@@ -44,8 +44,6 @@ private:
 	std::vector<Ressource *> Energies;  //Refs to the energies
 
 
-	std::vector<Unit *> Units;  //Really this is just here to keep the references and delete them at the end
-
 public:
 	Map();  //setup drawing of shapes too
 	~Map();
@@ -62,7 +60,6 @@ public:
 	bool addMountain(Ressource *);        //------------------ Mountain
 	bool addCrystals(Ressource *);        //------------------ Crystal
 	bool addEnergies(Ressource *);        //Called whenever an Energy is Spawned
-	void addUnit(Unit *);                 //Called whenever we spawn a Unit so we can delete it later
 
 
 	//render/gameplay fct

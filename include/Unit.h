@@ -6,6 +6,7 @@
 
 class Map;
 
+
 class Unit : Locateable
 {
 private:
@@ -35,6 +36,7 @@ public:
 
 	bool select(int);
 	void deselect();
+	bool isSelected();
 
 	//ALL possible abilities
 
