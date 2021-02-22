@@ -4,7 +4,7 @@
 
 #include<iostream>
 #include<queue>
-#include<map>
+#include<unordered_map>
 
 
 #include "Ressource.h"
@@ -140,8 +140,8 @@ bool Unit::move(Location* targetLoc, Map* map)
 	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
 
 	std::priority_queue<std::pair<Location*, int>, std::vector<std::pair<Location*, int>>, decltype(&locComp)> stack(locComp);
-	std::map<Location*, Location*> from;
-	std::map<Location*, int> cost;
+	std::unordered_map<Location*, Location*> from;
+	std::unordered_map<Location*, int> cost;
 
 	int newCost = 0;
 	glm::vec2 newPos;
