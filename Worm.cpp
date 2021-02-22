@@ -14,14 +14,14 @@ Worm::Worm(int owner, Location* loc, Map* map) :Unit(owner, loc, map)
 	actions[1] = true;
 	actions[2] = false;
 	actions[3] = false;
-	actions[4] = false;
+	actions[4] = true;
 	actions[5] = false;
 
 }
 
 Worm::~Worm()
 {
-	delete(actions);
+	delete [] actions;
 }
 
 bool Worm::move(Location* location, Map* map)
@@ -29,10 +29,9 @@ bool Worm::move(Location* location, Map* map)
 	return Unit::move(location, map);
 }
 
-bool Worm::collect(int x, int y)
+bool Worm::collect(Location * location, Map* map)
 {
-
-	return false;
+	return Unit::collect(location, map);
 }
 
 bool Worm::build(int x, int y, std::string obj)
@@ -58,4 +57,14 @@ void Worm::draw(unsigned int texture, GLuint shaderprog) {
 	//nothing special here either
 
 	Unit::draw(texture, shaderprog);
+}
+
+void Worm::update(Map * map)
+{
+	if (!path.empty()) { //Only update if moving
+		animState = (animState + ANIMSTEP) % NUMTEX; 
+		textLoc = textLocs[animState];
+	}
+	
+	Unit::update(map);
 }

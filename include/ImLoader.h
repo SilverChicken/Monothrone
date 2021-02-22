@@ -1,5 +1,5 @@
 #pragma once
-static class ImLoader
+class ImLoader
 {
 public:
 	static unsigned int * textures;   //array of size 3 * 7?  MUST match the textCT

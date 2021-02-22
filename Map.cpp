@@ -170,6 +170,21 @@ bool ** Map::getBox(int x, int y, int x2, int y2)   //This function may be usele
 	return nullptr;
 }
 
+bool Map::isAdjacent(Location * A, Location * B) 
+{
+	glm::vec2 Apos = A->getPos();
+	glm::vec2 Bpos = B->getPos();
+	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
+
+	for (glm::vec2 dir : dirs) {
+		if (Apos + dir == Bpos) {
+			return true;
+		}
+	}
+	return false;
+
+}
+
 Location * Map::findClosest(Location * base) //Maybe a bit slow so don't use for huge bunches at once, cache for group spawn?
 {
 	std::list<Location*> visited; //visited Locations pass it by &, search it from the back to the front for best chances

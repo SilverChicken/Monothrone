@@ -12,17 +12,15 @@
 #include"Map.h"
 #include"Unit.h"
 
-#include"Worm.h"
-#include"Throne.h"
 
-#define MINUNITCLASST 4
+
 #define BINDINGCOUNT 6  //Also defined in Unit.h 
 
 
 bool vecSearch(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector. Iterates forwards
 bool vecRemove(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector, if it is it removes A
 
-Player::Player(int Npid, Map * mapo)
+Player::Player(int Npid, Location* location, Map * mapo)
 {
 
 	//setup
@@ -36,12 +34,18 @@ Player::Player(int Npid, Map * mapo)
 	camBoxX = 5; 
 	camBoxY = 5;
 
+	
+	map = mapo; //get reference to the map
+
+	setLoc(location);  //Set the location to the specified location
+
+	setBotLeft(location->getPos() - glm::vec2(ZOOMDEF / 2.0, ZOOMDEF / 2.0) ); //Puts you in middle of screen
+
 	texLoc = textLocs[PID];
 
 	bindings = new int[BINDINGCOUNT];
 
-	//get reference to the map
-	map = mapo;
+	
 
 
 
@@ -112,12 +116,20 @@ std::map<Unit*, bool> Player::getSelection()
 void Player::updateBindings()
 {
 	bool impl; //Tracks if function i is implemented by ALL members of selection
-	for (int i = 0; i < BINDINGCOUNT; i++) {
+	int j = 0; //The index of bindings that we are trying to fill
+	for (int i = 0; i < ACTIONCOUNT; i++) {
 		impl = true;
 		for (auto it = selection.begin(); it != selection.end() && impl; it++) { //for loop stops as soon as impl is false
 			impl = impl && it->first->getActions()[i]; //Makes sure that function i is implemented by every element of selection
 		}
-		bindings[i] = impl;
+		if (impl && j < BINDINGCOUNT) { //If it was implemented, fill in the first available spot in bindings	
+			bindings[j] = i;
+			j++;
+		}
+	}
+	while (j < BINDINGCOUNT) { //fill the rest of bindings with -1 for no functions
+		bindings[j] = -1;
+		j++;
 	}
 }
 
@@ -130,29 +142,9 @@ void Player::update()
 {
 	//This code will happen a few times, but it relies on explicit types so idk how to push this upstream. Will have to do
 
-	for (auto it = units.begin(); it != units.end(); it++) {    
-		int type = it->first->getClassType();
-		switch (type) {   //Only write cases for objects that *SHOULD* be in units
-		case 5: {		//Throne
-			Throne* throne = (Throne*)it->first;
-			throne->update();
-		}
-			break;
-		case 6: {		//Refractory
-			break;
-		}
-		case 7: {		//Manufactory
-			break;
-		}
-		case 8: {	    //Worm
-			Worm* worm = (Worm*)it->first;
-			worm->update();
-			break;
-		}
-		default: {
-			break;
-		}
-		}
+	for (auto it = units.begin(); it != units.end(); it++) {   
+
+		it->first->update(map); //Works bc virtual -> We don't need explicit types, just matching function definitions!
 	}
 }
 
@@ -293,48 +285,40 @@ bool Player::decCrystal(int val)
 }
 
 
-
-
-
-
-
-
-void Player::actionQ()
+void Player::actionKey(int key)
 {
-	//switch (abilities[0]) {
+	switch (bindings[key]) { //Eventually define these as CONSTANTS for readability
+		case 0://Move
+			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
+				it->first->move(loc, map); //Virtual so it will call the appropriate derived
+			}
+			break;
+		case 1://Collect
+			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
+				it->first->collect(loc, map); //Virtual so it will call the appropriate derived
+			}
+			break;
+		case 2://Build
+			break;
+		case 3://Spawn
+			break;
+		case 4://Consume
+			break;
+		case 5://Currently not accessible
+			break;
+		default:
+			break;
 
-	//}
-
-
-
-//for now it's just move
-	for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it ) {
-		if (it->second) {
-			it->first->move(loc, map);
-		}
 	}
 
+
+	
+
 }
 
-void Player::actionW()
-{
-}
 
-void Player::actionE()
-{
-}
 
-void Player::actionR()
-{
-}
 
-void Player::actionT()
-{
-}
-
-void Player::actionY()
-{
-}
 
 
 //Render fcts

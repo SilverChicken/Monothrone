@@ -49,7 +49,7 @@ Energy::Energy(Location * location, Map* map)
 
 Energy::~Energy()
 {
-	delete(textLocs);
+	delete [] textLocs;
 }
 
 int Energy::getTextLoc()

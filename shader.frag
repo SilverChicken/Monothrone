@@ -21,12 +21,13 @@ uniform Material material;
 
 uniform sampler2D myTexture;
 uniform sampler2D overTex;
+uniform sampler2D particle;
 
 
 uniform vec2 BL;
 uniform float renderRout;
 uniform float zoom;
-uniform float overlay;  //if 0 no overlay, else overlay 2 textures
+uniform float overlay;  //if 0 no overlay, 1 overlay selection, 2 overlay particles, 3 overlay both
 
 //0 is map
 //1 is character/any 1 tile thing that is rendered from a texture that its draw uploads
@@ -101,12 +102,29 @@ vec4 renderTile(sampler2D tex, vec2 coord){
 	vec4 color = texture(tex, coord);
 	if(overlay == 0.0){                 //No overlay -> just texture
 		return color;
-	} else {
+	} else if (overlay == 1.0) {
 		if(color.a == 0.0f){                  //If there's an overlay we just replace the parts where the texture is clear
+			return texture(overTex, coord);   //Overlay the selection
+		} else {
+			return color;
+		}
+	} else if (overlay == 2.0){
+		if(color.a == 0.0f){                  
+			return texture(particle, coord);  //Overlay the particle
+		} else {
+			return color;
+		}
+	} else if (overlay == 3.0){
+		vec4 part = texture(particle, coord);
+		if(color.a == 0.0f && part.a >= 0.3f){     //Overlay both, so if particle is opaque enough 
+			return part;
+		} else if (color.a == 0.0f) {			   //If clear then put selection
 			return texture(overTex, coord);
 		} else {
 			return color;
 		}
+	} else {
+		return color;
 	}
 	
 }
