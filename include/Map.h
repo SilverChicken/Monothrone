@@ -13,7 +13,7 @@
 
 #include<vector>
 #include<list>
-
+#include<unordered_map>
 
 class Ressource;
 class Unit;
@@ -73,7 +73,8 @@ public:
 	bool isAdjacent(Location*, Location*);   //Tells you if A and B are adjacent tiles
 
 	Location* findClosest(Location*);              //-> returns the location of the very closest available point to specified location,
-	Location * findClosestRecc(Location * base, std::list<Location*> & visited, std::list<Location*> & stack); //  priority is left, right down then up
+	Location * findClosestRecc(Location * base, std::unordered_map<Location*, bool> & visited, std::list<Location*> & stack);
+	//Location * findClosestRecc(Location * base, std::list<Location*> & visited, std::list<Location*> & stack); //  priority is left, right down then up
 	void draw();
 
 	GLuint VBO_vert, VBO_norm, VAO, EBO;
