@@ -36,7 +36,7 @@ bool Throne::move(Location *, Map *)
 	return false;
 }
 
-bool Throne::collect(int x, int y)
+bool Throne::collect(Location *, Map*)
 {
 	return false;
 }

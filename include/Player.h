@@ -47,7 +47,7 @@ private:
 
 
 public:
-	Player(int , Map *);
+	Player(int, Location*, Map *);
 	~Player();
 
 	//gets & sets
@@ -82,13 +82,9 @@ public:
 
 
 
-	//Action buttons
-	void actionQ();
-	void actionW();
-	void actionE();
-	void actionR();
-	void actionT();
-	void actionY();
+	//Action button
+	void actionKey(int);  //bindings: Q-0; W-1; E-2; R-3; T-4; Y-5
+
 
 	
 	//render fcts

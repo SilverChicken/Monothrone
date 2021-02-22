@@ -67,6 +67,11 @@ public:
 	//do we actually need getBox?
 	bool ** getBox(glm::vec2, glm::vec2);          //returns the Array of booleans based on whether or not each location is occupied 
 	bool ** getBox(int x, int y, int x2, int y2);  //-> the inputs are the size of the box
+	//Currently unusused
+
+
+	bool isAdjacent(Location*, Location*);   //Tells you if A and B are adjacent tiles
+
 	Location* findClosest(Location*);              //-> returns the location of the very closest available point to specified location,
 	Location * findClosestRecc(Location * base, std::list<Location*> & visited, std::list<Location*> & stack); //  priority is left, right down then up
 	void draw();

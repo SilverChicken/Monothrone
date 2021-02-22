@@ -53,6 +53,10 @@ Ressource::~Ressource()
 
 }
 
+void Ressource::destroy()
+{
+}
+
 void Ressource::draw(GLuint shaderprog)
 {
 	

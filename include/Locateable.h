@@ -11,12 +11,16 @@
 #include <GLFW/glfw3.h>
 
 
+#define MINUNITCLASST 4  //All locateables with class type >= to this are units
+#define MAXRESCLASST 3   //All locateables with class type <= to this are ressources
+
+
 class Locateable
 {
 protected:
 	Location* loc;
 
-	int classType = 0; //type flag that all subs will inherit -> typeOf
+	int classType = 0; //type flag that all subs will inherit -> typeOf; Make into CONSTANTS eventually
 	// 0 - Just locateable
 	// 1 - Mountain
 	// 2 - Energy

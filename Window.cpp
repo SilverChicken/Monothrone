@@ -60,10 +60,10 @@ void Window::initialize_objects()
 	
 	
 	map = new Map();
-	player = new Player(1, map);
+	player = new Player(2, map->getloc(7, 7),map);
 
-	player->setLoc(map->getloc(16,12));
-	player->setBotLeft(map->getloc(0, 0));
+	//player->setLoc(map->getloc(16,12));
+	//player->setBotLeft(map->getloc(0, 0));
 	//can do that in player too, eventually should.
 
 	glActiveTexture(GL_TEXTURE1);
@@ -174,8 +174,9 @@ void Window::display_callback(GLFWwindow* window)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Use the shader of programID
-	glUniform1i(glGetUniformLocation(shaderProgram, "myTexture"), 0); // set it manually
+	glUniform1i(glGetUniformLocation(shaderProgram, "myTexture"), 0); //Set the texture Locations
 	glUniform1i(glGetUniformLocation(shaderProgram, "overTex"), 1);
+	glUniform1i(glGetUniformLocation(shaderProgram, "particle"), 2);
 
 	glUseProgram(shaderProgram);
 
@@ -261,27 +262,27 @@ void Window::key_callback(GLFWwindow* window, int key, int scancode, int action,
 			break;
 
 		case GLFW_KEY_Q:
-			player->actionQ();
+			player->actionKey(0);
 			break;
 
 		case GLFW_KEY_W:
-			player->actionW();
+			player->actionKey(1);
 			break;
 
 		case GLFW_KEY_E:
-			player->actionE();
+			player->actionKey(2);
 			break;
 
 		case GLFW_KEY_R:
-			player->actionR();
+			player->actionKey(3);
 			break;
 
 		case GLFW_KEY_T:
-			player->actionT();
+			player->actionKey(4);
 			break;
 
 		case GLFW_KEY_Y:
-			player->actionY();
+			player->actionKey(5);
 			break;
 
 
@@ -339,7 +340,7 @@ void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 void Window::cursor_pos_callback(GLFWwindow * window, double xpos, double ypos)
 {
 	int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-
+	/*
 	glm::vec3 direction, curPoint;
 //	float pixel_diff;
 	float rot_angle, velocity;
@@ -353,12 +354,13 @@ void Window::cursor_pos_callback(GLFWwindow * window, double xpos, double ypos)
 
 		Window::lastPoint = curPoint;
 	}
-
+	*/
 
 }
 
 void Window::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
+	/*
 	double xpos, ypos;
 	if (action == GLFW_PRESS) {
 		glfwGetCursorPos(window, &xpos, &ypos);
@@ -371,20 +373,20 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 		glfwGetCursorPos(window, &xpos, &ypos);
 		lastPoint = trackBallMapping(xpos, ypos);
 		//glMatrixMode(0);
-	}
+	}*/
 }
 
 
 glm::vec3 Window::trackBallMapping(float x, float y)
 {
 	glm::vec3 v;
-	float d;
+	double d;
 	v.x = (2.0f*x - Window::width) / Window::width;
 	v.y = (Window::height - 2.0f*y) / Window::height;
 	v.z = 0.0;
 	d = glm::length(v);
 	d = (d < 1.0) ? d : 1.0;
-	v.z = sqrtf(1.001 - d * d);
+	v.z = float(sqrtf(1.001 - d * d));
 	v = v / glm::length(v); // Still need to normalize, since we only capped d, not v.
 	return v;
 }
@@ -405,7 +407,7 @@ void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg
 
 	srand(time(NULL));  // init rand
 
-	count = (int)(rand() % VarMtn) - round(VarMtn / 2) + MTN;             //# of clusters to spawn around MTN
+	count = int((rand() % VarMtn) - round(VarMtn / 2) + MTN);             //# of clusters to spawn around MTN
 	std::cout << "Mountain cluster count: " << count << std::endl;
 
 	for (int i = 0; i < count; i++) {
@@ -415,7 +417,7 @@ void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg
 	}
 
 
-	count = (int)(rand() % Varnrg) - round(Varnrg / 2) + NRG;
+	count = int((rand() % Varnrg) - round(Varnrg / 2) + NRG);
 	std::cout << "Energy cluster count: " << count << std::endl;
 
 	for (int i = 0; i < count; i++) {
@@ -424,7 +426,7 @@ void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg
 		res = new Crystal(mapping->getloc(x, y), mapping);
 	}
 
-	count = (int)(rand() % Varcry) - round(Varcry / 2) + CRY;
+	count = int((rand() % Varcry) - round(Varcry / 2) + CRY);
 	std::cout << "Energy cluster count: " << count << std::endl;
 
 	for (int i = 0; i < count; i++) {
