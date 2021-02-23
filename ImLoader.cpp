@@ -15,8 +15,8 @@
 
 bool ImLoader::Loadtextures()  //Load all the textures we need to play
 {
-	const int texCt = 35;
-	const char* textLoc[texCt] = {  "art/Char_B.png",  "art/Char_P.png", "art/Char_R.png",				// 0,1,2            Player
+	const int texCt = 38;
+	const char* textLoc[texCt] = {  "art/Char_B.png",  "art/Char_P.png", "art/Char_R.png",			// 0,1,2            Player
 						    "art/Manuf_B.png", "art/Manuf_P.png", "./art/Manuf_R.png",				// 3,4,5            Manuf
 						    "art/Throne_B.png", "art/Throne_P.png", "art/Throne_R.png",				// 6,7,8            Throne
 							"art/Ref_B.png", "art/Ref_P.png", "art/Ref_R.png",						// 9,10,11          Refrac
@@ -27,7 +27,8 @@ bool ImLoader::Loadtextures()  //Load all the textures we need to play
 							"art/Worm_B1.png", "art/Worm_P1.png", "art/Worm_R1.png",				// 25,26,27         Worm2
 							"art/Worm_B2.png", "art/Worm_P2.png", "art/Worm_R2.png",				// 28,29,30         Worm3
 							"art/Select.png",                                                       // 31               Selection
-							"art/NRGpart_0.png", "art/NRGpart_1.png", "art/NRGpart_2.png"			// 32, 33, 34		Energy Particles
+							"art/NRGpart_0.png", "art/NRGpart_1.png", "art/NRGpart_2.png",			// 32, 33, 34		Energy Particles
+							"art/CRYpart_0.png", "art/CRYpart_1.png", "art/CRYpart_2.png"           // 35, 36, 37       Crystal Particles
 						};
 
 	textures = new unsigned int[texCt];

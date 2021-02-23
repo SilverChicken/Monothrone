@@ -36,6 +36,7 @@ Player::Player(int Npid, Location* location, Map * mapo)
 
 	
 	map = mapo; //get reference to the map
+	map->addPlayer(PID, this);  //Adds self to map references
 
 	setLoc(location);  //Set the location to the specified location
 

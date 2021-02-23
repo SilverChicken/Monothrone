@@ -6,25 +6,42 @@
 #include<queue>
 #include<unordered_map>
 
-
 #include "Ressource.h"
+#include "Throne.h"
+
 
 //Helper Functions for A* & movement
 Location* target;  
-Location* collectTarget;
+Location* collectTarget;  //Location we are trying to collect from
 bool const locComp(std::pair<Location*, int>, std::pair<Location*, int>);
 int calcDist(Location*);   //calculates the distance to target
 
 
 Unit::Unit(int own, Location* loc, Map * map)
 {
-	owner = own;		
+	owner = own;
 	animState = own;                //Initialize animState to owner as state 0
 	setLoc(map->findClosest(loc));  //This will always be true;
 	selected = false;
 
 	//Set class identifier
 	classType = 4;
+
+	Unit * thro = map->getThrone(own);
+	if (thro) {   
+		if (thro->getClassType() == 5) {  //Class type for throne
+			throneRef = (Throne*)thro;
+		}
+		else {
+			throneRef = nullptr;
+		}
+		
+	}
+	else {  //Happens for Throne class only as 1st to spawn
+		throneRef = nullptr;
+	}
+	
+
 
 }
 
@@ -96,13 +113,19 @@ void Unit::update(Map* map)
 		}
 	}
 	else if (collecting) {
-		if (map->isAdjacent(this->loc, collectTarget)) {
-			FinishCollect();
+		if (map->isAdjacent(loc, collectTarget)) {
+			FinishCollect(map);
 		}
 	}
 
 	if (carrying) { //Then it's Crystal or Energy
 		partAnimState = (partAnimState + PARTANIMSTEP) % PARTANIMCT;
+		if (map->isAdjacent(loc, throneRef->getLoc())) { //Then we made it back to Throne!
+			throneRef->incRessource(carrying);
+			carrying = 0; //no longer carrying
+			
+		}
+
 	}
 
 
@@ -211,19 +234,17 @@ bool Unit::collect(Location * location, Map* map)
 }
 
 
-bool Unit::FinishCollect()  //We know that we are adjacent to target
+bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target 
 {
 	Locateable* locOwner = collectTarget->getOwner();
 	int typeObj = locOwner->getClassType();
 	
-	if ( typeObj <= MAXRESCLASST && typeObj >= 2) { //Check it's still a ressource  /////// OR IF IT"S THRONE?
+	if ( typeObj <= MAXRESCLASST && typeObj >= 2 && !carrying) { //Check it's still a ressource and that we don't already have a ressource  /////// OR IF IT"S THRONE?
 		Ressource* res = (Ressource*)locOwner;   //Safe cast
-		res->destroy();
+		res->destroy();                          //Forces an include avoid by having virtual Locateable function? 
 
 		collecting = false;    //Done collecting? Or don't and loop until condition on area near 
 
-
-		
 
 		//Add fact that we are carrying a ressource, changes anim
 		if (typeObj == 2) { //Energy
@@ -231,9 +252,16 @@ bool Unit::FinishCollect()  //We know that we are adjacent to target
 			partAnimState = 0;
 		}
 		else if (typeObj == 3) { //Crystal
-			carrying = 1;
+			carrying = 3;
 			partAnimState = 1;
 		}
+
+		//If we have a throneRef then we move back to the throne to cash it in
+		if (throneRef) {                       
+			move(throneRef->getLoc(), map);    //This is why we need to pass map
+		}
+		
+		//Call another function once we are adjacent to Throne to return the ressource
 
 		return true;
 	}

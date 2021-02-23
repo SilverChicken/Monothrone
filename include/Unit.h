@@ -5,21 +5,23 @@
 #include<list>
 
 #define ACTIONCOUNT 6  //Also defined in Player.cpp
-#define PARTANIMCT 3
-#define PARTANIMSTEP 1
+#define PARTANIMCT 6
+#define PARTANIMSTEP 2
 
 
 class Map;
+class Throne;
 
 
 class Unit : public Locateable
 {
 private:
 	int owner;
+	Throne * throneRef;
 
 	int moveTries = 0;          //Keeps track of number of times we get stuck in a row
 
-	const int particleLoc[3] = {32, 33, 34}; //Location of overlay texture for selected units, will be 6 evens are nrg odd is cryst
+	const int particleLoc[PARTANIMCT] = {32, 35, 33, 36, 34, 37}; //Location of overlay texture for selected units, will be 6 evens are nrg odd is cryst
 
 	bool selected;
 
@@ -38,8 +40,9 @@ protected:
 	 
 
 	bool collecting = false;
-	int carrying = 0;           //0- nothing, 1- crystal, 2- energy  maybe all we need is bool?
-	bool FinishCollect();       //Called once the unit has arrived and is adjacent to a collectible
+	int carrying = 0;           //0- nothing, 3- crystal, 2- energy  
+	bool FinishCollect(Map* map);       //Called once the unit has arrived and is adjacent to a collectible
+
 
 	bool actions[ACTIONCOUNT];
 
@@ -51,7 +54,7 @@ public:
 
 	static const int selectLoc = 31; //Location of overlay texture for selected units
 
-	void draw(unsigned int,GLuint); //if virtual then derived can call without being recast!
+	virtual void draw(unsigned int,GLuint); //if virtual then derived can call without being recast!
 
 	virtual void update(Map*);
 

@@ -157,6 +157,26 @@ bool Map::addEnergies(Ressource * nrg)
 	return true;              //bool if we ever change type
 }
 
+Unit * Map::getThrone(int ID)
+{
+	return Thrones[ID];
+}
+
+Player * Map::getPlayer(int ID)
+{
+	return Players[ID];
+}
+
+void Map::addPlayer(int ID, Player * player)
+{
+	Players[ID] = player;
+}
+
+void Map::addThrone(int ID, Unit* throne)
+{
+	Thrones[ID] = throne;
+}
+
 bool ** Map::getBox(glm::vec2 a, glm::vec2 b)
 {
 	return getBox(a.x, a.y, b.x, b.y);
@@ -185,6 +205,10 @@ bool Map::isAdjacent(Location * A, Location * B)
 	return false;
 
 }
+
+
+//May write another one to find closest between target and a locateabl?
+//And another that finds the closest space occupied by an owner of a certain class type?
 
 Location * Map::findClosest(Location * base) //Maybe a bit slow so don't use for huge bunches at once, cache for group spawn?
 {
@@ -272,6 +296,11 @@ void Map::draw()
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
+void Map::fillInaccessible()
+{
+	//Once we have spawned all Ressources, we need to find a way to categorize accessibility to player base -> try a move from Throne to every location?
 }
 
 
