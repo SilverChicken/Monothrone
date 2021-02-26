@@ -10,6 +10,19 @@
 #define MAXZOOM 4
 #define MINZOOM -4
 
+
+#define KEY_UP     0
+#define KEY_DOWN   -1
+#define KEY_RIGHT  1
+#define KEY_LEFT   2
+
+#define MOVE_LOC     0
+#define COLLECT_LOC  1
+#define BUILD_LOC    2
+#define SPAWN_LOC    3
+#define CONSUME_LOC  4
+
+
 class Map;
 class Unit;
 

@@ -10,7 +10,7 @@ Throne::Throne(int owner, Location * loc, Map * map):Unit(owner, loc, map)
 	speed = 0;
 	textLoc = textLocs[owner]; 
 
-	classType = 5;
+	classType = THRONE_CLASS_T;
 
 	map->addThrone(owner, this);
 	playerRef = map->getPlayer(owner);            //Forces include Map.h, and relies on Player being created before.
@@ -32,11 +32,11 @@ Throne::~Throne()
 void Throne::incRessource(int type)
 {
 	if (playerRef) {
-		if (type == 2) {
-			playerRef->incCrystal(1);
-		}
-		else if (type == 3) {
+		if (type == ENERGY_CLASS_T) {
 			playerRef->incEnergy(1);
+		}
+		else if (type == CRYSTAL_CLASS_T) {
+			playerRef->incCrystal(1);
 		}
 		
 	}

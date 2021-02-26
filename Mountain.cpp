@@ -20,7 +20,7 @@ Mountain::Mountain(Location * location, Map* map)
 	textLoc = textLocs[texInd];    // 4 is the size of textLocs
 
 	//Set class identifier
-	classType = 1;
+	classType = MOUNTAIN_CLASS_T;
 	
 	//while the location this object was given was invalid
 	int tries = 0; //so that we don't loop for too long

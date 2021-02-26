@@ -7,7 +7,7 @@ Worm::Worm(int owner, Location* loc, Map* map) :Unit(owner, loc, map)
 	speed = 1;
 	textLoc = textLocs[owner]; 
 
-	classType = 8;
+	classType = WORM_CLASS_T;
 
 	//Define which actions are defined
 	actions[0] = true;

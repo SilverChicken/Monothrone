@@ -14,6 +14,19 @@
 #define MINUNITCLASST 4  //All locateables with class type >= to this are units
 #define MAXRESCLASST 3   //All locateables with class type <= to this are ressources
 
+#define LOCATEABLE_CLASS_T  0
+#define MOUNTAIN_CLASS_T    1
+#define ENERGY_CLASS_T      2
+#define CRYSTAL_CLASS_T     3
+#define UNIT_CLASS_T        4
+#define THRONE_CLASS_T      5
+#define REFACTORY_CLASS_T   6
+#define MANUFACTORY_CLASS_T 7
+#define WORM_CLASS_T        8
+#define WORKER_CLASS_T      9
+
+
+
 
 class Locateable
 {
@@ -30,7 +43,7 @@ protected:
 	// 6 - Refactory
 	// 7 - Manufactory
 	// 8 - Worm
-	// 
+	// 9 - Worker
 	//
 	//
 

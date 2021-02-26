@@ -20,7 +20,7 @@ Energy::Energy(Location * location, Map* map)
 	textLoc = textLocs[texInd];    // 3 is the size of textLocs
 
 	//Set class identifier
-	classType = 2;
+	classType = ENERGY_CLASS_T;
 
 	location = spawnLoc(location, map);   //Finds a free nearby position by jiggling
 

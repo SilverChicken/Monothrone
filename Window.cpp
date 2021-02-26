@@ -56,8 +56,6 @@ void Window::initialize_objects()
 
 
 	ImLoader::Loadtextures();
-
-	
 	
 	map = new Map();
 	player = new Player(2, map->getloc(7, 7),map);

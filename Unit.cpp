@@ -25,11 +25,11 @@ Unit::Unit(int own, Location* loc, Map * map)
 	selected = false;
 
 	//Set class identifier
-	classType = 4;
+	classType = UNIT_CLASS_T;
 
 	Unit * thro = map->getThrone(own);
 	if (thro) {   
-		if (thro->getClassType() == 5) {  //Class type for throne
+		if (thro->getClassType() == THRONE_CLASS_T) {  //Class type for throne
 			throneRef = (Throne*)thro;
 		}
 		else {
@@ -237,9 +237,13 @@ bool Unit::collect(Location * location, Map* map)
 bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target 
 {
 	Locateable* locOwner = collectTarget->getOwner();
+	//this can still be nullptr!!!
+	if (!locOwner) return false;
+
+
 	int typeObj = locOwner->getClassType();
 	
-	if ( typeObj <= MAXRESCLASST && typeObj >= 2 && !carrying) { //Check it's still a ressource and that we don't already have a ressource  /////// OR IF IT"S THRONE?
+	if ( typeObj <= MAXRESCLASST && typeObj > MOUNTAIN_CLASS_T && !carrying) { //Check it's still a ressource and that we don't already have a ressource  /////// OR IF IT"S THRONE?
 		Ressource* res = (Ressource*)locOwner;   //Safe cast
 		res->destroy();                          //Forces an include avoid by having virtual Locateable function? 
 
@@ -247,12 +251,12 @@ bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target
 
 
 		//Add fact that we are carrying a ressource, changes anim
-		if (typeObj == 2) { //Energy
-			carrying = 2;
+		if (typeObj == ENERGY_CLASS_T) { //Energy
+			carrying = ENERGY_CLASS_T;
 			partAnimState = 0;
 		}
-		else if (typeObj == 3) { //Crystal
-			carrying = 3;
+		else if (typeObj == CRYSTAL_CLASS_T) { //Crystal
+			carrying = CRYSTAL_CLASS_T;
 			partAnimState = 1;
 		}
 

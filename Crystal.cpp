@@ -20,7 +20,7 @@ Crystal::Crystal(Location * location, Map* map)
 	textLoc = textLocs[texInd];    // 4 is the size of textLocs
 
 	//Set class identifier
-	classType = 3;
+	classType = CRYSTAL_CLASS_T;
 
 	location = spawnLoc(location, map);   //Finds a free nearby position by jiggling
 
