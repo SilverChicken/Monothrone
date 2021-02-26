@@ -13,10 +13,11 @@
 
 #include<vector>
 #include<list>
-
+#include<unordered_map>
 
 class Ressource;
 class Unit;
+class Player;
 
 
 #define MAPSIZE 64
@@ -32,7 +33,6 @@ private:
 		-0.98f, 0.98f, 0.0f
 
 	};
-	
 	unsigned int indices[6] = {
 		0, 1, 3,   // first triangle
 		1, 2, 3    // second triangle
@@ -42,6 +42,9 @@ private:
 	std::vector<Ressource *> Mountains; //Refs to the mountains
 	std::vector<Ressource *> Crystals;  //Refs to the crystals
 	std::vector<Ressource *> Energies;  //Refs to the energies
+
+	std::unordered_map<int, Unit *> Thrones;
+	std::unordered_map<int, Player *> Players;
 
 
 public:
@@ -61,6 +64,11 @@ public:
 	bool addCrystals(Ressource *);        //------------------ Crystal
 	bool addEnergies(Ressource *);        //Called whenever an Energy is Spawned
 
+	Unit* getThrone(int);
+	Player* getPlayer(int);
+	void addThrone(int, Unit*);
+	void addPlayer(int, Player*);
+
 
 	//render/gameplay fct
 
@@ -73,12 +81,14 @@ public:
 	bool isAdjacent(Location*, Location*);   //Tells you if A and B are adjacent tiles
 
 	Location* findClosest(Location*);              //-> returns the location of the very closest available point to specified location,
-	Location * findClosestRecc(Location * base, std::list<Location*> & visited, std::list<Location*> & stack); //  priority is left, right down then up
+	Location * findClosestRecc(Location * base, std::unordered_map<Location*, bool> & visited, std::list<Location*> & stack);
+	//Location * findClosestRecc(Location * base, std::list<Location*> & visited, std::list<Location*> & stack); //  priority is left, right down then up
 	void draw();
 
 	GLuint VBO_vert, VBO_norm, VAO, EBO;
 
-
+private: //Private member functions
+	void fillInaccessible();
 
 };
 

@@ -17,6 +17,8 @@ protected:                //Mostly variables set for spawning
 	//Helper function to get a spawning location
 	Location * spawnLoc(Location* location, Map* map);
 
+	//static Map* mapRef;
+
 
 public:
 	Ressource();

@@ -56,14 +56,10 @@ void Window::initialize_objects()
 
 
 	ImLoader::Loadtextures();
-
-	
 	
 	map = new Map();
 	player = new Player(2, map->getloc(7, 7),map);
 
-	//player->setLoc(map->getloc(16,12));
-	//player->setBotLeft(map->getloc(0, 0));
 	//can do that in player too, eventually should.
 
 	glActiveTexture(GL_TEXTURE1);
@@ -77,11 +73,15 @@ void Window::initialize_objects()
 	//setup basic units
 	//testing out worm spawning
 
+
+	//Throne MUST be spawned first
+	Unit* throne = player->spawnUnit<Throne>(map->getloc(5, 5));
+
 	for (int i = 0; i < 6; i++) {
 		player->spawnUnit<Worm>(map->getloc(5,5));
 	}
 
-	player->spawnUnit<Throne>(map->getloc(5, 5));
+	
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);

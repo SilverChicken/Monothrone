@@ -54,7 +54,14 @@ Ressource::~Ressource()
 }
 
 void Ressource::destroy()
-{
+{ 
+	//particle effect?
+
+	//remove from map, where is reference?
+
+	loc->release(this);     //release lock
+
+	this->~Ressource();     //currently destroys but doesn't remove the map reference. May free twice? But not big deal
 }
 
 void Ressource::draw(GLuint shaderprog)

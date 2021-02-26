@@ -3,6 +3,7 @@
 
 
 
+
 //helper functions for vector search
 bool listSearch(Location * location, std::list<Location*> & visited);  //Just loops from the back to the front, more likely to find
 
@@ -156,6 +157,26 @@ bool Map::addEnergies(Ressource * nrg)
 	return true;              //bool if we ever change type
 }
 
+Unit * Map::getThrone(int ID)
+{
+	return Thrones[ID];
+}
+
+Player * Map::getPlayer(int ID)
+{
+	return Players[ID];
+}
+
+void Map::addPlayer(int ID, Player * player)
+{
+	Players[ID] = player;
+}
+
+void Map::addThrone(int ID, Unit* throne)
+{
+	Thrones[ID] = throne;
+}
+
 bool ** Map::getBox(glm::vec2 a, glm::vec2 b)
 {
 	return getBox(a.x, a.y, b.x, b.y);
@@ -185,19 +206,21 @@ bool Map::isAdjacent(Location * A, Location * B)
 
 }
 
+
+//May write another one to find closest between target and a locateabl?
+//And another that finds the closest space occupied by an owner of a certain class type?
+
 Location * Map::findClosest(Location * base) //Maybe a bit slow so don't use for huge bunches at once, cache for group spawn?
 {
-	std::list<Location*> visited; //visited Locations pass it by &, search it from the back to the front for best chances
-	//The above var needs to be changed to a map which we may want to keep around for caching
-	//std::map<Location*, &bool> visited
+	//Visited is a map which we may want to keep around for caching, eh probs not?
+	std::unordered_map<Location*, bool> visited;
 	std::list<Location*> stack;   //the current stack to look through
 
 	return findClosestRecc(base, visited, stack);
 
 }
 
-//Location *  Map::findClosestRecc(Location * base, std::map<Location*, &bool>& visited, std::list<Location*>& stack)
-Location *  Map::findClosestRecc(Location * base, std::list<Location*>& visited, std::list<Location*>& stack)
+Location *  Map::findClosestRecc(Location * base, std::unordered_map<Location*, bool>& visited, std::list<Location*>& stack)
 {
 	if (base->state) {
 		return base;
@@ -209,15 +232,13 @@ Location *  Map::findClosestRecc(Location * base, std::list<Location*>& visited,
 		int y2 = 0;
 		Location * newVert;
 
-		//visited[base] = &base->state;
-		visited.push_back(base); //we have now visited this vertex
+		visited[base] = base->state; //we have now visited this vertex
 
 		if (x > 0) { //there's a vertex on the left
 			x2 = x - 1;
 			y2 = y;
 			newVert = getloc(x2, y2);
-			//if (!listSearch(newVert, stack) && visited.find(newVert) = visted.end())
-			if (!listSearch(newVert, stack) && !listSearch(newVert, visited)) {    //Check if the vertex isn't going to be checked AND hasn't already been
+			if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
 				stack.push_back(newVert);        //If it wasn't then we add it to the visited list
 			}
 		}
@@ -225,7 +246,7 @@ Location *  Map::findClosestRecc(Location * base, std::list<Location*>& visited,
 			x2 = x + 1;
 			y2 = y;
 			newVert = getloc(x2, y2);
-			if (!listSearch(newVert, stack) && !listSearch(newVert, visited)) {
+			if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
 				stack.push_back(newVert);
 			}
 		}
@@ -233,7 +254,7 @@ Location *  Map::findClosestRecc(Location * base, std::list<Location*>& visited,
 			x2 = x;
 			y2 = y - 1;
 			newVert = getloc(x2, y2);
-			if (!listSearch(newVert, stack) && !listSearch(newVert, visited)) {
+			if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
 				stack.push_back(newVert);
 			}
 		}
@@ -241,7 +262,7 @@ Location *  Map::findClosestRecc(Location * base, std::list<Location*>& visited,
 			x2 = x;
 			y2 = y + 1;
 			newVert = getloc(x2, y2);
-			if (!listSearch(newVert, stack) && !listSearch(newVert, visited)) {
+			if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
 				stack.push_back(newVert);
 			}
 		}
@@ -275,6 +296,11 @@ void Map::draw()
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
+void Map::fillInaccessible()
+{
+	//Once we have spawned all Ressources, we need to find a way to categorize accessibility to player base -> try a move from Throne to every location?
 }
 
 

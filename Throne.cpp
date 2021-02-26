@@ -1,13 +1,19 @@
 #include "Throne.h"
+#include "Map.h"
+#include "Player.h"
+
 
 Throne::Throne(int owner, Location * loc, Map * map):Unit(owner, loc, map)
 {
 	hp = 25;
 	atk = 0;
 	speed = 0;
-	textLoc = textLocs[owner]; //default blue for now, will be f(PID)
+	textLoc = textLocs[owner]; 
 
-	classType = 5;
+	classType = THRONE_CLASS_T;
+
+	map->addThrone(owner, this);
+	playerRef = map->getPlayer(owner);            //Forces include Map.h, and relies on Player being created before.
 
 	//Define which actions are defined
 	actions[0] = false;
@@ -21,6 +27,19 @@ Throne::Throne(int owner, Location * loc, Map * map):Unit(owner, loc, map)
 Throne::~Throne()
 {
 
+}
+
+void Throne::incRessource(int type)
+{
+	if (playerRef) {
+		if (type == ENERGY_CLASS_T) {
+			playerRef->incEnergy(1);
+		}
+		else if (type == CRYSTAL_CLASS_T) {
+			playerRef->incCrystal(1);
+		}
+		
+	}
 }
 
 void Throne::draw(unsigned int texture, GLuint shaderprog)

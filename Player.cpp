@@ -36,6 +36,7 @@ Player::Player(int Npid, Location* location, Map * mapo)
 
 	
 	map = mapo; //get reference to the map
+	map->addPlayer(PID, this);  //Adds self to map references
 
 	setLoc(location);  //Set the location to the specified location
 
@@ -143,7 +144,6 @@ void Player::update()
 	//This code will happen a few times, but it relies on explicit types so idk how to push this upstream. Will have to do
 
 	for (auto it = units.begin(); it != units.end(); it++) {   
-
 		it->first->update(map); //Works bc virtual -> We don't need explicit types, just matching function definitions!
 	}
 }
@@ -159,7 +159,7 @@ bool Player::move(int dir)
 
 	glm::vec2 locate;
 	switch (dir) {
-		case 0:
+		case KEY_UP:
 			locate = loc->getPos();
 			if (locate.y < MAPSIZE - 1) {        //Make sure we're not on an edge
 				locate += glm::vec2(0.0, 1.0);
@@ -168,7 +168,7 @@ bool Player::move(int dir)
 				return true;  
 			}
 			break;
-		case -1:
+		case KEY_DOWN:
 			locate = loc->getPos();
 			if (locate.y > 0.0) {
 				locate -= glm::vec2(0.0, 1.0);
@@ -177,7 +177,7 @@ bool Player::move(int dir)
 				return true;
 			}
 			break;
-		case 1:
+		case KEY_RIGHT:
 			locate = loc->getPos();
 			if (locate.x < MAPSIZE - 1) {
 				locate += glm::vec2(1.0, 0.0);
@@ -186,7 +186,7 @@ bool Player::move(int dir)
 				return true;
 			}
 			break;
-		case 2:
+		case KEY_LEFT:
 			locate = loc->getPos();
 			if (locate.x > 0.0) {
 				locate -= glm::vec2(1.0, 0.0);
@@ -288,21 +288,21 @@ bool Player::decCrystal(int val)
 void Player::actionKey(int key)
 {
 	switch (bindings[key]) { //Eventually define these as CONSTANTS for readability
-		case 0://Move
+		case MOVE_LOC://Move
 			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
 				it->first->move(loc, map); //Virtual so it will call the appropriate derived
 			}
 			break;
-		case 1://Collect
+		case COLLECT_LOC://Collect
 			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
 				it->first->collect(loc, map); //Virtual so it will call the appropriate derived
 			}
 			break;
-		case 2://Build
+		case BUILD_LOC://Build
 			break;
-		case 3://Spawn
+		case SPAWN_LOC://Spawn
 			break;
-		case 4://Consume
+		case CONSUME_LOC://Consume
 			break;
 		case 5://Currently not accessible
 			break;
