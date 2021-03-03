@@ -197,6 +197,7 @@
     <ClInclude Include="include\Timer.h" />
     <ClInclude Include="include\Unit.h" />
     <ClInclude Include="include\Window.h" />
+    <ClInclude Include="include\Worker.h" />
     <ClInclude Include="include\Worm.h" />
     <ClInclude Include="Worker.h" />
   </ItemGroup>

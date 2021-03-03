@@ -7,7 +7,7 @@ class Energy :
 	public Ressource
 {
 private:
-	const int textLocs[3] = { 16,17,18 };    //locations for mountain are index 12-15 (ImLoader.cpp)
+	static constexpr int textLocs[3] = { 16,17,18 };    //locations for mountain are index 12-15 (ImLoader.cpp)
 	int textLoc;
 
 public:

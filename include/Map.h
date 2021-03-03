@@ -46,6 +46,8 @@ private:
 	std::unordered_map<int, Unit *> Thrones;
 	std::unordered_map<int, Player *> Players;
 
+	void categorizeAccess(); //gets connected components, fills the smaller ones with locs
+
 
 public:
 	Map();  //setup drawing of shapes too
@@ -81,8 +83,11 @@ public:
 	bool isAdjacent(Location*, Location*);   //Tells you if A and B are adjacent tiles
 
 	Location* findClosest(Location*);              //-> returns the location of the very closest available point to specified location,
-	Location * findClosestRecc(Location * base, std::unordered_map<Location*, bool> & visited, std::list<Location*> & stack);
-	//Location * findClosestRecc(Location * base, std::list<Location*> & visited, std::list<Location*> & stack); //  priority is left, right down then up
+	Location * findClosestRecc(std::unordered_map<Location*, bool> & visited, std::list<Location*> & stack); //  priority is left, right down then up
+	
+	Location* findClosestTo(Location*, Location*); //finds closest free spot that is closest to the second argument
+	Location* findClosestRess(Location *);         //finds nearest collectible ressource to selected location
+
 	void draw();
 
 	GLuint VBO_vert, VBO_norm, VAO, EBO;
