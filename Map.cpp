@@ -2,6 +2,7 @@
 #include<iostream>
 
 
+#include "Ressource.h"
 
 
 //helper functions for vector search
@@ -96,6 +97,55 @@ void Map::init()
 	}
 }
 
+
+void Map::categorizeAccess()
+{
+	//get vector of maps each map will rpz a connected component
+	std::vector<std::unordered_map<Location*, bool>> * components;
+
+	std::unordered_map<Location*, bool> freeLocs;
+
+	Location* loc;
+
+	//fill the free locations
+	for (int i = 0; i < mapSize; i++) {  
+		for (int j = 0; j < mapSize; j++) {
+			loc = map[i][j];
+			if (loc->state) {
+				freeLocs[loc] = true;
+			}
+		}
+	}
+
+	while (!freeLocs.empty()) {
+		std::unordered_map<Location*, bool> * comp = new std::unordered_map<Location*, bool>();
+
+
+	}
+	
+
+	//Conduct a DFS search at a random location not logged location -> start off with a map of ALL locations and delete as we go along
+	//count its total size in a hashmap?
+
+
+
+
+
+	//Once we have exhausted the search we pick a point that is not in the hashmap already, and start again
+
+	//When all FREE locations have been classified
+
+	//Go through list of maps, get the count for each. either get max and fill others or fill all that have size less than some CONSNTAT
+
+	//For each map in list, if it is below criterion, for each element we creat MOUNTAIN or LOCATEABLE inside that takes the lock.
+
+
+
+}
+
+
+
+
 Location * Map::getloc(glm::vec2 pos)
 {
 	return getloc(int(pos.x),int(pos.y));
@@ -121,7 +171,7 @@ Location * Map::getloc(int x, int y)
 		y = 0;
 	}
 
-	return map[x][y];    //This will always be valid!
+	return map[x][y];    //This will always be valid! not always free
 }
 
 std::vector<Ressource*> Map::getMountains()
@@ -214,69 +264,75 @@ Location * Map::findClosest(Location * base) //Maybe a bit slow so don't use for
 {
 	//Visited is a map which we may want to keep around for caching, eh probs not?
 	std::unordered_map<Location*, bool> visited;
-	std::list<Location*> stack;   //the current stack to look through
+	std::list<Location*> stack;   //the current stack to look through, should be a deque
 
-	return findClosestRecc(base, visited, stack);
+	stack.push_back(base);
+
+	return findClosestRecc(visited, stack);
 
 }
 
-Location *  Map::findClosestRecc(Location * base, std::unordered_map<Location*, bool>& visited, std::list<Location*>& stack)
+Location *  Map::findClosestRecc(std::unordered_map<Location*, bool>& visited, std::list<Location*>& stack)
 {
-	if (base->state) {
-		return base;
-	}
-	else { //dfs search
-		int x = (int)base->getPos().x;
-		int y = (int)base->getPos().y;
-		int x2 = 0;
-		int y2 = 0;
+
+	while (!stack.empty()) {
+
+		Location* base = stack.front();
+		stack.pop_front();
 		Location * newVert;
 
-		visited[base] = base->state; //we have now visited this vertex
+		if (base->state) {
+			return base;
+		}
+		else { //dfs search
+			int x = (int)base->getPos().x;
+			int y = (int)base->getPos().y;
+			int x2 = 0;
+			int y2 = 0;
+			
 
-		if (x > 0) { //there's a vertex on the left
-			x2 = x - 1;
-			y2 = y;
-			newVert = getloc(x2, y2);
-			if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
-				stack.push_back(newVert);        //If it wasn't then we add it to the visited list
+			visited[base] = base->state; //we have now visited this vertex
+
+			if (x > 0) { //there's a vertex on the left
+				x2 = x - 1;
+				y2 = y;
+				newVert = getloc(x2, y2);
+				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
+					stack.push_back(newVert);        //If it wasn't then we add it to the visited list
+				}
 			}
-		}
-		if (x < MAPSIZE - 1) { //vertex to the right
-			x2 = x + 1;
-			y2 = y;
-			newVert = getloc(x2, y2);
-			if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
-				stack.push_back(newVert);
+			if (x < MAPSIZE - 1) { //vertex to the right
+				x2 = x + 1;
+				y2 = y;
+				newVert = getloc(x2, y2);
+				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+					stack.push_back(newVert);
+				}
 			}
-		}
-		if (y > 0) {
-			x2 = x;
-			y2 = y - 1;
-			newVert = getloc(x2, y2);
-			if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
-				stack.push_back(newVert);
+			if (y > 0) {
+				x2 = x;
+				y2 = y - 1;
+				newVert = getloc(x2, y2);
+				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+					stack.push_back(newVert);
+				}
 			}
-		}
-		if (y < MAPSIZE - 1) {
-			x2 = x;
-			y2 = y + 1;
-			newVert = getloc(x2, y2);
-			if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
-				stack.push_back(newVert);
+			if (y < MAPSIZE - 1) {
+				x2 = x;
+				y2 = y + 1;
+				newVert = getloc(x2, y2);
+				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+					stack.push_back(newVert);
+				}
 			}
 		}
 
-		//Now that the vertices were added we run the reccursive on the first vector!
-		if (!stack.empty()) {
-			newVert = stack.front();
-			stack.pop_front();
-			return findClosestRecc(newVert, visited, stack);
-		}
-		else {  //then the search has failed. we throw an exception, this should basically end the game. Maybe an easter egg?
-			return nullptr;
-		}
+		//Now the vertices are added so bad to the top of the while loop!
+
 	}
+	//Getting here means the stack becomes empty :(
+	return nullptr; //then the search has failed. we throw an exception, this should basically end the game. Maybe an easter egg?
+	//Basically this is a bit dangerous
 }
 
 bool listSearch(Location * location, std::list<Location*>& list) //linear search from the back

@@ -6,7 +6,8 @@ Gamemode::~Gamemode()
 
 Gamemode & Gamemode::getInstance()
 {
-	// TODO: insert return statement here
+	static Gamemode instance;
+	return instance;
 }
 
 Unit * Gamemode::getThrone(int)

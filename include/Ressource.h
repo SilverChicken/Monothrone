@@ -22,7 +22,7 @@ protected:                //Mostly variables set for spawning
 
 public:
 	Ressource();
-	~Ressource();
+	virtual ~Ressource();
 	//virtual Location* spawn(); //spawns a new ressource of this type, follows the parameters
 	void destroy();
 	void draw(GLuint);

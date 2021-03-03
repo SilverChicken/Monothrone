@@ -46,7 +46,7 @@ Crystal::Crystal(Location * location, Map* map)
 
 Crystal::~Crystal()
 {
-	delete [] textLocs;
+	
 }
 
 int Crystal::getTextLoc()

@@ -81,7 +81,7 @@ Mountain::Mountain(Location * location, Map* map)
 
 Mountain::~Mountain()
 {
-	delete(textLocs);
+//	delete [] textLocs;
 }
 
 int Mountain::getTextLoc()

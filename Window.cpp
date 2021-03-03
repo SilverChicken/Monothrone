@@ -396,7 +396,7 @@ glm::vec3 Window::trackBallMapping(float x, float y)
 
 
 
-//Initial Spawning Helper functions
+//Initial Spawning Helper functions should be in gamemode
 
 void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg, int CRY, int Varcry) {
 
