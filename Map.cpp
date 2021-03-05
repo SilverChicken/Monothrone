@@ -1,12 +1,19 @@
 #include "Map.h"
 #include<iostream>
+#include<queue>
 
 
+//Move to Gamemode
+#include "Mountain.h"
 #include "Ressource.h"
 
+//Helper function for A*
+bool const locComp(std::pair<Location*, int>, std::pair<Location*, int>);
+int calcDist(Location*, Location*);   //calculates the distance to target
 
 //helper functions for vector search
 bool listSearch(Location * location, std::list<Location*> & visited);  //Just loops from the back to the front, more likely to find
+bool vecSearch(Location * location, std::vector<Location*> & visited);  //Just loops from the back to the front, more likely to find
 
 
 Map::Map()
@@ -101,11 +108,14 @@ void Map::init()
 void Map::categorizeAccess()
 {
 	//get vector of maps each map will rpz a connected component
-	std::vector<std::unordered_map<Location*, bool>> * components;
-
+	std::vector<std::unordered_map<Location*, bool>* > components; //vector of map pointers
 	std::unordered_map<Location*, bool> freeLocs;
+	std::vector<Location*> stack;
+
+
 
 	Location* loc;
+	glm::vec2 pos;
 
 	//fill the free locations
 	for (int i = 0; i < mapSize; i++) {  
@@ -116,24 +126,58 @@ void Map::categorizeAccess()
 			}
 		}
 	}
-
+	
 	while (!freeLocs.empty()) {
-		std::unordered_map<Location*, bool> * comp = new std::unordered_map<Location*, bool>();
+		std::unordered_map<Location*, bool> * comp = new std::unordered_map<Location*, bool>(); 
 
+		glm::vec2 dirs[4] = { glm::vec2(1.0, 0.0) , glm::vec2(-1.0, 0.0) , glm::vec2(0.0, 1.0) , glm::vec2(0.0, -1.0) };
+
+		loc = freeLocs.begin()->first;  //take the first free element
+		stack.push_back(loc);			//Add it to the empty stack
+
+
+		 
+		while (!stack.empty()) {  //Conduct a DFS search at a random location not logged location
+
+			loc = stack.back();
+			stack.pop_back();
+
+			comp->emplace(loc, true);	//Add to connected component
+			freeLocs.erase(loc);		//Remove from free locations
+
+
+			
+			pos = loc->getPos();
+
+			for (glm::vec2 dir : dirs) { //Add free neighbors to stack 
+				loc = getLoc(pos + dir);
+
+				//check that loc is not on stack and that it is free
+				if (freeLocs.count(loc) && !vecSearch(loc, stack)) {
+					stack.push_back(loc);
+				}
+			}
+		} //Continue until we have exhausted the component
+
+		//So now we have a complete connected component!
+		components.push_back(comp); //Add the component to the vector!
+		
+		//start again while freeLocs is still not empty!
 
 	}
 	
+	//All free locations have been classified into components
 
-	//Conduct a DFS search at a random location not logged location -> start off with a map of ALL locations and delete as we go along
-	//count its total size in a hashmap?
-
-
-
-
-
-	//Once we have exhausted the search we pick a point that is not in the hashmap already, and start again
-
-	//When all FREE locations have been classified
+	for (std::unordered_map<Location*, bool>* comp : components) {
+		if (comp->size() < MINCOMP) { //Then we fill
+			for (auto it : *comp) {
+				//Call Gamemode spawn function to get a Mountain
+				Ressource * mtn = new Mountain(it.first, this, true);
+			}
+		}
+	}
+	
+	//count its total size in a hashmap? map.size()s
 
 	//Go through list of maps, get the count for each. either get max and fill others or fill all that have size less than some CONSNTAT
 
@@ -146,12 +190,12 @@ void Map::categorizeAccess()
 
 
 
-Location * Map::getloc(glm::vec2 pos)
+Location * Map::getLoc(glm::vec2 pos)
 {
-	return getloc(int(pos.x),int(pos.y));
+	return getLoc(int(pos.x),int(pos.y));
 }
 
-Location * Map::getloc(int x, int y)
+Location * Map::getLoc(int x, int y)
 {
 	//needs to check if x and y are in bounds
 	if (x > MAPSIZE - 1) {
@@ -296,7 +340,7 @@ Location *  Map::findClosestRecc(std::unordered_map<Location*, bool>& visited, s
 			if (x > 0) { //there's a vertex on the left
 				x2 = x - 1;
 				y2 = y;
-				newVert = getloc(x2, y2);
+				newVert = getLoc(x2, y2);
 				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
 					stack.push_back(newVert);        //If it wasn't then we add it to the visited list
 				}
@@ -304,7 +348,7 @@ Location *  Map::findClosestRecc(std::unordered_map<Location*, bool>& visited, s
 			if (x < MAPSIZE - 1) { //vertex to the right
 				x2 = x + 1;
 				y2 = y;
-				newVert = getloc(x2, y2);
+				newVert = getLoc(x2, y2);
 				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
 					stack.push_back(newVert);
 				}
@@ -312,7 +356,7 @@ Location *  Map::findClosestRecc(std::unordered_map<Location*, bool>& visited, s
 			if (y > 0) {
 				x2 = x;
 				y2 = y - 1;
-				newVert = getloc(x2, y2);
+				newVert = getLoc(x2, y2);
 				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
 					stack.push_back(newVert);
 				}
@@ -320,20 +364,80 @@ Location *  Map::findClosestRecc(std::unordered_map<Location*, bool>& visited, s
 			if (y < MAPSIZE - 1) {
 				x2 = x;
 				y2 = y + 1;
-				newVert = getloc(x2, y2);
+				newVert = getLoc(x2, y2);
 				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
 					stack.push_back(newVert);
 				}
 			}
 		}
 
-		//Now the vertices are added so bad to the top of the while loop!
+		//Now the vertices are added so back to the top of the while loop!
 
 	}
 	//Getting here means the stack becomes empty :(
 	return nullptr; //then the search has failed. we throw an exception, this should basically end the game. Maybe an easter egg?
 	//Basically this is a bit dangerous
 }
+
+Location * Map::findClosestTo(Location * start, Location * target) //closest point to start toward target
+{
+	//Priority queue, look till free, go toward second location -> min distance
+
+	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
+
+	std::priority_queue<std::pair<Location*, int>, std::vector<std::pair<Location*, int>>, decltype(&locComp)> stack(locComp);
+	std::unordered_map<Location*, int> cost;
+
+	int newCost = 0;
+	glm::vec2 newPos;
+	Location* newLoc;
+
+	stack.push(std::pair<Location*, int>(start, 0)); //add the start location
+	cost.emplace(start, 0);
+
+	while (!stack.empty()) {
+		Location* current = stack.top().first;
+		stack.pop();
+
+		if (current->state) {  //if we find a free spot, return
+			return current;
+		}
+
+		newCost = cost.at(current) + 1;
+
+		for (glm::vec2 dir : dirs) {
+			newPos = current->getPos() + dir;    //Make sure we aren't running off the map
+			newLoc = getLoc(newPos);
+
+			bool cnd = cost.find(newLoc) == cost.end();  //check if it's already there
+			if (!cnd) {
+				cnd = newCost < cost.at(newLoc);         //check if we found a better path to it, 
+			}
+
+			if (cnd ) { //then newLoc is not in cost so we add it to all of them, since it must be taken
+				cost.emplace(newLoc, newCost);
+				stack.push(std::pair<Location*, int>(newLoc, newCost + calcDist(newLoc, target)));
+			}
+		}
+	}
+	return nullptr;
+}
+
+Location * Map::findClosestRess(Location *)
+{
+
+	//Dfs early termination, looking for classT of owner
+
+	return nullptr;
+}
+
+void Map::draw()
+{
+	glBindVertexArray(VAO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+}
+
 
 bool listSearch(Location * location, std::list<Location*>& list) //linear search from the back
 {
@@ -346,17 +450,35 @@ bool listSearch(Location * location, std::list<Location*>& list) //linear search
 	return false;
 }
 
-
-void Map::draw()
+bool vecSearch(Location * location, std::vector<Location*>& list) //linear search from the back
 {
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	std::vector<Location *>::iterator it;
+	for (it = list.end(); it != list.begin();) {
+		if (*--it == location) {
+			return true;
+		}
+	}
+	return false;
 }
 
-void Map::fillInaccessible()
+
+bool const locComp(std::pair<Location*, int> a, std::pair<Location*, int> b) //compare priority, if the same use x values
 {
-	//Once we have spawned all Ressources, we need to find a way to categorize accessibility to player base -> try a move from Throne to every location?
+	//Need to be careful, if reflexive false, then keys are equivalent -> prioritize x over y
+
+	if (a.second != b.second) {
+		return a.second > b.second;
+	}
+	else { //If they are equal pick greater x
+		float da = a.first->getPos().x - b.first->getPos().x;
+		return (da > 0.0);
+	}
+
 }
 
 
+int calcDist(Location* a, Location* b) { //Rounded Euclidian distance -> maybe make float
+	float x = a->getPos().x - b->getPos().x;
+	float y = a->getPos().y - b->getPos().y;
+	return (int)(sqrt(x*x + y*y));
+}

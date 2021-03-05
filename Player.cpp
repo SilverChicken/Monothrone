@@ -94,7 +94,7 @@ bool Player::setLoc(Location * newLoc)
 bool Player::setLoc(int x, int y)
 {
 	if (map != nullptr) {
-		setLoc(map->getloc(x, y));
+		setLoc(map->getLoc(x, y));
 		return true;
 	}
 	return false;
@@ -103,7 +103,7 @@ bool Player::setLoc(int x, int y)
 bool Player::setLoc(glm::vec2 locate)
 {
 	if (map != nullptr) {
-		setLoc(map->getloc(locate));
+		setLoc(map->getLoc(locate));
 		return true;
 	}
 	return false;
@@ -163,7 +163,7 @@ bool Player::move(int dir)
 			locate = loc->getPos();
 			if (locate.y < MAPSIZE - 1) {        //Make sure we're not on an edge
 				locate += glm::vec2(0.0, 1.0);
-				setLoc(map->getloc(locate));     //Set new location
+				setLoc(map->getLoc(locate));     //Set new location
 				checkCameraChange();             //Adjust Camera if Necessary
 				return true;  
 			}
@@ -172,7 +172,7 @@ bool Player::move(int dir)
 			locate = loc->getPos();
 			if (locate.y > 0.0) {
 				locate -= glm::vec2(0.0, 1.0);
-				setLoc(map->getloc(locate));
+				setLoc(map->getLoc(locate));
 				checkCameraChange();
 				return true;
 			}
@@ -181,7 +181,7 @@ bool Player::move(int dir)
 			locate = loc->getPos();
 			if (locate.x < MAPSIZE - 1) {
 				locate += glm::vec2(1.0, 0.0);
-				setLoc(map->getloc(locate));
+				setLoc(map->getLoc(locate));
 				checkCameraChange();
 				return true;
 			}
@@ -190,7 +190,7 @@ bool Player::move(int dir)
 			locate = loc->getPos();
 			if (locate.x > 0.0) {
 				locate -= glm::vec2(1.0, 0.0);
-				setLoc(map->getloc(locate));
+				setLoc(map->getLoc(locate));
 				checkCameraChange();
 				return true;
 			}
@@ -331,14 +331,14 @@ void Player::setBotLeft(Location* newBL) {
 void Player::setBotLeft(int x, int y)
 {
 	if (map != nullptr) {
-		setBotLeft(map->getloc(x, y));
+		setBotLeft(map->getLoc(x, y));
 	}
 }
 
 void Player::setBotLeft(glm::vec2 locate)
 {
 	if (map != nullptr) {
-		setBotLeft(map->getloc(locate));
+		setBotLeft(map->getLoc(locate));
 	}
 }
 

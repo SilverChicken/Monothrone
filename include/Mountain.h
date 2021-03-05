@@ -10,7 +10,8 @@ private:
 	int textLoc;
 
 public:
-	Mountain(Location * location, Map* map);
+	Mountain(Location * location, Map* map); //Spawn a mountain range
+	Mountain(Location * location, Map* map, bool single); //Spawn a single mountain
 	~Mountain();
 	int getTextLoc();
 	void spawn(Map * map); // spawn another mountain near current location

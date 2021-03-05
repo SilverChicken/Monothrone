@@ -58,7 +58,7 @@ void Window::initialize_objects()
 	ImLoader::Loadtextures();
 	
 	map = new Map();
-	player = new Player(2, map->getloc(7, 7),map);
+	player = new Player(2, map->getLoc(7, 7),map);
 
 	//can do that in player too, eventually should.
 
@@ -75,10 +75,10 @@ void Window::initialize_objects()
 
 
 	//Throne MUST be spawned first
-	Unit* throne = player->spawnUnit<Throne>(map->getloc(5, 5));
+	Unit* throne = player->spawnUnit<Throne>(map->getLoc(5, 5));
 
 	for (int i = 0; i < 6; i++) {
-		player->spawnUnit<Worm>(map->getloc(5,5));
+		player->spawnUnit<Worm>(map->getLoc(5,5));
 	}
 
 	
@@ -190,6 +190,7 @@ void Window::display_callback(GLFWwindow* window)
 	glUniform1f(glGetUniformLocation(shaderProgram, "renderRout"), 1);
 	
 	
+	//Make virtual draw, no cast
 	for (Ressource* res : map->getMountains()) {
 		Mountain* mtn = (Mountain*)res;
 		mtn->draw(ImLoader::textures[mtn->getTextLoc()], shaderProgram);
@@ -413,8 +414,13 @@ void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg
 	for (int i = 0; i < count; i++) {
 		x = rand() % MAPSIZE;                                      //Make more elegant random
 		y = rand() % MAPSIZE;
-		res = new Mountain(mapping->getloc(x,y), mapping);
+		res = new Mountain(mapping->getLoc(x,y), mapping);
 	}
+
+
+	//Now we categorize access!
+	map->categorizeAccess();
+
 
 
 	count = int((rand() % Varnrg) - round(Varnrg / 2) + NRG);
@@ -423,7 +429,7 @@ void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg
 	for (int i = 0; i < count; i++) {
 		x = rand() % MAPSIZE;
 		y = rand() % MAPSIZE;
-		res = new Crystal(mapping->getloc(x, y), mapping);
+		res = new Crystal(mapping->getLoc(x, y), mapping);
 	}
 
 	count = int((rand() % Varcry) - round(Varcry / 2) + CRY);
@@ -432,7 +438,7 @@ void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg
 	for (int i = 0; i < count; i++) {
 		x = rand() % MAPSIZE;
 		y = rand() % MAPSIZE;
-		res = new Energy(mapping->getloc(x, y), mapping);
+		res = new Energy(mapping->getLoc(x, y), mapping);
 	}
 
 
