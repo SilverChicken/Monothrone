@@ -11,9 +11,6 @@ protected:                //Mostly variables set for spawning
 	int HorizVar;		//Horizontal Variance
 	double probSpawn;     //How strongly to group with current -> Probability of grouwing -> Geo distro success is stop
 
-	//rendervars
-	//const int texLoc = 2;                    //indicates where the tile's texture is within the texture array
-
 	//Helper function to get a spawning location
 	Location * spawnLoc(Location* location, Map* map);
 
@@ -23,8 +20,12 @@ protected:                //Mostly variables set for spawning
 public:
 	Ressource();
 	virtual ~Ressource();
-	//virtual Location* spawn(); //spawns a new ressource of this type, follows the parameters
+
 	void destroy();
+	
 	void draw(GLuint);
+	virtual void draw(unsigned int, GLuint);  //This one is for override only
+	
+	virtual int getTextLoc();
 };
 

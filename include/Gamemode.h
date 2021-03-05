@@ -1,4 +1,13 @@
 #pragma once
+#ifdef __APPLE__
+#include <OpenGL/gl3.h>
+#include <OpenGL/glext.h>
+#else
+#include <GL/glew.h>
+#endif
+
+#include <GLFW/glfw3.h>
+
 #include<unordered_map>
 #include "Timer.h"
 
@@ -13,6 +22,8 @@
 #define Vnrg 4
 #define CRYRangeCT 8
 #define Vcry 4
+
+#define MINCOMP 64   //Minimum Area for a component to not be filled
 
 
 //This class will manage interactions between the following parties.
@@ -67,6 +78,14 @@ public:
 	Player* getPlayer(int);
 	void addThrone(int, Unit*);
 	void addPlayer(int, Player*);
+
+
+	void update();
+	void draw(GLuint);
+	void drawMap();
+
+
+	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 };
 
