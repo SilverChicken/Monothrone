@@ -286,13 +286,13 @@ void Gamemode::draw(GLuint shaderProgram)
 {
 
 	//Currently as virtual call the derived function which then calls the ressource draw with 1 param 
-	for (Ressource* res : map->getMountains()) {
+	for (Ressource* res : Mountains) {
 		res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);  
 	}
-	for (Ressource* res : map->getCrystals()) {
+	for (Ressource* res : Crystals) {
 		res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
 	}
-	for (Ressource* res : map->getEnergies()) {
+	for (Ressource* res : Energies) {
 		res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
 	}
 

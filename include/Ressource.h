@@ -1,6 +1,8 @@
 #pragma once
-#include"Locateable.h"
+#include "Locateable.h"
+#include "Gamemode.h"
 
+class Gamemode;
 class Map;
 
 class Ressource : public Locateable
@@ -14,7 +16,7 @@ protected:                //Mostly variables set for spawning
 	//Helper function to get a spawning location
 	Location * spawnLoc(Location* location, Map* map);
 
-	//static Map* mapRef;
+	Gamemode* game = &Gamemode::getInstance();
 
 
 public:

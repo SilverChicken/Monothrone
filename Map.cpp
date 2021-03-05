@@ -129,38 +129,6 @@ Location * Map::getLoc(int x, int y)
 	return map[x][y];    //This will always be valid! not always free
 }
 
-std::vector<Ressource*> Map::getMountains()
-{
-	return Mountains;
-}
-
-std::vector<Ressource*> Map::getCrystals()
-{
-	return Crystals;
-}
-
-std::vector<Ressource*> Map::getEnergies()
-{
-	return Energies;
-}
-
-bool Map::addMountain(Ressource * mtn)
-{
-	Mountains.push_back(mtn);
-	return true;              //bool if we ever change type
-}
-
-bool Map::addCrystals(Ressource * cry)
-{
-	Crystals.push_back(cry);
-	return true;              //bool if we ever change type
-}
-
-bool Map::addEnergies(Ressource * nrg)
-{
-	Energies.push_back(nrg);
-	return true;              //bool if we ever change type
-}
 
 Unit * Map::getThrone(int ID)
 {

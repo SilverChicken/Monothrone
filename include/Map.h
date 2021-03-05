@@ -62,12 +62,12 @@ public:
 	Location* getLoc(glm::vec2);               //2 ways of accessing into the array
 	Location* getLoc(int x, int y);
 
-	std::vector<Ressource *> getMountains();
-	std::vector<Ressource *> getCrystals();
-	std::vector<Ressource *> getEnergies();
-	bool addMountain(Ressource *);        //------------------ Mountain
-	bool addCrystals(Ressource *);        //------------------ Crystal
-	bool addEnergies(Ressource *);        //Called whenever an Energy is Spawned
+	//std::vector<Ressource *> getMountains();
+	//std::vector<Ressource *> getCrystals();
+	//std::vector<Ressource *> getEnergies();
+	//bool addMountain(Ressource *);        //------------------ Mountain
+	//bool addCrystals(Ressource *);        //------------------ Crystal
+	//bool addEnergies(Ressource *);        //Called whenever an Energy is Spawned
 
 	Unit* getThrone(int);
 	Player* getPlayer(int);
