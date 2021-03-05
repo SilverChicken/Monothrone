@@ -62,7 +62,7 @@ void Crystal::spawn(Map * map)
 	newBias.x += rand() % HorizVar - (HorizVar / 2);
 	newBias.y += rand() % VerticalVar - (VerticalVar / 2);
 
-	Location * newLoc = map->getloc(newBias);
+	Location * newLoc = map->getLoc(newBias);
 	Crystal * mtn = new Crystal(newLoc, map);
 
 }

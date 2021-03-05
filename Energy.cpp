@@ -42,9 +42,6 @@ Energy::Energy(Location * location, Map* map)
 	}
 
 
-
-
-
 }
 
 Energy::~Energy()
@@ -65,7 +62,7 @@ void Energy::spawn(Map * map)
 	newBias.x += rand() % HorizVar - (HorizVar / 2);
 	newBias.y += rand() % VerticalVar - (VerticalVar / 2);
 
-	Location * newLoc = map->getloc(newBias);
+	Location * newLoc = map->getLoc(newBias);
 	Energy * mtn = new Energy(newLoc, map);
 
 }

@@ -14,29 +14,29 @@ Location * Ressource::spawnLoc(Location* location, Map* map)
 		switch (dir) {
 		case 0:
 			bias += glm::vec2(1.0, 0.0);
-			location = map->getloc(bias);
+			location = map->getLoc(bias);
 			break;
 		case 1:
-			bias += glm::vec2(1.0, 0.0);
-			location = map->getloc(bias);
+			bias += glm::vec2(-1.0, 0.0);
+			location = map->getLoc(bias);
 			break;
 		case 2:
-			bias += glm::vec2(1.0, 0.0);
-			location = map->getloc(bias);
+			bias += glm::vec2(0.0, 1.0);
+			location = map->getLoc(bias);
 			break;
 		case 3:
-			bias += glm::vec2(1.0, 0.0);
-			location = map->getloc(bias);
+			bias += glm::vec2(0.0, -1.0);
+			location = map->getLoc(bias);
 			break;
 		default:
 			bias += glm::vec2(1.0, 1.0);
-			location = map->getloc(bias);
+			location = map->getLoc(bias);
 			break;
 		}
 		tries++;
 
 		if (tries > 20) {
-			location = map->getloc(rand() % MAPSIZE, rand() % MAPSIZE);
+			location = map->getLoc(rand() % MAPSIZE, rand() % MAPSIZE);
 		}
 	} //now we know that location is free!
 

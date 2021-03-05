@@ -199,7 +199,7 @@ bool Unit::move(Location* targetLoc, Map* map)
 
 		for (glm::vec2 dir: dirs) {
 			newPos = current->getPos() + dir;    //Make sure we aren't running off the map
-			newLoc = map->getloc(newPos);
+			newLoc = map->getLoc(newPos);
 
 			bool cnd = cost.find(newLoc) == cost.end();  //check if it's already there
 			if (!cnd) {

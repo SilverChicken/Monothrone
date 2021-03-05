@@ -22,39 +22,7 @@ Mountain::Mountain(Location * location, Map* map)
 	//Set class identifier
 	classType = MOUNTAIN_CLASS_T;
 	
-	//while the location this object was given was invalid
-	int tries = 0; //so that we don't loop for too long
-
-	while (!location->state) {
-		int dir = rand() % 5;
-		switch (dir) {
-		case 0:
-			bias += glm::vec2(1.0, 0.0);
-			location = map->getloc(bias);
-			break;
-		case 1:
-			bias += glm::vec2(1.0, 0.0);
-			location = map->getloc(bias);
-			break;
-		case 2:
-			bias += glm::vec2(1.0, 0.0);
-			location = map->getloc(bias);
-			break;
-		case 3:
-			bias += glm::vec2(1.0, 0.0);
-			location = map->getloc(bias);
-			break;
-		default:
-			bias += glm::vec2(1.0, 1.0);
-			location = map->getloc(bias);
-			break;
-		}
-		tries++;
-
-		if (tries > 20) {
-			location = map->getloc(rand() % MAPSIZE, rand() % MAPSIZE);
-		}
-	} //now we know that location is free!
+	location = spawnLoc(location, map);   //Finds a free nearby position by jiggling
 
 	if (setLoc(location)) { //This *should* be true because of the previous check
 		
@@ -79,6 +47,25 @@ Mountain::Mountain(Location * location, Map* map)
 
 }
 
+Mountain::Mountain(Location * location, Map * map, bool single) //The bool doesn't mean anything, it just means we're using this version
+{
+	//get random texture from array:
+	int texInd = rand() % 4;
+	textLoc = textLocs[texInd];    // 4 is the size of textLocs
+
+	//Set class identifier
+	classType = MOUNTAIN_CLASS_T;
+
+
+	if (setLoc(location)) { //This *should* be true because of this function should not be called except to fill
+		map->addMountain(this);
+	}
+	else {
+		std::cout << "Mountain spawned at taken location: (" << location->getPos().x << ", " << location->getPos().y << ")" << std::endl;
+	}
+
+}
+
 Mountain::~Mountain()
 {
 //	delete [] textLocs;
@@ -97,7 +84,7 @@ void Mountain::spawn(Map * map)
 	newBias.x += rand() % HorizVar - (HorizVar / 2);
 	newBias.y += rand() % VerticalVar - (VerticalVar / 2);
 
-	Location * newLoc = map->getloc(newBias);
+	Location * newLoc = map->getLoc(newBias);
 	Mountain * mtn = new Mountain(newLoc , map);
 	
 }

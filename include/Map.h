@@ -20,7 +20,8 @@ class Unit;
 class Player;
 
 
-#define MAPSIZE 64
+#define MAPSIZE 64   //Side of map
+#define MINCOMP 64   //Minimum Area for a component to not be filled
 
 class Map
 {
@@ -46,18 +47,22 @@ private:
 	std::unordered_map<int, Unit *> Thrones;
 	std::unordered_map<int, Player *> Players;
 
-	void categorizeAccess(); //gets connected components, fills the smaller ones with locs
+	
 
 
 public:
 	Map();  //setup drawing of shapes too
 	~Map();
+
+	//Initializtion functions
 	void init();
+	void categorizeAccess(); //gets connected components, fills the smaller ones with locs -> Move it to GameMode
+
 
 	//gets and sets
 
-	Location* getloc(glm::vec2);               //2 ways of accessing into the array
-	Location* getloc(int x, int y);
+	Location* getLoc(glm::vec2);               //2 ways of accessing into the array
+	Location* getLoc(int x, int y);
 
 	std::vector<Ressource *> getMountains();
 	std::vector<Ressource *> getCrystals();
@@ -92,8 +97,6 @@ public:
 
 	GLuint VBO_vert, VBO_norm, VAO, EBO;
 
-private: //Private member functions
-	void fillInaccessible();
 
 };
 
