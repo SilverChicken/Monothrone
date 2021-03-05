@@ -1,7 +1,7 @@
 #pragma once
 #include<unordered_map>
 #include "Timer.h"
-#include "ImLoader.h"
+
 
 #define MAX_PLAYER 3
 
@@ -34,7 +34,7 @@ private:
 	//Objects were rendering
 	Map* map;
 	Player * player;
-	unsigned int * ImLoader::textures; //The static array from ImLoader
+	
 
 	std::unordered_map<int, Unit *> Thrones;
 	std::unordered_map<int, Player *> Players;

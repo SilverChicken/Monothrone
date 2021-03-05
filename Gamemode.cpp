@@ -2,6 +2,10 @@
 #include "Throne.h"
 #include "Player.h"
 #include "Ressource.h"
+#include "ImLoader.h"
+
+
+//unsigned int * ImLoader::textures; //The static array from ImLoader
 
 Gamemode::~Gamemode()
 {

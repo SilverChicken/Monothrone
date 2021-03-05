@@ -8,7 +8,7 @@
 #include "Ressource.h"
 
 //Helper function for A*
-bool const locComp(std::pair<Location*, int>, std::pair<Location*, int>);
+bool const locCompute(std::pair<Location*, int>, std::pair<Location*, int>);
 int calcDist(Location*, Location*);   //calculates the distance to target
 
 //helper functions for vector search
@@ -385,7 +385,7 @@ Location * Map::findClosestTo(Location * start, Location * target) //closest poi
 
 	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
 
-	std::priority_queue<std::pair<Location*, int>, std::vector<std::pair<Location*, int>>, decltype(&locComp)> stack(locComp);
+	std::priority_queue<std::pair<Location*, int>, std::vector<std::pair<Location*, int>>, decltype(&locCompute)> stack(locCompute);
 	std::unordered_map<Location*, int> cost;
 
 	int newCost = 0;
@@ -462,7 +462,7 @@ bool vecSearch(Location * location, std::vector<Location*>& list) //linear searc
 }
 
 
-bool const locComp(std::pair<Location*, int> a, std::pair<Location*, int> b) //compare priority, if the same use x values
+bool const locCompute(std::pair<Location*, int> a, std::pair<Location*, int> b) //compare priority, if the same use x values
 {
 	//Need to be careful, if reflexive false, then keys are equivalent -> prioritize x over y
 
