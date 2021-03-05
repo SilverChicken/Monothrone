@@ -1,86 +1,50 @@
 #include "Window.h"
+#include <iostream>
+
+#include "Gamemode.h"
+
+
 #include "Map.h"
 #include "Player.h"
 #include "ImLoader.h"
-#include <iostream>
+
 
 #include <stdlib.h>
 #include <time.h>
 
-#include "Mountain.h"
-#include "Crystal.h"
-#include "Energy.h"
-#include "Worm.h"
-#include "Timer.h"
-#include "Throne.h"
 
 const char* window_title = "GLFW Starter Project";
 
 GLint shaderProgram;
 
+Gamemode game = Gamemode::getInstance();
+
+
 //Timer for tick function
 Timer ticker = Timer::getInstance();
 
 //Objects were rendering
-Map* map;
-Player * player;
-unsigned int * ImLoader::textures;
+//Map* map;
+//Player * player;
+
 
 // On some systems you need to change this to the absolute path
 #define VERTEX_SHADER_PATH "shader.vert"
 #define FRAGMENT_SHADER_PATH "shader.frag"
 
-
-//Avg # of Mountain, Crystal and Energy clusters -> will be passed in by menu
-#define MTNRangeCT 15
-#define Vmtn 6
-#define NRGRangeCT 6
-#define Vnrg 4
-#define CRYRangeCT 8
-#define Vcry 4
-
 int Window::width;
 int Window::height;
 
-glm::vec3 Window::lastPoint = glm::vec3(0.0, 0.0, 0.0);
-
-
-//helper functions
-void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg, int CRY, int Varcry);
+//glm::vec3 Window::lastPoint = glm::vec3(0.0, 0.0, 0.0);
 
 
 
 void Window::initialize_objects()
 {
-	glm::vec3 lpos = glm::vec3(8.0f, 6.0f, 6.0f);
+	//glm::vec3 lpos = glm::vec3(8.0f, 6.0f, 6.0f);
 
 
-	ImLoader::Loadtextures();
-	
-	map = new Map();
-	player = new Player(2, map->getLoc(7, 7),map);
-
-	//can do that in player too, eventually should.
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, ImLoader::textures[Unit::selectLoc]); 
-	glActiveTexture(GL_TEXTURE0);
-
-	//setup ressources around map
-	SpawnStartRessource(map, MTNRangeCT, Vmtn, NRGRangeCT, Vnrg, CRYRangeCT, Vcry);
-
-
-	//setup basic units
-	//testing out worm spawning
-
-
-	//Throne MUST be spawned first
-	Unit* throne = player->spawnUnit<Throne>(map->getLoc(5, 5));
-
-	for (int i = 0; i < 6; i++) {
-		player->spawnUnit<Worm>(map->getLoc(5,5));
-	}
-
+	game.init(); //initialize Gamemode
 	
 
 	// Load the shader program. Make sure you have the correct filepath up top
@@ -91,9 +55,6 @@ void Window::initialize_objects()
 // Treat this as a destructor function. Delete dynamically allocated memory here.
 void Window::clean_up()
 {
-	delete(player);
-	delete(map);
-
 	glDeleteProgram(shaderProgram);
 }
 
@@ -157,14 +118,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 void Window::idle_callback()
 {
-	ticker.inc();
-	if (ticker.state) { //Update all objects! 
-		//Update unit positions mostly and anim?
-
-		//Player will cascade the update to all its units
-		player->update();
-
-	}
+	game.update();
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -184,27 +138,13 @@ void Window::display_callback(GLFWwindow* window)
 
 	glUniform1f(glGetUniformLocation(shaderProgram, "renderRout"), 0);
 
-	map->draw();
+	game.drawMap();
 
 
 	glUniform1f(glGetUniformLocation(shaderProgram, "renderRout"), 1);
 	
 	
-	//Make virtual draw, no cast
-	for (Ressource* res : map->getMountains()) {
-		Mountain* mtn = (Mountain*)res;
-		mtn->draw(ImLoader::textures[mtn->getTextLoc()], shaderProgram);
-	}
-	for (Ressource* res : map->getCrystals()) {
-		Crystal* cry = (Crystal*)res;
-		cry->draw(ImLoader::textures[cry->getTextLoc()], shaderProgram);
-	}
-	for (Ressource* res : map->getEnergies()) {
-		Energy* nrg = (Energy*)res;
-		nrg->draw(ImLoader::textures[nrg->getTextLoc()], shaderProgram);
-	}
-
-	player->draw(ImLoader::textures, shaderProgram);
+	game.draw(shaderProgram);
 
 
 	glfwPollEvents();
@@ -214,109 +154,7 @@ void Window::display_callback(GLFWwindow* window)
 
 void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) //Eventually check for non-US layouts
 {
-
-	// Check for a key press
-	if (action == GLFW_PRESS)
-	{
-		switch (key) {
-		case GLFW_KEY_ESCAPE: // Check if escape was pressed
-			// Close the window. This causes the program to also terminate.
-			glfwSetWindowShouldClose(window, GL_TRUE);
-			break;
-
-		case GLFW_KEY_UP:
-			//move UP
-			player->move(0);
-			break;
-
-		case GLFW_KEY_DOWN:
-			//move down
-			player->move(-1);
-			break;
-
-		case GLFW_KEY_RIGHT:
-			//move RIGHT
-			player->move(1);
-			break;
-
-		case GLFW_KEY_LEFT:
-			//move LEFT
-			player->move(2);
-			break;
-
-		case GLFW_KEY_ENTER:
-			player->select();
-			break;
-
-		case GLFW_KEY_LEFT_SHIFT:
-			player->deselect();
-			break;
-
-		case GLFW_KEY_LEFT_CONTROL:
-			player->deselectAll();
-			break;
-
-		case GLFW_KEY_N:
-			
-			std::cout << "Breakpoint" << std::endl;
-			player->incEnergy(5);
-			break;
-
-		case GLFW_KEY_Q:
-			player->actionKey(0);
-			break;
-
-		case GLFW_KEY_W:
-			player->actionKey(1);
-			break;
-
-		case GLFW_KEY_E:
-			player->actionKey(2);
-			break;
-
-		case GLFW_KEY_R:
-			player->actionKey(3);
-			break;
-
-		case GLFW_KEY_T:
-			player->actionKey(4);
-			break;
-
-		case GLFW_KEY_Y:
-			player->actionKey(5);
-			break;
-
-
-		default:
-			break;
-		}
-	}
-
-	if (action == GLFW_REPEAT) {
-		switch (key) {
-		case GLFW_KEY_UP:
-			//move UP
-			player->move(0);
-			break;
-
-		case GLFW_KEY_DOWN:
-			//move down
-			player->move(-1);
-			break;
-
-		case GLFW_KEY_RIGHT:
-			//move RIGHT
-			player->move(1);
-			break;
-
-		case GLFW_KEY_LEFT:
-			//move LEFT
-			player->move(2);
-			break;
-		default:
-			break;
-		}
-	}
+	game.key_callback(window, key, scancode, action, mods);
 }
 
 void Window::character_callback(GLFWwindow* window, unsigned int codepoint)
@@ -328,12 +166,12 @@ void Window::character_callback(GLFWwindow* window, unsigned int codepoint)
 void Window::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	if (yoffset > 0) {
-		player->changeZoom(1.0);
-		std::cout << player->getZoom() << std::endl;
+		//player->changeZoom(1.0);
+		//std::cout << player->getZoom() << std::endl;
 	}
 	else if (yoffset < 0) {
-		player->changeZoom(-1.0);
-		std::cout << player->getZoom() << std::endl;
+		//player->changeZoom(-1.0);
+		//std::cout << player->getZoom() << std::endl;
 	}
 
 }
@@ -380,7 +218,8 @@ void Window::mouse_button_callback(GLFWwindow* window, int button, int action, i
 
 glm::vec3 Window::trackBallMapping(float x, float y)
 {
-	glm::vec3 v;
+	glm::vec3 v = glm::vec3();
+	/*
 	double d;
 	v.x = (2.0f*x - Window::width) / Window::width;
 	v.y = (Window::height - 2.0f*y) / Window::height;
@@ -389,57 +228,6 @@ glm::vec3 Window::trackBallMapping(float x, float y)
 	d = (d < 1.0) ? d : 1.0;
 	v.z = float(sqrtf(1.001 - d * d));
 	v = v / glm::length(v); // Still need to normalize, since we only capped d, not v.
+	*/
 	return v;
-}
-
-
-
-
-
-
-//Initial Spawning Helper functions should be in gamemode
-
-void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg, int CRY, int Varcry) {
-
-	Ressource * res;
-	int count = 0;
-	int x, y;
-	bool flag = true;
-
-	srand(time(NULL));  // init rand
-
-	count = int((rand() % VarMtn) - round(VarMtn / 2) + MTN);             //# of clusters to spawn around MTN
-	std::cout << "Mountain cluster count: " << count << std::endl;
-
-	for (int i = 0; i < count; i++) {
-		x = rand() % MAPSIZE;                                      //Make more elegant random
-		y = rand() % MAPSIZE;
-		res = new Mountain(mapping->getLoc(x,y), mapping);
-	}
-
-
-	//Now we categorize access!
-	map->categorizeAccess();
-
-
-
-	count = int((rand() % Varnrg) - round(Varnrg / 2) + NRG);
-	std::cout << "Energy cluster count: " << count << std::endl;
-
-	for (int i = 0; i < count; i++) {
-		x = rand() % MAPSIZE;
-		y = rand() % MAPSIZE;
-		res = new Crystal(mapping->getLoc(x, y), mapping);
-	}
-
-	count = int((rand() % Varcry) - round(Varcry / 2) + CRY);
-	std::cout << "Energy cluster count: " << count << std::endl;
-
-	for (int i = 0; i < count; i++) {
-		x = rand() % MAPSIZE;
-		y = rand() % MAPSIZE;
-		res = new Energy(mapping->getLoc(x, y), mapping);
-	}
-
-
 }

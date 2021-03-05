@@ -21,7 +21,6 @@ class Player;
 
 
 #define MAPSIZE 64   //Side of map
-#define MINCOMP 64   //Minimum Area for a component to not be filled
 
 class Map
 {
@@ -56,7 +55,6 @@ public:
 
 	//Initializtion functions
 	void init();
-	void categorizeAccess(); //gets connected components, fills the smaller ones with locs -> Move it to GameMode
 
 
 	//gets and sets

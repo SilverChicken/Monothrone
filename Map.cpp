@@ -2,18 +2,13 @@
 #include<iostream>
 #include<queue>
 
-
-//Move to Gamemode
-#include "Mountain.h"
-#include "Ressource.h"
-
 //Helper function for A*
 bool const locCompute(std::pair<Location*, int>, std::pair<Location*, int>);
 int calcDist(Location*, Location*);   //calculates the distance to target
 
 //helper functions for vector search
 bool listSearch(Location * location, std::list<Location*> & visited);  //Just loops from the back to the front, more likely to find
-bool vecSearch(Location * location, std::vector<Location*> & visited);  //Just loops from the back to the front, more likely to find
+
 
 
 Map::Map()
@@ -103,90 +98,6 @@ void Map::init()
 		}
 	}
 }
-
-
-void Map::categorizeAccess()
-{
-	//get vector of maps each map will rpz a connected component
-	std::vector<std::unordered_map<Location*, bool>* > components; //vector of map pointers
-	std::unordered_map<Location*, bool> freeLocs;
-	std::vector<Location*> stack;
-
-
-
-	Location* loc;
-	glm::vec2 pos;
-
-	//fill the free locations
-	for (int i = 0; i < mapSize; i++) {  
-		for (int j = 0; j < mapSize; j++) {
-			loc = map[i][j];
-			if (loc->state) {
-				freeLocs[loc] = true;
-			}
-		}
-	}
-	
-	while (!freeLocs.empty()) {
-		std::unordered_map<Location*, bool> * comp = new std::unordered_map<Location*, bool>(); 
-
-		glm::vec2 dirs[4] = { glm::vec2(1.0, 0.0) , glm::vec2(-1.0, 0.0) , glm::vec2(0.0, 1.0) , glm::vec2(0.0, -1.0) };
-
-		loc = freeLocs.begin()->first;  //take the first free element
-		stack.push_back(loc);			//Add it to the empty stack
-
-
-		 
-		while (!stack.empty()) {  //Conduct a DFS search at a random location not logged location
-
-			loc = stack.back();
-			stack.pop_back();
-
-			comp->emplace(loc, true);	//Add to connected component
-			freeLocs.erase(loc);		//Remove from free locations
-
-
-			
-			pos = loc->getPos();
-
-			for (glm::vec2 dir : dirs) { //Add free neighbors to stack 
-				loc = getLoc(pos + dir);
-
-				//check that loc is not on stack and that it is free
-				if (freeLocs.count(loc) && !vecSearch(loc, stack)) {
-					stack.push_back(loc);
-				}
-			}
-		} //Continue until we have exhausted the component
-
-		//So now we have a complete connected component!
-		components.push_back(comp); //Add the component to the vector!
-		
-		//start again while freeLocs is still not empty!
-
-	}
-	
-	//All free locations have been classified into components
-
-	for (std::unordered_map<Location*, bool>* comp : components) {
-		if (comp->size() < MINCOMP) { //Then we fill
-			for (auto it : *comp) {
-				//Call Gamemode spawn function to get a Mountain
-				Ressource * mtn = new Mountain(it.first, this, true);
-			}
-		}
-	}
-	
-	//count its total size in a hashmap? map.size()s
-
-	//Go through list of maps, get the count for each. either get max and fill others or fill all that have size less than some CONSNTAT
-
-	//For each map in list, if it is below criterion, for each element we creat MOUNTAIN or LOCATEABLE inside that takes the lock.
-
-
-
-}
-
 
 
 
@@ -442,17 +353,6 @@ void Map::draw()
 bool listSearch(Location * location, std::list<Location*>& list) //linear search from the back
 {
 	std::list<Location *>::iterator it;
-	for (it = list.end(); it != list.begin();) {
-		if (*--it == location) {
-			return true;
-		}
-	}
-	return false;
-}
-
-bool vecSearch(Location * location, std::vector<Location*>& list) //linear search from the back
-{
-	std::vector<Location *>::iterator it;
 	for (it = list.end(); it != list.begin();) {
 		if (*--it == location) {
 			return true;
