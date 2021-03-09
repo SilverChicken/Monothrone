@@ -12,13 +12,16 @@
 #include"Map.h"
 #include"Unit.h"
 
+#include "Gamemode.h"
 
 
 #define BINDINGCOUNT 6  //Also defined in Unit.h 
 
 
-bool vecSearch(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector. Iterates forwards
-bool vecRemove(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector, if it is it removes A
+//bool vecSearch(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector. Iterates forwards
+//bool vecRemove(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector, if it is it removes A
+
+
 
 Player::Player(int Npid, Location* location, Map * mapo)
 {
@@ -36,7 +39,9 @@ Player::Player(int Npid, Location* location, Map * mapo)
 
 	
 	map = mapo; //get reference to the map
-	map->addPlayer(PID, this);  //Adds self to map references
+
+	Gamemode* game = &Gamemode::getInstance();
+	game->addPlayer(PID, this);  //Adds self to map references
 
 	setLoc(location);  //Set the location to the specified location
 
@@ -55,7 +60,10 @@ Player::Player(int Npid, Location* location, Map * mapo)
 Player::~Player()
 {
 	for (std::map<Unit*, bool>::iterator it = units.begin(); it != units.end(); ++it) {
-		delete(it->first);
+		if (it->first) {
+			delete(it->first);
+		}
+		
 	}
 
 	delete(bindings);
@@ -454,6 +462,7 @@ void Player::draw(unsigned int* texture, GLuint shaderprog)
 
 }
 
+/*
 bool vecSearch(Unit * target, std::list<Unit*>& list) //Just tells you if target is in list
 {
 	for (std::list<Unit*>::iterator it = list.begin(); it != list.end(); ++it) {
@@ -473,3 +482,4 @@ bool vecRemove(Unit* target, std::list<Unit*>& list) { //this one tells you if i
 	}
 	return false;
 }
+*/

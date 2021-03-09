@@ -11,6 +11,7 @@
 
 class Map;
 class Throne;
+class Gamemode;
 
 
 class Unit : public Locateable
@@ -18,6 +19,7 @@ class Unit : public Locateable
 private:
 	int owner;
 	Throne * throneRef;
+	
 
 	int moveTries = 0;          //Keeps track of number of times we get stuck in a row
 
@@ -25,11 +27,14 @@ private:
 
 	bool selected;
 
+
+
 protected:
 	int hp;
 	int atk;
 	int speed;
 
+	Gamemode * game;
 
 	//Anim vars
 	int textLoc;  
@@ -44,11 +49,12 @@ protected:
 	bool FinishCollect(Map* map);       //Called once the unit has arrived and is adjacent to a collectible
 
 
+
 	bool actions[ACTIONCOUNT];
 
 public:
 	Unit(int, Location*, Map*);
-	~Unit();
+	~Unit(); //needs to be virtual but that makes an exception?
 
 	int getTexLoc();
 

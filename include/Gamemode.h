@@ -31,6 +31,7 @@
 //This class will be held by Window which will then only be in charge of managing GLFW and this class
 class Player;
 class Map;
+class Location;
 class Unit;
 class Throne;
 class Ressource;
@@ -61,10 +62,12 @@ public:
 	~Gamemode();
 	static Gamemode& getInstance();
 
+
 	void init();
 	void categorizeAccess(); //gets connected components, fills the smaller ones with locs
 	void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg, int CRY, int Varcry);
 
+	Location* findClosestType(Location *, int);    //finds nearest locateable of the type passed in as int.
 
 	std::vector<Ressource *> getMountains();
 	std::vector<Ressource *> getCrystals();
@@ -73,11 +76,16 @@ public:
 	bool addCrystals(Ressource *);        //------------------ Crystal
 	bool addEnergies(Ressource *);        //Called whenever an Energy is Spawned
 
+	void removeRessource(Ressource *);
+	
+
 
 	Unit* getThrone(int);
 	Player* getPlayer(int);
 	void addThrone(int, Unit*);
 	void addPlayer(int, Player*);
+
+	Map * getMap();
 
 
 	void update();

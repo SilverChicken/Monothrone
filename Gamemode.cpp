@@ -17,12 +17,14 @@
 
 #include "ImLoader.h"
 
+#include "Utils.h"
+
 
 unsigned int * ImLoader::textures; //The static array from ImLoader
 
 
-bool vecSearch(Location * location, std::vector<Location*> & visited);  //Just loops from the back to the front, more likely to find
-
+int vecSearch(Location * location, std::vector<Location*> & visited);  //Just loops from the back to the front, more likely to find
+void vecRemove(Ressource * res, std::vector<Ressource*> & vec);
 
 Gamemode::~Gamemode()
 {
@@ -52,6 +54,7 @@ void Gamemode::init()
 {
 	ImLoader::Loadtextures();
 
+
 	map = new Map();
 	player = new Player(2, map->getLoc(7, 7), map);
 
@@ -67,7 +70,6 @@ void Gamemode::init()
 
 	//setup basic units
 	//testing out worm spawning
-
 
 	//Throne MUST be spawned first
 	Unit* throne = player->spawnUnit<Throne>(map->getLoc(5, 5));
@@ -206,6 +208,81 @@ void Gamemode::SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, 
 
 }
 
+Location * Gamemode::findClosestType(Location * base, int type)
+{
+	//Dfs early termination, looking for classT of owner
+
+	std::unordered_map<Location*, bool> visited;
+	std::list<Location*> stack;   //the current stack to look through, should be a deque
+
+	stack.push_back(base);
+
+	while (!stack.empty()) {
+
+		Location* base = stack.front();
+		stack.pop_front();
+		Location * newVert;
+
+		if (base->getOwner() != nullptr) {   //NEEDS TO KNOW ABOUT Class_T
+			if (base->getOwner()->getClassType() == type) {
+				return base;
+			}
+		}
+		else { //dfs search
+			int x = (int)base->getPos().x;
+			int y = (int)base->getPos().y;
+			int x2 = 0;
+			int y2 = 0;
+
+
+			visited[base] = base->state; //we have now visited this vertex
+
+			if (x > 0) { //there's a vertex on the left
+				x2 = x - 1;
+				y2 = y;
+				newVert = map->getLoc(x2, y2);
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
+					stack.push_back(newVert);        //If it wasn't then we add it to the visited list
+				}
+			}
+			if (x < MAPSIZE - 1) { //vertex to the right
+				x2 = x + 1;
+				y2 = y;
+				newVert = map->getLoc(x2, y2);
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+					stack.push_back(newVert);
+				}
+			}
+			if (y > 0) {
+				x2 = x;
+				y2 = y - 1;
+				newVert = map->getLoc(x2, y2);
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+					stack.push_back(newVert);
+				}
+			}
+			if (y < MAPSIZE - 1) {
+				x2 = x;
+				y2 = y + 1;
+				newVert = map->getLoc(x2, y2);
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+					stack.push_back(newVert);
+				}
+			}
+		}
+
+		//Now the vertices are added so back to the top of the while loop!
+
+	}
+	//Getting here means the stack becomes empty :(
+	return nullptr; //then the search has failed. we throw an exception, this should basically end the game. Maybe an easter egg?
+	//Basically this is a bit dangerous
+
+
+
+	return nullptr;
+}
+
 std::vector<Ressource*> Gamemode::getMountains()
 {
 	return Mountains;
@@ -248,6 +325,17 @@ bool Gamemode::addEnergies(Ressource * res)
 	return false;
 }
 
+void Gamemode::removeRessource(Ressource * res)
+{
+
+	if (res->getClassType() == CRYSTAL_CLASS_T) {
+		vecRemove(res, Crystals);
+	}
+	else if (res->getClassType() == ENERGY_CLASS_T) {
+		vecRemove(res, Energies);
+	}
+}
+
 Unit * Gamemode::getThrone(int own)
 {
 	return Thrones[own];
@@ -268,6 +356,11 @@ void Gamemode::addThrone(int own, Unit * throne)
 void Gamemode::addPlayer(int own, Player * player)
 {
 	Players[own] = player;
+}
+
+Map * Gamemode::getMap()
+{
+	return map;
 }
 
 void Gamemode::update()
@@ -414,7 +507,7 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 
 
 
-bool vecSearch(Location * location, std::vector<Location*>& list) //linear search from the back
+int vecSearch(Location * location, std::vector<Location*>& list) //linear search from the back
 {
 	std::vector<Location *>::iterator it;
 	for (it = list.end(); it != list.begin();) {
@@ -423,4 +516,15 @@ bool vecSearch(Location * location, std::vector<Location*>& list) //linear searc
 		}
 	}
 	return false;
+}
+
+void vecRemove(Ressource * res, std::vector<Ressource*>& list) //linear search from the back, erases if found
+{
+	std::vector<Ressource *>::iterator it;
+	for (it = list.end(); it != list.begin();) {
+		if (*--it == res) {
+			list.erase(it);
+			break;
+		}
+	}
 }

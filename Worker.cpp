@@ -20,7 +20,7 @@ Worker::Worker(int owner, Location * loc, Map * map):Unit(owner, loc, map)
 
 Worker::~Worker()
 {
-	delete[] actions;
+
 }
 
 void Worker::draw(unsigned int texture, GLuint shaderprog)

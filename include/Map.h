@@ -39,12 +39,12 @@ private:
 	};
 	Location* map[MAPSIZE][MAPSIZE];    //2D array 
 	//Location ** map;
-	std::vector<Ressource *> Mountains; //Refs to the mountains
-	std::vector<Ressource *> Crystals;  //Refs to the crystals
-	std::vector<Ressource *> Energies;  //Refs to the energies
+	//std::vector<Ressource *> Mountains; //Refs to the mountains
+	//std::vector<Ressource *> Crystals;  //Refs to the crystals
+	//std::vector<Ressource *> Energies;  //Refs to the energies
 
-	std::unordered_map<int, Unit *> Thrones;
-	std::unordered_map<int, Player *> Players;
+	//std::unordered_map<int, Unit *> Thrones;
+	//std::unordered_map<int, Player *> Players;
 
 	
 
@@ -69,11 +69,12 @@ public:
 	//bool addCrystals(Ressource *);        //------------------ Crystal
 	//bool addEnergies(Ressource *);        //Called whenever an Energy is Spawned
 
+	/*
 	Unit* getThrone(int);
 	Player* getPlayer(int);
 	void addThrone(int, Unit*);
 	void addPlayer(int, Player*);
-
+	*/
 
 	//render/gameplay fct
 
@@ -86,10 +87,10 @@ public:
 	bool isAdjacent(Location*, Location*);   //Tells you if A and B are adjacent tiles
 
 	Location* findClosest(Location*);              //-> returns the location of the very closest available point to specified location,
-	Location * findClosestRecc(std::unordered_map<Location*, bool> & visited, std::list<Location*> & stack); //  priority is left, right down then up
+	//  priority is left, right down then up
 	
-	Location* findClosestTo(Location*, Location*); //finds closest free spot that is closest to the second argument
-	Location* findClosestRess(Location *);         //finds nearest collectible ressource to selected location
+	Location* findClosestTo(Location*, Location*); //finds closest free spot stating at first that is closest to the second argument
+	
 
 	void draw();
 

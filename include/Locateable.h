@@ -66,7 +66,7 @@ protected:
 
 public:
 	Locateable();
-	~Locateable();
+	virtual ~Locateable();
 	int getClassType();
 	Location* getLoc();                 //Only works for non-overlap, for overlap define own function		
 	bool setLoc(Location* newLoc);      //logic here makes sure it does not have 2 locations at once

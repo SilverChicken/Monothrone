@@ -57,9 +57,11 @@ void Ressource::destroy()
 { 
 	//particle effect?
 
-	//remove from map, where is reference?
+	//remove from gameMode, where is reference?
 
 	loc->release(this);     //release lock
+
+	game->removeRessource(this);
 
 	this->~Ressource();     //currently destroys but doesn't remove the map reference. May free twice? But not big deal
 }

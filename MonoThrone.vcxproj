@@ -170,6 +170,7 @@
     <ClCompile Include="Throne.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Unit.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="Worker.cpp" />
     <ClCompile Include="Worm.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="include\Window.h" />
     <ClInclude Include="include\Worker.h" />
     <ClInclude Include="include\Worm.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

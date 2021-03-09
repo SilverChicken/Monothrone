@@ -6,6 +6,9 @@
 #include<queue>
 #include<unordered_map>
 
+#include "Gamemode.h"
+
+//Eventually remove
 #include "Ressource.h"
 #include "Throne.h"
 
@@ -13,8 +16,11 @@
 //Helper Functions for A* & movement
 Location* target;  
 Location* collectTarget;  //Location we are trying to collect from
-bool const locComp(std::pair<Location*, int>, std::pair<Location*, int>);
-int calcDist(Location*);   //calculates the distance to target
+bool const locComp(std::pair<Location*, float>, std::pair<Location*, float>);
+float calcDist(Location*);   //calculates the distance to target
+
+
+//Gamemode* game = &Gamemode::getInstance();
 
 
 Unit::Unit(int own, Location* loc, Map * map)
@@ -24,10 +30,12 @@ Unit::Unit(int own, Location* loc, Map * map)
 	setLoc(map->findClosest(loc));  //This will always be true;
 	selected = false;
 
+	game = &Gamemode::getInstance();
+
 	//Set class identifier
 	classType = UNIT_CLASS_T;
 
-	Unit * thro = map->getThrone(own);
+	Unit * thro = game->getThrone(own);
 	if (thro) {   
 		if (thro->getClassType() == THRONE_CLASS_T) {  //Class type for throne
 			throneRef = (Throne*)thro;
@@ -47,7 +55,7 @@ Unit::Unit(int own, Location* loc, Map * map)
 
 Unit::~Unit()
 {
-	
+	delete(actions);
 }
 
 int Unit::getTexLoc()
@@ -123,6 +131,13 @@ void Unit::update(Map* map)
 		if (map->isAdjacent(loc, throneRef->getLoc())) { //Then we made it back to Throne!
 			throneRef->incRessource(carrying);
 			carrying = 0; //no longer carrying
+			//collect( collectTarget, map); //needs ref to game
+
+
+
+
+
+
 			
 		}
 
@@ -158,21 +173,21 @@ bool * Unit::getActions()
 bool Unit::move(Location* targetLoc, Map* map)
 {
 
-	target = map->findClosest(targetLoc);
+	target = map->findClosestTo(targetLoc, loc);
 
 	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
 
-	std::priority_queue<std::pair<Location*, int>, std::vector<std::pair<Location*, int>>, decltype(&locComp)> stack(locComp);
+	std::priority_queue<std::pair<Location*, float>, std::vector<std::pair<Location*, float>>, decltype(&locComp)> stack(locComp);
 	std::unordered_map<Location*, Location*> from;
-	std::unordered_map<Location*, int> cost;
+	std::unordered_map<Location*, float> cost;
 
-	int newCost = 0;
+	float newCost = 0;
 	glm::vec2 newPos;
 	Location* newLoc;
 
 	collecting = false;   //If we were collecting then are sent to another destination, we stop collecting;
 
-	stack.push(std::pair<Location*,int>(loc, 0)); //add the start location
+	stack.push(std::pair<Location*,float>(loc, 0.0f)); //add the start location
 	from.emplace(loc, nullptr);
 	cost.emplace(loc, 0);
 
@@ -289,7 +304,7 @@ bool Unit::consume(Unit * food)
 	return false;
 }
 
-bool const locComp(std::pair<Location*, int> a, std::pair<Location*, int> b) //compare priority, if the same use x values
+bool const locComp(std::pair<Location*, float> a, std::pair<Location*, float> b) //compare priority, if the same use x values
 {
 	//Need to be careful, if reflexive false, then keys are equivalent -> prioritize x over y
 
@@ -305,8 +320,8 @@ bool const locComp(std::pair<Location*, int> a, std::pair<Location*, int> b) //c
 }
 
 
-int calcDist(Location* a) { //Rounded Euclidian distance
+float calcDist(Location* a) { //Rounded Euclidian distance
 	float x = a->getPos().x - target->getPos().x;
 	float y = a->getPos().y - target->getPos().y;
-	return (int)(sqrt(x*x + y*y));
+	return (sqrt(x*x + y*y));
 }

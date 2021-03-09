@@ -17,8 +17,6 @@ const char* window_title = "GLFW Starter Project";
 
 GLint shaderProgram;
 
-Gamemode* game = &Gamemode::getInstance();
-
 
 //Timer for tick function
 Timer ticker = Timer::getInstance();
@@ -37,13 +35,14 @@ int Window::height;
 
 //glm::vec3 Window::lastPoint = glm::vec3(0.0, 0.0, 0.0);
 
+Gamemode* game = &Gamemode::getInstance();
 
 
 void Window::initialize_objects()
 {
 	//glm::vec3 lpos = glm::vec3(8.0f, 6.0f, 6.0f);
 
-
+	
 	game->init(); //initialize Gamemode
 	
 
