@@ -56,6 +56,11 @@ private:
 	std::vector<Ressource *> Energies;  //Refs to the energies
 
 	Gamemode() {};
+	void cleanup();
+
+	void categorizeAccess(); //gets connected components, fills the smaller ones with locs
+	void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg, int CRY, int Varcry);
+
 
 public:
 
@@ -64,8 +69,13 @@ public:
 
 
 	void init();
-	void categorizeAccess(); //gets connected components, fills the smaller ones with locs
-	void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg, int CRY, int Varcry);
+	
+	
+
+
+	//Interfacing Unit -> Player
+	void incRessource(int val, int player);
+
 
 	Location* findClosestType(Location *, int);    //finds nearest locateable of the type passed in as int.
 
@@ -75,8 +85,7 @@ public:
 	bool addMountain(Ressource *);        //------------------ Mountain
 	bool addCrystals(Ressource *);        //------------------ Crystal
 	bool addEnergies(Ressource *);        //Called whenever an Energy is Spawned
-
-	void removeRessource(Ressource *);
+	void removeRessource(Ressource *);    //Removes Crystal or Energy
 	
 
 

@@ -197,10 +197,10 @@
     <ClInclude Include="include\Throne.h" />
     <ClInclude Include="include\Timer.h" />
     <ClInclude Include="include\Unit.h" />
+    <ClInclude Include="include\Utils.h" />
     <ClInclude Include="include\Window.h" />
     <ClInclude Include="include\Worker.h" />
     <ClInclude Include="include\Worm.h" />
-    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -21,7 +21,7 @@ Worm::Worm(int owner, Location* loc, Map* map) :Unit(owner, loc, map)
 
 Worm::~Worm()
 {
-	delete[] actions;
+	//delete[] actions;
 }
 
 bool Worm::move(Location* location, Map* map)

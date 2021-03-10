@@ -28,18 +28,7 @@ void vecRemove(Ressource * res, std::vector<Ressource*> & vec);
 
 Gamemode::~Gamemode()
 {
-//delete all the things
 
-	for (int i = 0; i < MAX_PLAYER; i++) {
-		if (Thrones.count(i)) {  //Get Thrones & Players
-			delete Thrones[i];
-		}
-		if (Players.count(i)) {
-			delete Players[i];    //This destructor will propagate to Units of Player
-		}
-	}
-
-	delete(map);
 
 
 }
@@ -79,6 +68,22 @@ void Gamemode::init()
 	}
 
 
+}
+
+void Gamemode::cleanup()
+{
+	//delete all the things
+
+	for (int i = 0; i < MAX_PLAYER; i++) {
+		if (Thrones.count(i)) {  // Thrones are already deleted as they are units
+			//delete Thrones[i];
+		}
+		if (Players.count(i)) {
+			delete Players[i];    //This destructor will propagate to Units of Player
+		}
+	}
+
+	delete(map);
 }
 
 void Gamemode::categorizeAccess()
@@ -206,6 +211,17 @@ void Gamemode::SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, 
 	}
 
 
+}
+
+void Gamemode::incRessource(int type, int player)
+{
+	Player * pl = Players.at(player); //should never be null
+	if (type == ENERGY_CLASS_T) {
+		pl->incEnergy(1);
+	}
+	else if (type == CRYSTAL_CLASS_T) {
+		pl->incCrystal(1);
+	}
 }
 
 Location * Gamemode::findClosestType(Location * base, int type)
@@ -407,6 +423,10 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 		case GLFW_KEY_ESCAPE: // Check if escape was pressed
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
+
+			//delete appropriate things in appropriate order
+			cleanup();
+
 			break;
 
 		case GLFW_KEY_UP:

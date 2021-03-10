@@ -10,7 +10,7 @@
 
 
 class Map;
-class Throne;
+//class Throne;
 class Gamemode;
 
 
@@ -18,7 +18,7 @@ class Unit : public Locateable
 {
 private:
 	int owner;
-	Throne * throneRef;
+	//Throne * throneRef;
 	
 
 	int moveTries = 0;          //Keeps track of number of times we get stuck in a row
@@ -54,7 +54,7 @@ protected:
 
 public:
 	Unit(int, Location*, Map*);
-	~Unit(); //needs to be virtual but that makes an exception?
+	virtual ~Unit(); //needs to be virtual but that makes an exception?
 
 	int getTexLoc();
 

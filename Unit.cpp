@@ -10,7 +10,7 @@
 
 //Eventually remove
 #include "Ressource.h"
-#include "Throne.h"
+//#include "Throne.h"
 
 
 //Helper Functions for A* & movement
@@ -35,6 +35,8 @@ Unit::Unit(int own, Location* loc, Map * map)
 	//Set class identifier
 	classType = UNIT_CLASS_T;
 
+	//get rid, move to gamemode
+	/*
 	Unit * thro = game->getThrone(own);
 	if (thro) {   
 		if (thro->getClassType() == THRONE_CLASS_T) {  //Class type for throne
@@ -49,13 +51,13 @@ Unit::Unit(int own, Location* loc, Map * map)
 		throneRef = nullptr;
 	}
 	
-
+	*/
 
 }
 
 Unit::~Unit()
 {
-	delete(actions);
+	//delete[](actions);
 }
 
 int Unit::getTexLoc()
@@ -65,8 +67,6 @@ int Unit::getTexLoc()
 
 void Unit::draw(unsigned int texture, GLuint shaderprog)
 {
-
-	
 
 	//send some info about where you are
 	glUniform2f(glGetUniformLocation(shaderprog, "location"), loc->getPos().x, loc->getPos().y);
@@ -128,15 +128,10 @@ void Unit::update(Map* map)
 
 	if (carrying) { //Then it's Crystal or Energy
 		partAnimState = (partAnimState + PARTANIMSTEP) % PARTANIMCT;
-		if (map->isAdjacent(loc, throneRef->getLoc())) { //Then we made it back to Throne!
-			throneRef->incRessource(carrying);
+		if (map->isAdjacent(loc, game->getThrone(owner)->getLoc())) { //Then we made it back to Throne!
+			game->incRessource(carrying, owner);
+			collect(game->findClosestType(collectTarget, carrying), map);  // restarts loop
 			carrying = 0; //no longer carrying
-			//collect( collectTarget, map); //needs ref to game
-
-
-
-
-
 
 			
 		}
@@ -276,9 +271,8 @@ bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target
 		}
 
 		//If we have a throneRef then we move back to the throne to cash it in
-		if (throneRef) {                       
-			move(throneRef->getLoc(), map);    //This is why we need to pass map
-		}
+                    
+		move(game->getThrone(owner)->getLoc(), map);    //This is why we need to pass map
 		
 		//Call another function once we are adjacent to Throne to return the ressource
 

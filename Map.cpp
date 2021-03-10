@@ -151,7 +151,7 @@ void Map::addThrone(int ID, Unit* throne)
 {
 	Thrones[ID] = throne;
 }
-*/
+
 
 bool ** Map::getBox(glm::vec2 a, glm::vec2 b)
 {
@@ -166,6 +166,7 @@ bool ** Map::getBox(int x, int y, int x2, int y2)   //This function may be usele
 
 	return nullptr;
 }
+*/
 
 bool Map::isAdjacent(Location * A, Location * B) 
 {
