@@ -7,6 +7,7 @@
 #include<unordered_map>
 
 #include "Gamemode.h"
+#include "Utils.h"
 
 //Eventually remove
 #include "Ressource.h"
@@ -14,10 +15,9 @@
 
 
 //Helper Functions for A* & movement
-Location* target;  
-Location* collectTarget;  //Location we are trying to collect from
-bool const locComp(std::pair<Location*, float>, std::pair<Location*, float>);
-float calcDist(Location*);   //calculates the distance to target
+
+//bool const locComp(std::pair<Location*, float>, std::pair<Location*, float>);
+//float calcDist2(Location*, Location*);   //calculates the distance to target
 
 
 //Gamemode* game = &Gamemode::getInstance();
@@ -130,7 +130,7 @@ void Unit::update(Map* map)
 		partAnimState = (partAnimState + PARTANIMSTEP) % PARTANIMCT;
 		if (map->isAdjacent(loc, game->getThrone(owner)->getLoc())) { //Then we made it back to Throne!
 			game->incRessource(carrying, owner);
-			collect(game->findClosestType(collectTarget, carrying), map);  // restarts loop
+			collect(game->findClosestType(collectTarget, carrying), map);  // restarts loop   IS RETURNING NULLPTR
 			carrying = 0; //no longer carrying
 
 			
@@ -172,7 +172,7 @@ bool Unit::move(Location* targetLoc, Map* map)
 
 	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
 
-	std::priority_queue<std::pair<Location*, float>, std::vector<std::pair<Location*, float>>, decltype(&locComp)> stack(locComp);
+	std::priority_queue<std::pair<Location*, float>, std::vector<std::pair<Location*, float>>, decltype(&Utils::locComp)> stack(Utils::locComp);
 	std::unordered_map<Location*, Location*> from;
 	std::unordered_map<Location*, float> cost;
 
@@ -219,7 +219,7 @@ bool Unit::move(Location* targetLoc, Map* map)
 			if (cnd && newLoc->state) { //then newLoc is not in cost so we add it to all of them, if it's free
 				cost.emplace(newLoc, newCost);
 				from.emplace(newLoc, current);
-				stack.push(std::pair<Location*, int>(newLoc, newCost + calcDist(newLoc)));
+				stack.push(std::pair<Location*, int>(newLoc, newCost + Utils::calcDist(newLoc, target)));
 			}
 		} 
 	}
@@ -298,6 +298,9 @@ bool Unit::consume(Unit * food)
 	return false;
 }
 
+
+/*
+
 bool const locComp(std::pair<Location*, float> a, std::pair<Location*, float> b) //compare priority, if the same use x values
 {
 	//Need to be careful, if reflexive false, then keys are equivalent -> prioritize x over y
@@ -306,16 +309,18 @@ bool const locComp(std::pair<Location*, float> a, std::pair<Location*, float> b)
 		return a.second > b.second;
 	}
 	else { //If they are equal check if they have the same x
-		float da = abs(a.first->getPos().x - target->getPos().x);
-		float db = abs(b.first->getPos().x - target->getPos().x);
+		float da = a.first->getPos().x ;
+		float db = b.first->getPos().x ;
 		return (da < db);
 	}
 	
 }
 
 
-float calcDist(Location* a) { //Rounded Euclidian distance
-	float x = a->getPos().x - target->getPos().x;
-	float y = a->getPos().y - target->getPos().y;
+float calcDist2(Location* a, Location* b) { //Rounded Euclidian distance
+	float x = a->getPos().x - b->getPos().x;
+	float y = a->getPos().y - b->getPos().y;
 	return (sqrt(x*x + y*y));
 }
+
+*/

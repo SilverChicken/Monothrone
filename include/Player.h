@@ -46,6 +46,7 @@ private:
 	//array of functions that are bound to AZERTY how it it set? Selection. When Selection is updated we iterate through it
 	int* bindings;
 
+	
 
 	//rendering Vars
 	const int textLocs[3] = { 0, 1, 2 };
@@ -77,6 +78,8 @@ public:
 	std::map<Unit*, bool> getSelection();
 	void update();
 
+	//Pauses the game(for now)
+	bool pause = false;
 	
 
 	//Gameplay fcts

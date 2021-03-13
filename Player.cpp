@@ -149,10 +149,10 @@ void Player::addUnit(Unit * newUnit)
 
 void Player::update()
 {
-	//This code will happen a few times, but it relies on explicit types so idk how to push this upstream. Will have to do
-
-	for (auto it = units.begin(); it != units.end(); it++) {   
-		it->first->update(map); //Works bc virtual -> We don't need explicit types, just matching function definitions!
+	if (!pause) { 
+		for (auto it = units.begin(); it != units.end(); it++) {
+			it->first->update(map); //Works bc virtual -> We don't need explicit types, just matching function definitions!
+		}
 	}
 }
 

@@ -29,3 +29,14 @@ bool const Utils::locComp(std::pair<Location*, float> a , std::pair<Location*, f
 		return (da > 0.0);
 	}
 }
+
+int Utils::vecSearch(Location * location, std::vector<Location*>& list) //linear search from the back
+{
+	std::vector<Location *>::iterator it;
+	for (it = list.end(); it != list.begin();) {
+		if (*--it == location) {
+			return true;
+		}
+	}
+	return false;
+}

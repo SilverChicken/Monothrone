@@ -15,9 +15,9 @@
 #include<list>
 #include<unordered_map>
 
-class Ressource;
-class Unit;
-class Player;
+//class Ressource;
+//class Unit;
+//class Player;
 
 
 #define MAPSIZE 64   //Side of map

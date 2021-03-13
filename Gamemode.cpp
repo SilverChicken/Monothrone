@@ -23,8 +23,8 @@
 unsigned int * ImLoader::textures; //The static array from ImLoader
 
 
-int vecSearch(Location * location, std::vector<Location*> & visited);  //Just loops from the back to the front, more likely to find
-void vecRemove(Ressource * res, std::vector<Ressource*> & vec);
+//int vecSearch(Location * location, std::vector<Location*> & visited);  //Just loops from the back to the front, more likely to find
+//void vecRemove(Ressource * res, std::vector<Ressource*> & vec);
 
 Gamemode::~Gamemode()
 {
@@ -134,7 +134,7 @@ void Gamemode::categorizeAccess()
 				loc = map->getLoc(pos + dir);
 
 				//check that loc is not on stack and that it is free
-				if (freeLocs.count(loc) && !vecSearch(loc, stack)) {
+				if (freeLocs.count(loc) && !Utils::vecSearch(loc, stack)) {
 					stack.push_back(loc);
 				}
 			}
@@ -239,7 +239,7 @@ Location * Gamemode::findClosestType(Location * base, int type)
 		stack.pop_front();
 		Location * newVert;
 
-		if (base->getOwner() != nullptr) {   //NEEDS TO KNOW ABOUT Class_T
+		if (base->getOwner() != nullptr) {   
 			if (base->getOwner()->getClassType() == type) {
 				return base;
 			}
@@ -294,9 +294,6 @@ Location * Gamemode::findClosestType(Location * base, int type)
 	return nullptr; //then the search has failed. we throw an exception, this should basically end the game. Maybe an easter egg?
 	//Basically this is a bit dangerous
 
-
-
-	return nullptr;
 }
 
 std::vector<Ressource*> Gamemode::getMountains()
@@ -345,10 +342,10 @@ void Gamemode::removeRessource(Ressource * res)
 {
 
 	if (res->getClassType() == CRYSTAL_CLASS_T) {
-		vecRemove(res, Crystals);
+		Utils::vecRemove<Ressource>(res, Crystals);
 	}
 	else if (res->getClassType() == ENERGY_CLASS_T) {
-		vecRemove(res, Energies);
+		Utils::vecRemove<Ressource>(res, Energies);
 	}
 }
 
@@ -491,6 +488,9 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 			player->actionKey(5);
 			break;
 
+		case GLFW_KEY_P:
+			player->pause = !player->pause;
+			break;
 
 		default:
 			break;
@@ -525,7 +525,7 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 }
 
 
-
+/*
 
 int vecSearch(Location * location, std::vector<Location*>& list) //linear search from the back
 {
@@ -548,3 +548,4 @@ void vecRemove(Ressource * res, std::vector<Ressource*>& list) //linear search f
 		}
 	}
 }
+*/

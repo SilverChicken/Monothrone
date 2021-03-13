@@ -1,14 +1,17 @@
 #include "Map.h"
+#include "Utils.h"
+
 #include<iostream>
 #include<queue>
 
 //Helper function for A*
+/*
 bool const locCompute(std::pair<Location*, float>, std::pair<Location*, float>);
 float calcDist(Location*, Location*);   //calculates the distance to target
 
 //helper functions for vector search
 bool listSearch(Location * location, std::list<Location*> & visited);  //Just loops from the back to the front, more likely to find
-
+*/
 
 
 Map::Map()
@@ -217,7 +220,7 @@ Location * Map::findClosest(Location * base) //Maybe a bit slow so don't use for
 				x2 = x - 1;
 				y2 = y;
 				newVert = getLoc(x2, y2);
-				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
 					stack.push_back(newVert);        //If it wasn't then we add it to the visited list
 				}
 			}
@@ -225,7 +228,7 @@ Location * Map::findClosest(Location * base) //Maybe a bit slow so don't use for
 				x2 = x + 1;
 				y2 = y;
 				newVert = getLoc(x2, y2);
-				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
 					stack.push_back(newVert);
 				}
 			}
@@ -233,7 +236,7 @@ Location * Map::findClosest(Location * base) //Maybe a bit slow so don't use for
 				x2 = x;
 				y2 = y - 1;
 				newVert = getLoc(x2, y2);
-				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
 					stack.push_back(newVert);
 				}
 			}
@@ -241,7 +244,7 @@ Location * Map::findClosest(Location * base) //Maybe a bit slow so don't use for
 				x2 = x;
 				y2 = y + 1;
 				newVert = getLoc(x2, y2);
-				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
 					stack.push_back(newVert);
 				}
 			}
@@ -264,7 +267,7 @@ Location * Map::findClosestTo(Location * start, Location * target) //closest poi
 
 	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
 
-	std::priority_queue<std::pair<Location*, float>, std::vector<std::pair<Location*, float>>, decltype(&locCompute)> stack(locCompute);
+	std::priority_queue<std::pair<Location*, float>, std::vector<std::pair<Location*, float>>, decltype(&Utils::locComp)> stack(Utils::locComp);
 	std::unordered_map<Location*, float> cost;
 
 	float newCost = 0;
@@ -295,7 +298,7 @@ Location * Map::findClosestTo(Location * start, Location * target) //closest poi
 
 			if (cnd ) { //then newLoc is not in cost so we add it to all of them, since it must be taken
 				cost.emplace(newLoc, newCost);
-				stack.push(std::pair<Location*, float>(newLoc, newCost + calcDist(newLoc, target)));
+				stack.push(std::pair<Location*, float>(newLoc, newCost + Utils::calcDist(newLoc, target)));
 			}
 		}
 	}
@@ -309,7 +312,7 @@ void Map::draw()
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-
+/*
 bool listSearch(Location * location, std::list<Location*>& list) //linear search from the back
 {
 	std::list<Location *>::iterator it;
@@ -342,3 +345,4 @@ float calcDist(Location* a, Location* b) { //Rounded Euclidian distance -> maybe
 	float y = a->getPos().y - b->getPos().y;
 	return (sqrt(x*x + y*y));
 }
+*/

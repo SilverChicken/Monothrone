@@ -20,8 +20,10 @@ private:
 	int owner;
 	//Throne * throneRef;
 	
-
-	int moveTries = 0;          //Keeps track of number of times we get stuck in a row
+	//Helper Vars for movement and collection
+	int moveTries = 0;        //Keeps track of number of times we get stuck in a row
+	Location* target;         //Target for movement
+	Location* collectTarget;  //Location we are trying to collect from
 
 	const int particleLoc[PARTANIMCT] = {32, 35, 33, 36, 34, 37}; //Location of overlay texture for selected units, will be 6 evens are nrg odd is cryst
 
