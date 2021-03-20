@@ -26,7 +26,17 @@
 #define WORKER_CLASS_T      9
 
 
-
+static const float vertices[32] = {                          //needs to change with zoom? or changed in shader
+		// positions          // texture coords
+		 0.1f,  0.1f, 0.0f,   1.0f, 1.0f,   // top right
+		 0.1f,  0.0f, 0.0f,   1.0f, 0.0f,   // bottom right
+		 0.0f,  0.0f, 0.0f,   0.0f, 0.0f,   // bottom left
+		 0.0f,  0.1f, 0.0f,   0.0f, 1.0f    // top left 
+};
+static unsigned int indices[6] = {
+	0, 1, 3,   // first triangle
+	1, 2, 3    // second triangle
+};
 
 class Locateable
 {
@@ -48,17 +58,7 @@ protected:
 	//
 
 
-	float vertices[32] = {                          //needs to change with zoom? or changed in shader
-		// positions          // texture coords
-		 0.1f,  0.1f, 0.0f,   1.0f, 1.0f,   // top right
-		 0.1f,  0.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-		 0.0f,  0.0f, 0.0f,   0.0f, 0.0f,   // bottom left
-		 0.0f,  0.1f, 0.0f,   0.0f, 1.0f    // top left 
-	};
-	unsigned int indices[6] = {
-		0, 1, 3,   // first triangle
-		1, 2, 3    // second triangle
-	};
+	
 
 	GLuint VBO_vert, VAO, EBO;
 

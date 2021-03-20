@@ -12,8 +12,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-
-const char* window_title = "GLFW Starter Project";
+const char* window_title = "MonoThrone";
 
 GLint shaderProgram;
 
@@ -44,7 +43,6 @@ void Window::initialize_objects()
 
 	
 	game->init(); //initialize Gamemode
-	
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -126,13 +124,22 @@ void Window::display_callback(GLFWwindow* window)
 	// Clear the color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+	//Stop using shader
+	glUseProgram(0); 
+	game->drawGui();
+
+
+
+	//resume
+	glUseProgram(shaderProgram);
+
 	// Use the shader of programID
 	glUniform1i(glGetUniformLocation(shaderProgram, "myTexture"), 0); //Set the texture Locations
 	glUniform1i(glGetUniformLocation(shaderProgram, "overTex"), 1);
 	glUniform1i(glGetUniformLocation(shaderProgram, "particle"), 2);
 
-	glUseProgram(shaderProgram);
-
+	
 	//update uniforms
 
 	glUniform1f(glGetUniformLocation(shaderProgram, "renderRout"), 0);

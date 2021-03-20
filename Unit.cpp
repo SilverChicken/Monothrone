@@ -253,7 +253,7 @@ bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target
 
 	int typeObj = locOwner->getClassType();
 	
-	if ( typeObj <= MAXRESCLASST && typeObj > MOUNTAIN_CLASS_T && !carrying) { //Check it's still a ressource and that we don't already have a ressource  /////// OR IF IT"S THRONE?
+	if ( (typeObj == ENERGY_CLASS_T || typeObj == CRYSTAL_CLASS_T) && !carrying) { //Check it's still a ressource and that we don't already have a ressource  /////// OR IF IT"S THRONE?
 		Ressource* res = (Ressource*)locOwner;   //Safe cast
 		res->destroy();                          //Forces an include avoid by having virtual Locateable function? 
 

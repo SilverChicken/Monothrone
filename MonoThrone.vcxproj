@@ -157,7 +157,9 @@
   <ItemGroup>
     <ClCompile Include="Crystal.cpp" />
     <ClCompile Include="Energy.cpp" />
+    <ClCompile Include="FontLoader.cpp" />
     <ClCompile Include="Gamemode.cpp" />
+    <ClCompile Include="Gui.cpp" />
     <ClCompile Include="ImLoader.cpp" />
     <ClCompile Include="Locateable.cpp" />
     <ClCompile Include="Location.cpp" />
@@ -183,7 +185,9 @@
   <ItemGroup>
     <ClInclude Include="include\Crystal.h" />
     <ClInclude Include="include\Energy.h" />
+    <ClInclude Include="include\FontLoader.h" />
     <ClInclude Include="include\Gamemode.h" />
+    <ClInclude Include="include\Gui.h" />
     <ClInclude Include="include\ImLoader.h" />
     <ClInclude Include="include\Locateable.h" />
     <ClInclude Include="include\Location.h" />

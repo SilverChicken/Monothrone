@@ -384,6 +384,22 @@ bool Player::checkCameraChange()
 	}
 }
 
+bool Player::cull(Location * obj) //true then cull, false then don't
+{
+	//For now just find out if we're off screen then return false
+	glm::vec2 p = obj->getPos();
+	glm::vec2 bl = botLeft->getPos();
+	if (p.x < bl.x || p.y < bl.y || p.x > bl.x + ZOOMDEF || p.y > bl.y + ZOOMDEF - GUISPACE) { //off the grid
+		return true;
+	}
+
+
+	//Later we can incorporate vision
+
+	return false;
+
+}
+
 
 bool Player::addVision(Location *)
 {
@@ -426,10 +442,10 @@ void Player::draw(unsigned int* texture, GLuint shaderprog)
 	//All unit draws are the same!
 
 	for (auto it = units.begin(); it != units.end(); it++) {
-		it->first->draw(texture[it->first->getTexLoc()], shaderprog);
+		if (!cull(it->first->getLoc())) {
+			it->first->draw(texture[it->first->getTexLoc()], shaderprog);
+		}
 	}
-
-
 
 
 	//send material information to the shader
@@ -461,25 +477,3 @@ void Player::draw(unsigned int* texture, GLuint shaderprog)
 
 
 }
-
-/*
-bool vecSearch(Unit * target, std::list<Unit*>& list) //Just tells you if target is in list
-{
-	for (std::list<Unit*>::iterator it = list.begin(); it != list.end(); ++it) {
-		if (*it == target) {
-			return true;
-		}
-	}
-	return false;
-}
-
-bool vecRemove(Unit* target, std::list<Unit*>& list) { //this one tells you if it's in the list and it erases it if it finds it
-	for (std::list<Unit*>::iterator it = list.begin(); it != list.end(); ++it) {
-		if (*it == target) {
-			list.erase(it);
-			return true;
-		}
-	}
-	return false;
-}
-*/

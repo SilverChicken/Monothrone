@@ -35,6 +35,7 @@ class Location;
 class Unit;
 class Throne;
 class Ressource;
+class Gui;
 
 class Gamemode
 {
@@ -46,6 +47,7 @@ private:
 	//Objects were rendering
 	Map* map;
 	Player * player;
+	Gui * gui;
 	
 
 	std::unordered_map<int, Unit *> Thrones;
@@ -100,7 +102,7 @@ public:
 	void update();
 	void draw(GLuint);
 	void drawMap();
-
+	void drawGui();
 
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 

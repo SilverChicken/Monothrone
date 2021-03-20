@@ -15,6 +15,9 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+
+#define WINSIZE 640
+
 class Window
 {
 public:

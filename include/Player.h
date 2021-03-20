@@ -7,6 +7,7 @@
 
 
 #define ZOOMDEF 20
+#define GUISPACE 4
 #define MAXZOOM 4
 #define MINZOOM -4
 
@@ -108,6 +109,7 @@ public:
 	bool removeVision(Location*);
 	bool removeCloud(Location*);
 	float changeZoom(float);
+	bool cull(Location *);        //Says if the object at location is on screen
 	void draw(unsigned int*, GLuint);
 
 private:
@@ -122,6 +124,7 @@ private:
 	void setBotLeft(glm::vec2);
 
 	bool checkCameraChange();     //will also change the camera if necessary
+	
 
 };
 

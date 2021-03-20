@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "Map.h"
+#include "Gui.h"
 
 #include "Player.h"
 #include "Throne.h"
@@ -46,6 +47,7 @@ void Gamemode::init()
 
 	map = new Map();
 	player = new Player(2, map->getLoc(7, 7), map);
+	gui = new Gui();
 
 	//can do that in player too, eventually should.
 
@@ -240,6 +242,7 @@ Location * Gamemode::findClosestType(Location * base, int type)
 		Location * newVert;
 
 		if (base->getOwner() != nullptr) {   
+			//race condition on base if someone else takes it between these 2 lines? never happens bc exception
 			if (base->getOwner()->getClassType() == type) {
 				return base;
 			}
@@ -293,6 +296,12 @@ Location * Gamemode::findClosestType(Location * base, int type)
 	//Getting here means the stack becomes empty :(
 	return nullptr; //then the search has failed. we throw an exception, this should basically end the game. Maybe an easter egg?
 	//Basically this is a bit dangerous
+
+	//Sometimes we get here when we shouldn't.
+	//So the stack must empty itself out without finding the right type.
+	//Either the stack grows wrong -> seems not
+	//The Energies don't have the location? -> nah
+	//Type is wrong? -> nope it's well set.
 
 }
 
@@ -393,13 +402,19 @@ void Gamemode::draw(GLuint shaderProgram)
 
 	//Currently as virtual call the derived function which then calls the ressource draw with 1 param 
 	for (Ressource* res : Mountains) {
-		res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);  
+		if (!player->cull(res->getLoc())) {
+			res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
+		} 
 	}
 	for (Ressource* res : Crystals) {
-		res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
+		if (!player->cull(res->getLoc())) {
+			res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
+		}
 	}
 	for (Ressource* res : Energies) {
-		res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
+		if (!player->cull(res->getLoc())) {
+			res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
+		}
 	}
 
 	player->draw(ImLoader::textures, shaderProgram);
@@ -409,6 +424,11 @@ void Gamemode::draw(GLuint shaderProgram)
 void Gamemode::drawMap()
 {
 	map->draw();
+}
+
+void Gamemode::drawGui()
+{
+	gui->draw();
 }
 
 void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
