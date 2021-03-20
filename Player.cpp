@@ -369,7 +369,7 @@ bool Player::checkCameraChange()
 		setBotLeft(BL);
 		return true;
 	}
-	else if ( (Tloc.y - BL.y > (ZOOMDEF) / 2 + camBoxY) && BL.y + ZOOMDEF < MAPSIZE) {
+	else if ( (Tloc.y - BL.y + GUISPACE> (ZOOMDEF) / 2 + camBoxY) && BL.y + ZOOMDEF - GUISPACE< MAPSIZE) {
 		BL += glm::vec2(0.0, 1.0);
 		setBotLeft(BL);
 		return true;

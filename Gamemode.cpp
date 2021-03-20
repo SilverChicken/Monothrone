@@ -247,46 +247,46 @@ Location * Gamemode::findClosestType(Location * base, int type)
 				return base;
 			}
 		}
-		else { //dfs search
-			int x = (int)base->getPos().x;
-			int y = (int)base->getPos().y;
-			int x2 = 0;
-			int y2 = 0;
 
 
-			visited[base] = base->state; //we have now visited this vertex
+		int x = (int)base->getPos().x;
+		int y = (int)base->getPos().y;
+		int x2 = 0;
+		int y2 = 0;
 
-			if (x > 0) { //there's a vertex on the left
-				x2 = x - 1;
-				y2 = y;
-				newVert = map->getLoc(x2, y2);
-				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
-					stack.push_back(newVert);        //If it wasn't then we add it to the visited list
-				}
+
+		visited[base] = base->state; //we have now visited this vertex
+
+		if (x > 0) { //there's a vertex on the left
+			x2 = x - 1;
+			y2 = y;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
+				stack.push_back(newVert);        //If it wasn't then we add it to the visited list
 			}
-			if (x < MAPSIZE - 1) { //vertex to the right
-				x2 = x + 1;
-				y2 = y;
-				newVert = map->getLoc(x2, y2);
-				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
-					stack.push_back(newVert);
-				}
+		}
+		if (x < MAPSIZE - 1) { //vertex to the right
+			x2 = x + 1;
+			y2 = y;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				stack.push_back(newVert);
 			}
-			if (y > 0) {
-				x2 = x;
-				y2 = y - 1;
-				newVert = map->getLoc(x2, y2);
-				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
-					stack.push_back(newVert);
-				}
+		}
+		if (y > 0) {
+			x2 = x;
+			y2 = y - 1;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				stack.push_back(newVert);
 			}
-			if (y < MAPSIZE - 1) {
-				x2 = x;
-				y2 = y + 1;
-				newVert = map->getLoc(x2, y2);
-				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
-					stack.push_back(newVert);
-				}
+		}
+		if (y < MAPSIZE - 1) {
+			x2 = x;
+			y2 = y + 1;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				stack.push_back(newVert);
 			}
 		}
 

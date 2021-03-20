@@ -32,8 +32,8 @@ void Gui::draw()
 	
 	Font.SetScreen(WINSIZE,WINSIZE);
 	Font.Select();
-	Font.Print((char*)"Units: ", 15, 85);   //Write in terms of WINSIZE?
-	
+	Font.Print((char*)"Units: ", 15, 85);   
+	//Write in terms of WINSIZE? No, be globals that are set by a switch on RESOLUTION set in menus
 	Font.Print((char*)"Q- ", 10, 60);
 	Font.Print((char*)"W- ", 160, 60);
 	Font.Print((char*)"E- ", 310, 60);
