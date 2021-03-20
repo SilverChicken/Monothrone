@@ -27,7 +27,7 @@ Energy::Energy(Location * location, Map* map)
 	if (setLoc(location)) { //This *should* be true because of the previous check
 
 		//all is innited, now add this to the Map's ressource count, and then decide if we spawn another in the cluster
-		map->addEnergies(this);
+		game->addEnergies(this);
 
 		//now decide if we are spawning another 
 		if (((double)rand() / RAND_MAX) >= probSpawn) {

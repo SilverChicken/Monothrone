@@ -12,13 +12,16 @@
 #include"Map.h"
 #include"Unit.h"
 
+#include "Gamemode.h"
 
 
 #define BINDINGCOUNT 6  //Also defined in Unit.h 
 
 
-bool vecSearch(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector. Iterates forwards
-bool vecRemove(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector, if it is it removes A
+//bool vecSearch(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector. Iterates forwards
+//bool vecRemove(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector, if it is it removes A
+
+
 
 Player::Player(int Npid, Location* location, Map * mapo)
 {
@@ -36,7 +39,9 @@ Player::Player(int Npid, Location* location, Map * mapo)
 
 	
 	map = mapo; //get reference to the map
-	map->addPlayer(PID, this);  //Adds self to map references
+
+	Gamemode* game = &Gamemode::getInstance();
+	game->addPlayer(PID, this);  //Adds self to map references
 
 	setLoc(location);  //Set the location to the specified location
 
@@ -55,7 +60,10 @@ Player::Player(int Npid, Location* location, Map * mapo)
 Player::~Player()
 {
 	for (std::map<Unit*, bool>::iterator it = units.begin(); it != units.end(); ++it) {
-		delete(it->first);
+		if (it->first) {
+			delete(it->first);
+		}
+		
 	}
 
 	delete(bindings);
@@ -141,10 +149,10 @@ void Player::addUnit(Unit * newUnit)
 
 void Player::update()
 {
-	//This code will happen a few times, but it relies on explicit types so idk how to push this upstream. Will have to do
-
-	for (auto it = units.begin(); it != units.end(); it++) {   
-		it->first->update(map); //Works bc virtual -> We don't need explicit types, just matching function definitions!
+	if (!pause) { 
+		for (auto it = units.begin(); it != units.end(); it++) {
+			it->first->update(map); //Works bc virtual -> We don't need explicit types, just matching function definitions!
+		}
 	}
 }
 
@@ -361,7 +369,7 @@ bool Player::checkCameraChange()
 		setBotLeft(BL);
 		return true;
 	}
-	else if ( (Tloc.y - BL.y > (ZOOMDEF) / 2 + camBoxY) && BL.y + ZOOMDEF < MAPSIZE) {
+	else if ( (Tloc.y - BL.y + GUISPACE> (ZOOMDEF) / 2 + camBoxY) && BL.y + ZOOMDEF - GUISPACE< MAPSIZE) {
 		BL += glm::vec2(0.0, 1.0);
 		setBotLeft(BL);
 		return true;
@@ -374,6 +382,22 @@ bool Player::checkCameraChange()
 	else {
 		return false;
 	}
+}
+
+bool Player::cull(Location * obj) //true then cull, false then don't
+{
+	//For now just find out if we're off screen then return false
+	glm::vec2 p = obj->getPos();
+	glm::vec2 bl = botLeft->getPos();
+	if (p.x < bl.x || p.y < bl.y || p.x > bl.x + ZOOMDEF || p.y > bl.y + ZOOMDEF - GUISPACE) { //off the grid
+		return true;
+	}
+
+
+	//Later we can incorporate vision
+
+	return false;
+
 }
 
 
@@ -418,10 +442,10 @@ void Player::draw(unsigned int* texture, GLuint shaderprog)
 	//All unit draws are the same!
 
 	for (auto it = units.begin(); it != units.end(); it++) {
-		it->first->draw(texture[it->first->getTexLoc()], shaderprog);
+		if (!cull(it->first->getLoc())) {
+			it->first->draw(texture[it->first->getTexLoc()], shaderprog);
+		}
 	}
-
-
 
 
 	//send material information to the shader
@@ -452,24 +476,4 @@ void Player::draw(unsigned int* texture, GLuint shaderprog)
 
 
 
-}
-
-bool vecSearch(Unit * target, std::list<Unit*>& list) //Just tells you if target is in list
-{
-	for (std::list<Unit*>::iterator it = list.begin(); it != list.end(); ++it) {
-		if (*it == target) {
-			return true;
-		}
-	}
-	return false;
-}
-
-bool vecRemove(Unit* target, std::list<Unit*>& list) { //this one tells you if it's in the list and it erases it if it finds it
-	for (std::list<Unit*>::iterator it = list.begin(); it != list.end(); ++it) {
-		if (*it == target) {
-			list.erase(it);
-			return true;
-		}
-	}
-	return false;
 }

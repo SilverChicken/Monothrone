@@ -31,9 +31,11 @@
 //This class will be held by Window which will then only be in charge of managing GLFW and this class
 class Player;
 class Map;
+class Location;
 class Unit;
 class Throne;
 class Ressource;
+class Gui;
 
 class Gamemode
 {
@@ -45,6 +47,7 @@ private:
 	//Objects were rendering
 	Map* map;
 	Player * player;
+	Gui * gui;
 	
 
 	std::unordered_map<int, Unit *> Thrones;
@@ -55,16 +58,28 @@ private:
 	std::vector<Ressource *> Energies;  //Refs to the energies
 
 	Gamemode() {};
+	void cleanup();
+
+	void categorizeAccess(); //gets connected components, fills the smaller ones with locs
+	void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg, int CRY, int Varcry);
+
 
 public:
 
 	~Gamemode();
 	static Gamemode& getInstance();
 
-	void init();
-	void categorizeAccess(); //gets connected components, fills the smaller ones with locs
-	void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg, int CRY, int Varcry);
 
+	void init();
+	
+	
+
+
+	//Interfacing Unit -> Player
+	void incRessource(int val, int player);
+
+
+	Location* findClosestType(Location *, int);    //finds nearest locateable of the type passed in as int.
 
 	std::vector<Ressource *> getMountains();
 	std::vector<Ressource *> getCrystals();
@@ -72,6 +87,8 @@ public:
 	bool addMountain(Ressource *);        //------------------ Mountain
 	bool addCrystals(Ressource *);        //------------------ Crystal
 	bool addEnergies(Ressource *);        //Called whenever an Energy is Spawned
+	void removeRessource(Ressource *);    //Removes Crystal or Energy
+	
 
 
 	Unit* getThrone(int);
@@ -79,11 +96,13 @@ public:
 	void addThrone(int, Unit*);
 	void addPlayer(int, Player*);
 
+	Map * getMap();
+
 
 	void update();
 	void draw(GLuint);
 	void drawMap();
-
+	void drawGui();
 
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 

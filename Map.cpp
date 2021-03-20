@@ -1,14 +1,17 @@
 #include "Map.h"
+#include "Utils.h"
+
 #include<iostream>
 #include<queue>
 
 //Helper function for A*
-bool const locCompute(std::pair<Location*, int>, std::pair<Location*, int>);
-int calcDist(Location*, Location*);   //calculates the distance to target
+/*
+bool const locCompute(std::pair<Location*, float>, std::pair<Location*, float>);
+float calcDist(Location*, Location*);   //calculates the distance to target
 
 //helper functions for vector search
 bool listSearch(Location * location, std::list<Location*> & visited);  //Just loops from the back to the front, more likely to find
-
+*/
 
 
 Map::Map()
@@ -64,6 +67,7 @@ Map::Map()
 
 Map::~Map()
 {
+	/*
 	for (Ressource* res : Mountains) {
 		delete(res);
 	}
@@ -73,6 +77,7 @@ Map::~Map()
 	for (Ressource* res : Energies) {
 		delete(res);
 	}
+	*/
 
 	for (int i = 0; i < MAPSIZE; i++) {
 		for (int j = 0; j < MAPSIZE; j++) {
@@ -129,39 +134,7 @@ Location * Map::getLoc(int x, int y)
 	return map[x][y];    //This will always be valid! not always free
 }
 
-std::vector<Ressource*> Map::getMountains()
-{
-	return Mountains;
-}
-
-std::vector<Ressource*> Map::getCrystals()
-{
-	return Crystals;
-}
-
-std::vector<Ressource*> Map::getEnergies()
-{
-	return Energies;
-}
-
-bool Map::addMountain(Ressource * mtn)
-{
-	Mountains.push_back(mtn);
-	return true;              //bool if we ever change type
-}
-
-bool Map::addCrystals(Ressource * cry)
-{
-	Crystals.push_back(cry);
-	return true;              //bool if we ever change type
-}
-
-bool Map::addEnergies(Ressource * nrg)
-{
-	Energies.push_back(nrg);
-	return true;              //bool if we ever change type
-}
-
+/*
 Unit * Map::getThrone(int ID)
 {
 	return Thrones[ID];
@@ -182,6 +155,7 @@ void Map::addThrone(int ID, Unit* throne)
 	Thrones[ID] = throne;
 }
 
+
 bool ** Map::getBox(glm::vec2 a, glm::vec2 b)
 {
 	return getBox(a.x, a.y, b.x, b.y);
@@ -195,6 +169,7 @@ bool ** Map::getBox(int x, int y, int x2, int y2)   //This function may be usele
 
 	return nullptr;
 }
+*/
 
 bool Map::isAdjacent(Location * A, Location * B) 
 {
@@ -223,13 +198,6 @@ Location * Map::findClosest(Location * base) //Maybe a bit slow so don't use for
 
 	stack.push_back(base);
 
-	return findClosestRecc(visited, stack);
-
-}
-
-Location *  Map::findClosestRecc(std::unordered_map<Location*, bool>& visited, std::list<Location*>& stack)
-{
-
 	while (!stack.empty()) {
 
 		Location* base = stack.front();
@@ -244,7 +212,7 @@ Location *  Map::findClosestRecc(std::unordered_map<Location*, bool>& visited, s
 			int y = (int)base->getPos().y;
 			int x2 = 0;
 			int y2 = 0;
-			
+
 
 			visited[base] = base->state; //we have now visited this vertex
 
@@ -252,7 +220,7 @@ Location *  Map::findClosestRecc(std::unordered_map<Location*, bool>& visited, s
 				x2 = x - 1;
 				y2 = y;
 				newVert = getLoc(x2, y2);
-				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
 					stack.push_back(newVert);        //If it wasn't then we add it to the visited list
 				}
 			}
@@ -260,7 +228,7 @@ Location *  Map::findClosestRecc(std::unordered_map<Location*, bool>& visited, s
 				x2 = x + 1;
 				y2 = y;
 				newVert = getLoc(x2, y2);
-				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
 					stack.push_back(newVert);
 				}
 			}
@@ -268,7 +236,7 @@ Location *  Map::findClosestRecc(std::unordered_map<Location*, bool>& visited, s
 				x2 = x;
 				y2 = y - 1;
 				newVert = getLoc(x2, y2);
-				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
 					stack.push_back(newVert);
 				}
 			}
@@ -276,7 +244,7 @@ Location *  Map::findClosestRecc(std::unordered_map<Location*, bool>& visited, s
 				x2 = x;
 				y2 = y + 1;
 				newVert = getLoc(x2, y2);
-				if (!listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
 					stack.push_back(newVert);
 				}
 			}
@@ -288,7 +256,10 @@ Location *  Map::findClosestRecc(std::unordered_map<Location*, bool>& visited, s
 	//Getting here means the stack becomes empty :(
 	return nullptr; //then the search has failed. we throw an exception, this should basically end the game. Maybe an easter egg?
 	//Basically this is a bit dangerous
+
 }
+
+
 
 Location * Map::findClosestTo(Location * start, Location * target) //closest point to start toward target
 {
@@ -296,14 +267,14 @@ Location * Map::findClosestTo(Location * start, Location * target) //closest poi
 
 	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
 
-	std::priority_queue<std::pair<Location*, int>, std::vector<std::pair<Location*, int>>, decltype(&locCompute)> stack(locCompute);
-	std::unordered_map<Location*, int> cost;
+	std::priority_queue<std::pair<Location*, float>, std::vector<std::pair<Location*, float>>, decltype(&Utils::locComp)> stack(Utils::locComp);
+	std::unordered_map<Location*, float> cost;
 
-	int newCost = 0;
+	float newCost = 0;
 	glm::vec2 newPos;
 	Location* newLoc;
 
-	stack.push(std::pair<Location*, int>(start, 0)); //add the start location
+	stack.push(std::pair<Location*, float>(start, 0.0f)); //add the start location
 	cost.emplace(start, 0);
 
 	while (!stack.empty()) {
@@ -314,7 +285,7 @@ Location * Map::findClosestTo(Location * start, Location * target) //closest poi
 			return current;
 		}
 
-		newCost = cost.at(current) + 1;
+		newCost = cost.at(current) + 3;  //Everytime we move away from the original point, 3* as bad as getting closer to the target.
 
 		for (glm::vec2 dir : dirs) {
 			newPos = current->getPos() + dir;    //Make sure we aren't running off the map
@@ -327,18 +298,10 @@ Location * Map::findClosestTo(Location * start, Location * target) //closest poi
 
 			if (cnd ) { //then newLoc is not in cost so we add it to all of them, since it must be taken
 				cost.emplace(newLoc, newCost);
-				stack.push(std::pair<Location*, int>(newLoc, newCost + calcDist(newLoc, target)));
+				stack.push(std::pair<Location*, float>(newLoc, newCost + Utils::calcDist(newLoc, target)));
 			}
 		}
 	}
-	return nullptr;
-}
-
-Location * Map::findClosestRess(Location *)
-{
-
-	//Dfs early termination, looking for classT of owner
-
 	return nullptr;
 }
 
@@ -349,7 +312,7 @@ void Map::draw()
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 }
 
-
+/*
 bool listSearch(Location * location, std::list<Location*>& list) //linear search from the back
 {
 	std::list<Location *>::iterator it;
@@ -362,7 +325,7 @@ bool listSearch(Location * location, std::list<Location*>& list) //linear search
 }
 
 
-bool const locCompute(std::pair<Location*, int> a, std::pair<Location*, int> b) //compare priority, if the same use x values
+bool const locCompute(std::pair<Location*, float> a, std::pair<Location*, float> b) //compare priority, if the same use x values
 {
 	//Need to be careful, if reflexive false, then keys are equivalent -> prioritize x over y
 
@@ -377,8 +340,9 @@ bool const locCompute(std::pair<Location*, int> a, std::pair<Location*, int> b) 
 }
 
 
-int calcDist(Location* a, Location* b) { //Rounded Euclidian distance -> maybe make float
+float calcDist(Location* a, Location* b) { //Rounded Euclidian distance -> maybe make float
 	float x = a->getPos().x - b->getPos().x;
 	float y = a->getPos().y - b->getPos().y;
-	return (int)(sqrt(x*x + y*y));
+	return (sqrt(x*x + y*y));
 }
+*/

@@ -7,6 +7,7 @@
 
 
 #define ZOOMDEF 20
+#define GUISPACE 4
 #define MAXZOOM 4
 #define MINZOOM -4
 
@@ -46,6 +47,7 @@ private:
 	//array of functions that are bound to AZERTY how it it set? Selection. When Selection is updated we iterate through it
 	int* bindings;
 
+	
 
 	//rendering Vars
 	const int textLocs[3] = { 0, 1, 2 };
@@ -77,6 +79,8 @@ public:
 	std::map<Unit*, bool> getSelection();
 	void update();
 
+	//Pauses the game(for now)
+	bool pause = false;
 	
 
 	//Gameplay fcts
@@ -105,6 +109,7 @@ public:
 	bool removeVision(Location*);
 	bool removeCloud(Location*);
 	float changeZoom(float);
+	bool cull(Location *);        //Says if the object at location is on screen
 	void draw(unsigned int*, GLuint);
 
 private:
@@ -119,6 +124,7 @@ private:
 	void setBotLeft(glm::vec2);
 
 	bool checkCameraChange();     //will also change the camera if necessary
+	
 
 };
 

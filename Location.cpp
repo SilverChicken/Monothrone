@@ -28,7 +28,7 @@ glm::vec2 Location::getPos() {
 
 Locateable * Location::getOwner()
 {
-	return owner;
+	return owner;  
 }
 
 bool Location::take(Locateable* obj) { 

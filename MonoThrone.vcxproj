@@ -157,7 +157,9 @@
   <ItemGroup>
     <ClCompile Include="Crystal.cpp" />
     <ClCompile Include="Energy.cpp" />
+    <ClCompile Include="FontLoader.cpp" />
     <ClCompile Include="Gamemode.cpp" />
+    <ClCompile Include="Gui.cpp" />
     <ClCompile Include="ImLoader.cpp" />
     <ClCompile Include="Locateable.cpp" />
     <ClCompile Include="Location.cpp" />
@@ -170,6 +172,7 @@
     <ClCompile Include="Throne.cpp" />
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Unit.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="Worker.cpp" />
     <ClCompile Include="Worm.cpp" />
@@ -182,7 +185,9 @@
   <ItemGroup>
     <ClInclude Include="include\Crystal.h" />
     <ClInclude Include="include\Energy.h" />
+    <ClInclude Include="include\FontLoader.h" />
     <ClInclude Include="include\Gamemode.h" />
+    <ClInclude Include="include\Gui.h" />
     <ClInclude Include="include\ImLoader.h" />
     <ClInclude Include="include\Locateable.h" />
     <ClInclude Include="include\Location.h" />
@@ -196,6 +201,7 @@
     <ClInclude Include="include\Throne.h" />
     <ClInclude Include="include\Timer.h" />
     <ClInclude Include="include\Unit.h" />
+    <ClInclude Include="include\Utils.h" />
     <ClInclude Include="include\Window.h" />
     <ClInclude Include="include\Worker.h" />
     <ClInclude Include="include\Worm.h" />

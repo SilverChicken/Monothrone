@@ -2,6 +2,8 @@
 #include "Map.h"
 #include "Player.h"
 
+#include "Gamemode.h"
+
 
 Throne::Throne(int owner, Location * loc, Map * map):Unit(owner, loc, map)
 {
@@ -12,8 +14,8 @@ Throne::Throne(int owner, Location * loc, Map * map):Unit(owner, loc, map)
 
 	classType = THRONE_CLASS_T;
 
-	map->addThrone(owner, this);
-	playerRef = map->getPlayer(owner);            //Forces include Map.h, and relies on Player being created before.
+	game->addThrone(owner, this);
+	//playerRef = game->getPlayer(owner);            //Forces include Map.h, and relies on Player being created before.
 
 	//Define which actions are defined
 	actions[0] = false;
@@ -29,6 +31,7 @@ Throne::~Throne()
 
 }
 
+/*
 void Throne::incRessource(int type)
 {
 	if (playerRef) {
@@ -41,6 +44,7 @@ void Throne::incRessource(int type)
 		
 	}
 }
+*/
 
 void Throne::draw(unsigned int texture, GLuint shaderprog)
 {

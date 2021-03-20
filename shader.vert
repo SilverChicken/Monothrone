@@ -9,7 +9,7 @@
 
 //#define MAPSIZEHF 16.0   //map is from -16 to 16 on relative scale, we'll be using half of it
 #define SCREENSIZE 20.0  //# of tiles on screen by default, modified by zoom
-
+#define GUISPACE 0.4     //Space we give the Gui
 
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec2 aTexCoord;
@@ -45,7 +45,7 @@ void main()
 		//this moves the top left to TL and subtracts the screen half. But we need to account for the shape of the tile! use position.
 
 		float xpos = position.x + (location.x - BL.x - screenhf) / screenhf;
-		float ypos = position.y + (location.y - BL.y - screenhf) / screenhf;
+		float ypos = position.y + (location.y - BL.y - screenhf) / screenhf  + GUISPACE; 
 
 		gl_Position = vec4( xpos, ypos, position.z , 1.0);
 		FragPos = vec4(xpos, ypos, position.z , 1.0);
@@ -53,7 +53,7 @@ void main()
 
 	} else {               //Map
 
-		gl_Position = vec4(position.x, position.y, position.z, 1.0);
+		gl_Position = vec4(position.x, position.y + GUISPACE , position.z, 1.0); //- 0.02 not lining up right at bottom
 		FragPos = vec4(position.x, position.y, position.z, 1.0);      //position of a point same as position but accessible
 		texCoord = aTexCoord;
 	}	

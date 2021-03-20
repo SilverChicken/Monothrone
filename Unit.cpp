@@ -6,15 +6,21 @@
 #include<queue>
 #include<unordered_map>
 
+#include "Gamemode.h"
+#include "Utils.h"
+
+//Eventually remove
 #include "Ressource.h"
-#include "Throne.h"
+//#include "Throne.h"
 
 
 //Helper Functions for A* & movement
-Location* target;  
-Location* collectTarget;  //Location we are trying to collect from
-bool const locComp(std::pair<Location*, int>, std::pair<Location*, int>);
-int calcDist(Location*);   //calculates the distance to target
+
+//bool const locComp(std::pair<Location*, float>, std::pair<Location*, float>);
+//float calcDist2(Location*, Location*);   //calculates the distance to target
+
+
+//Gamemode* game = &Gamemode::getInstance();
 
 
 Unit::Unit(int own, Location* loc, Map * map)
@@ -24,10 +30,14 @@ Unit::Unit(int own, Location* loc, Map * map)
 	setLoc(map->findClosest(loc));  //This will always be true;
 	selected = false;
 
+	game = &Gamemode::getInstance();
+
 	//Set class identifier
 	classType = UNIT_CLASS_T;
 
-	Unit * thro = map->getThrone(own);
+	//get rid, move to gamemode
+	/*
+	Unit * thro = game->getThrone(own);
 	if (thro) {   
 		if (thro->getClassType() == THRONE_CLASS_T) {  //Class type for throne
 			throneRef = (Throne*)thro;
@@ -41,13 +51,13 @@ Unit::Unit(int own, Location* loc, Map * map)
 		throneRef = nullptr;
 	}
 	
-
+	*/
 
 }
 
 Unit::~Unit()
 {
-	
+	//delete[](actions);
 }
 
 int Unit::getTexLoc()
@@ -57,8 +67,6 @@ int Unit::getTexLoc()
 
 void Unit::draw(unsigned int texture, GLuint shaderprog)
 {
-
-	
 
 	//send some info about where you are
 	glUniform2f(glGetUniformLocation(shaderprog, "location"), loc->getPos().x, loc->getPos().y);
@@ -120,9 +128,11 @@ void Unit::update(Map* map)
 
 	if (carrying) { //Then it's Crystal or Energy
 		partAnimState = (partAnimState + PARTANIMSTEP) % PARTANIMCT;
-		if (map->isAdjacent(loc, throneRef->getLoc())) { //Then we made it back to Throne!
-			throneRef->incRessource(carrying);
+		if (map->isAdjacent(loc, game->getThrone(owner)->getLoc())) { //Then we made it back to Throne!
+			game->incRessource(carrying, owner);
+			collect(game->findClosestType(collectTarget, carrying), map);  // restarts loop   IS RETURNING NULLPTR
 			carrying = 0; //no longer carrying
+
 			
 		}
 
@@ -158,21 +168,21 @@ bool * Unit::getActions()
 bool Unit::move(Location* targetLoc, Map* map)
 {
 
-	target = map->findClosest(targetLoc);
+	target = map->findClosestTo(targetLoc, loc);
 
 	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
 
-	std::priority_queue<std::pair<Location*, int>, std::vector<std::pair<Location*, int>>, decltype(&locComp)> stack(locComp);
+	std::priority_queue<std::pair<Location*, float>, std::vector<std::pair<Location*, float>>, decltype(&Utils::locComp)> stack(Utils::locComp);
 	std::unordered_map<Location*, Location*> from;
-	std::unordered_map<Location*, int> cost;
+	std::unordered_map<Location*, float> cost;
 
-	int newCost = 0;
+	float newCost = 0;
 	glm::vec2 newPos;
 	Location* newLoc;
 
 	collecting = false;   //If we were collecting then are sent to another destination, we stop collecting;
 
-	stack.push(std::pair<Location*,int>(loc, 0)); //add the start location
+	stack.push(std::pair<Location*,float>(loc, 0.0f)); //add the start location
 	from.emplace(loc, nullptr);
 	cost.emplace(loc, 0);
 
@@ -209,7 +219,7 @@ bool Unit::move(Location* targetLoc, Map* map)
 			if (cnd && newLoc->state) { //then newLoc is not in cost so we add it to all of them, if it's free
 				cost.emplace(newLoc, newCost);
 				from.emplace(newLoc, current);
-				stack.push(std::pair<Location*, int>(newLoc, newCost + calcDist(newLoc)));
+				stack.push(std::pair<Location*, int>(newLoc, newCost + Utils::calcDist(newLoc, target)));
 			}
 		} 
 	}
@@ -243,7 +253,7 @@ bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target
 
 	int typeObj = locOwner->getClassType();
 	
-	if ( typeObj <= MAXRESCLASST && typeObj > MOUNTAIN_CLASS_T && !carrying) { //Check it's still a ressource and that we don't already have a ressource  /////// OR IF IT"S THRONE?
+	if ( (typeObj == ENERGY_CLASS_T || typeObj == CRYSTAL_CLASS_T) && !carrying) { //Check it's still a ressource and that we don't already have a ressource  /////// OR IF IT"S THRONE?
 		Ressource* res = (Ressource*)locOwner;   //Safe cast
 		res->destroy();                          //Forces an include avoid by having virtual Locateable function? 
 
@@ -261,9 +271,8 @@ bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target
 		}
 
 		//If we have a throneRef then we move back to the throne to cash it in
-		if (throneRef) {                       
-			move(throneRef->getLoc(), map);    //This is why we need to pass map
-		}
+                    
+		move(game->getThrone(owner)->getLoc(), map);    //This is why we need to pass map
 		
 		//Call another function once we are adjacent to Throne to return the ressource
 
@@ -289,7 +298,10 @@ bool Unit::consume(Unit * food)
 	return false;
 }
 
-bool const locComp(std::pair<Location*, int> a, std::pair<Location*, int> b) //compare priority, if the same use x values
+
+/*
+
+bool const locComp(std::pair<Location*, float> a, std::pair<Location*, float> b) //compare priority, if the same use x values
 {
 	//Need to be careful, if reflexive false, then keys are equivalent -> prioritize x over y
 
@@ -297,16 +309,18 @@ bool const locComp(std::pair<Location*, int> a, std::pair<Location*, int> b) //c
 		return a.second > b.second;
 	}
 	else { //If they are equal check if they have the same x
-		float da = abs(a.first->getPos().x - target->getPos().x);
-		float db = abs(b.first->getPos().x - target->getPos().x);
+		float da = a.first->getPos().x ;
+		float db = b.first->getPos().x ;
 		return (da < db);
 	}
 	
 }
 
 
-int calcDist(Location* a) { //Rounded Euclidian distance
-	float x = a->getPos().x - target->getPos().x;
-	float y = a->getPos().y - target->getPos().y;
-	return (int)(sqrt(x*x + y*y));
+float calcDist2(Location* a, Location* b) { //Rounded Euclidian distance
+	float x = a->getPos().x - b->getPos().x;
+	float y = a->getPos().y - b->getPos().y;
+	return (sqrt(x*x + y*y));
 }
+
+*/

@@ -12,12 +12,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-
-const char* window_title = "GLFW Starter Project";
+const char* window_title = "MonoThrone";
 
 GLint shaderProgram;
-
-Gamemode game = Gamemode::getInstance();
 
 
 //Timer for tick function
@@ -37,15 +34,15 @@ int Window::height;
 
 //glm::vec3 Window::lastPoint = glm::vec3(0.0, 0.0, 0.0);
 
+Gamemode* game = &Gamemode::getInstance();
 
 
 void Window::initialize_objects()
 {
 	//glm::vec3 lpos = glm::vec3(8.0f, 6.0f, 6.0f);
 
-
-	game.init(); //initialize Gamemode
 	
+	game->init(); //initialize Gamemode
 
 	// Load the shader program. Make sure you have the correct filepath up top
 	shaderProgram = LoadShaders(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH);
@@ -118,7 +115,7 @@ void Window::resize_callback(GLFWwindow* window, int width, int height)
 
 void Window::idle_callback()
 {
-	game.update();
+	game->update();
 }
 
 void Window::display_callback(GLFWwindow* window)
@@ -127,24 +124,33 @@ void Window::display_callback(GLFWwindow* window)
 	// Clear the color and depth buffers
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+	//Stop using shader
+	glUseProgram(0); 
+	game->drawGui();
+
+
+
+	//resume
+	glUseProgram(shaderProgram);
+
 	// Use the shader of programID
 	glUniform1i(glGetUniformLocation(shaderProgram, "myTexture"), 0); //Set the texture Locations
 	glUniform1i(glGetUniformLocation(shaderProgram, "overTex"), 1);
 	glUniform1i(glGetUniformLocation(shaderProgram, "particle"), 2);
 
-	glUseProgram(shaderProgram);
-
+	
 	//update uniforms
 
 	glUniform1f(glGetUniformLocation(shaderProgram, "renderRout"), 0);
 
-	game.drawMap();
+	game->drawMap();
 
 
 	glUniform1f(glGetUniformLocation(shaderProgram, "renderRout"), 1);
 	
 	
-	game.draw(shaderProgram);
+	game->draw(shaderProgram);
 
 
 	glfwPollEvents();
@@ -154,7 +160,7 @@ void Window::display_callback(GLFWwindow* window)
 
 void Window::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) //Eventually check for non-US layouts
 {
-	game.key_callback(window, key, scancode, action, mods);
+	game->key_callback(window, key, scancode, action, mods);
 }
 
 void Window::character_callback(GLFWwindow* window, unsigned int codepoint)

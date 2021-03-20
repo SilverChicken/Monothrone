@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "Map.h"
+#include "Gui.h"
 
 #include "Player.h"
 #include "Throne.h"
@@ -17,27 +18,18 @@
 
 #include "ImLoader.h"
 
+#include "Utils.h"
+
 
 unsigned int * ImLoader::textures; //The static array from ImLoader
 
 
-bool vecSearch(Location * location, std::vector<Location*> & visited);  //Just loops from the back to the front, more likely to find
-
+//int vecSearch(Location * location, std::vector<Location*> & visited);  //Just loops from the back to the front, more likely to find
+//void vecRemove(Ressource * res, std::vector<Ressource*> & vec);
 
 Gamemode::~Gamemode()
 {
-//delete all the things
 
-	for (int i = 0; i < MAX_PLAYER; i++) {
-		if (Thrones.count(i)) {  //Get Thrones & Players
-			delete Thrones[i];
-		}
-		if (Players.count(i)) {
-			delete Players[i];    //This destructor will propagate to Units of Player
-		}
-	}
-
-	delete(map);
 
 
 }
@@ -52,8 +44,10 @@ void Gamemode::init()
 {
 	ImLoader::Loadtextures();
 
+
 	map = new Map();
 	player = new Player(2, map->getLoc(7, 7), map);
+	gui = new Gui();
 
 	//can do that in player too, eventually should.
 
@@ -68,7 +62,6 @@ void Gamemode::init()
 	//setup basic units
 	//testing out worm spawning
 
-
 	//Throne MUST be spawned first
 	Unit* throne = player->spawnUnit<Throne>(map->getLoc(5, 5));
 
@@ -77,6 +70,22 @@ void Gamemode::init()
 	}
 
 
+}
+
+void Gamemode::cleanup()
+{
+	//delete all the things
+
+	for (int i = 0; i < MAX_PLAYER; i++) {
+		if (Thrones.count(i)) {  // Thrones are already deleted as they are units
+			//delete Thrones[i];
+		}
+		if (Players.count(i)) {
+			delete Players[i];    //This destructor will propagate to Units of Player
+		}
+	}
+
+	delete(map);
 }
 
 void Gamemode::categorizeAccess()
@@ -127,7 +136,7 @@ void Gamemode::categorizeAccess()
 				loc = map->getLoc(pos + dir);
 
 				//check that loc is not on stack and that it is free
-				if (freeLocs.count(loc) && !vecSearch(loc, stack)) {
+				if (freeLocs.count(loc) && !Utils::vecSearch(loc, stack)) {
 					stack.push_back(loc);
 				}
 			}
@@ -206,6 +215,96 @@ void Gamemode::SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, 
 
 }
 
+void Gamemode::incRessource(int type, int player)
+{
+	Player * pl = Players.at(player); //should never be null
+	if (type == ENERGY_CLASS_T) {
+		pl->incEnergy(1);
+	}
+	else if (type == CRYSTAL_CLASS_T) {
+		pl->incCrystal(1);
+	}
+}
+
+Location * Gamemode::findClosestType(Location * base, int type)
+{
+	//Dfs early termination, looking for classT of owner
+
+	std::unordered_map<Location*, bool> visited;
+	std::list<Location*> stack;   //the current stack to look through, should be a deque
+
+	stack.push_back(base);
+
+	while (!stack.empty()) {
+
+		Location* base = stack.front();
+		stack.pop_front();
+		Location * newVert;
+
+		if (base->getOwner() != nullptr) {   
+			//race condition on base if someone else takes it between these 2 lines? never happens bc exception
+			if (base->getOwner()->getClassType() == type) {
+				return base;
+			}
+		}
+
+
+		int x = (int)base->getPos().x;
+		int y = (int)base->getPos().y;
+		int x2 = 0;
+		int y2 = 0;
+
+
+		visited[base] = base->state; //we have now visited this vertex
+
+		if (x > 0) { //there's a vertex on the left
+			x2 = x - 1;
+			y2 = y;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
+				stack.push_back(newVert);        //If it wasn't then we add it to the visited list
+			}
+		}
+		if (x < MAPSIZE - 1) { //vertex to the right
+			x2 = x + 1;
+			y2 = y;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				stack.push_back(newVert);
+			}
+		}
+		if (y > 0) {
+			x2 = x;
+			y2 = y - 1;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				stack.push_back(newVert);
+			}
+		}
+		if (y < MAPSIZE - 1) {
+			x2 = x;
+			y2 = y + 1;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				stack.push_back(newVert);
+			}
+		}
+
+		//Now the vertices are added so back to the top of the while loop!
+
+	}
+	//Getting here means the stack becomes empty :(
+	return nullptr; //then the search has failed. we throw an exception, this should basically end the game. Maybe an easter egg?
+	//Basically this is a bit dangerous
+
+	//Sometimes we get here when we shouldn't.
+	//So the stack must empty itself out without finding the right type.
+	//Either the stack grows wrong -> seems not
+	//The Energies don't have the location? -> nah
+	//Type is wrong? -> nope it's well set.
+
+}
+
 std::vector<Ressource*> Gamemode::getMountains()
 {
 	return Mountains;
@@ -248,6 +347,17 @@ bool Gamemode::addEnergies(Ressource * res)
 	return false;
 }
 
+void Gamemode::removeRessource(Ressource * res)
+{
+
+	if (res->getClassType() == CRYSTAL_CLASS_T) {
+		Utils::vecRemove<Ressource>(res, Crystals);
+	}
+	else if (res->getClassType() == ENERGY_CLASS_T) {
+		Utils::vecRemove<Ressource>(res, Energies);
+	}
+}
+
 Unit * Gamemode::getThrone(int own)
 {
 	return Thrones[own];
@@ -270,6 +380,11 @@ void Gamemode::addPlayer(int own, Player * player)
 	Players[own] = player;
 }
 
+Map * Gamemode::getMap()
+{
+	return map;
+}
+
 void Gamemode::update()
 {
 	ticker.inc();
@@ -286,14 +401,20 @@ void Gamemode::draw(GLuint shaderProgram)
 {
 
 	//Currently as virtual call the derived function which then calls the ressource draw with 1 param 
-	for (Ressource* res : map->getMountains()) {
-		res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);  
+	for (Ressource* res : Mountains) {
+		if (!player->cull(res->getLoc())) {
+			res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
+		} 
 	}
-	for (Ressource* res : map->getCrystals()) {
-		res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
+	for (Ressource* res : Crystals) {
+		if (!player->cull(res->getLoc())) {
+			res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
+		}
 	}
-	for (Ressource* res : map->getEnergies()) {
-		res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
+	for (Ressource* res : Energies) {
+		if (!player->cull(res->getLoc())) {
+			res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
+		}
 	}
 
 	player->draw(ImLoader::textures, shaderProgram);
@@ -305,6 +426,11 @@ void Gamemode::drawMap()
 	map->draw();
 }
 
+void Gamemode::drawGui()
+{
+	gui->draw();
+}
+
 void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
 	// Check for a key press
@@ -314,6 +440,10 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 		case GLFW_KEY_ESCAPE: // Check if escape was pressed
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
+
+			//delete appropriate things in appropriate order
+			cleanup();
+
 			break;
 
 		case GLFW_KEY_UP:
@@ -378,6 +508,9 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 			player->actionKey(5);
 			break;
 
+		case GLFW_KEY_P:
+			player->pause = !player->pause;
+			break;
 
 		default:
 			break;
@@ -412,9 +545,9 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 }
 
 
+/*
 
-
-bool vecSearch(Location * location, std::vector<Location*>& list) //linear search from the back
+int vecSearch(Location * location, std::vector<Location*>& list) //linear search from the back
 {
 	std::vector<Location *>::iterator it;
 	for (it = list.end(); it != list.begin();) {
@@ -424,3 +557,15 @@ bool vecSearch(Location * location, std::vector<Location*>& list) //linear searc
 	}
 	return false;
 }
+
+void vecRemove(Ressource * res, std::vector<Ressource*>& list) //linear search from the back, erases if found
+{
+	std::vector<Ressource *>::iterator it;
+	for (it = list.end(); it != list.begin();) {
+		if (*--it == res) {
+			list.erase(it);
+			break;
+		}
+	}
+}
+*/

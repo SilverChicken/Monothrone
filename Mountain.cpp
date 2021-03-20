@@ -27,7 +27,7 @@ Mountain::Mountain(Location * location, Map* map)
 	if (setLoc(location)) { //This *should* be true because of the previous check
 		
 		//all is innited, now add this to the Map's ressource count, and then decide if we spawn another in the cluster
-		map->addMountain(this);
+		game->addMountain(this);
 
 		//now decide if we are spawning another 
 		if ( ((double)rand() / RAND_MAX) >= probSpawn) {
@@ -58,7 +58,7 @@ Mountain::Mountain(Location * location, Map * map, bool single) //The bool doesn
 
 
 	if (setLoc(location)) { //This *should* be true because of this function should not be called except to fill
-		map->addMountain(this);
+		game->addMountain(this);
 	}
 	else {
 		std::cout << "Mountain spawned at taken location: (" << location->getPos().x << ", " << location->getPos().y << ")" << std::endl;

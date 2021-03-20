@@ -1,21 +1,21 @@
 #pragma once
 #include "Unit.h"
 
-class Player;
+
 
 class Throne : public Unit
 {
 private:
 	const int textLocs[3] = { 6, 7, 8 };    //locations for mountain are index 12-15 (ImLoader.cpp)
 	
-	Player* playerRef;
+	//Player* playerRef;
 
 public:
 	Throne(int, Location*, Map* map);
 	~Throne();
 
 	//Interfacing with Player
-	void incRessource(int);
+	//void incRessource(int);
 
 
 
