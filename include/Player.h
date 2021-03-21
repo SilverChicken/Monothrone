@@ -47,7 +47,6 @@ private:
 	//array of functions that are bound to AZERTY how it it set? Selection. When Selection is updated we iterate through it
 	int* bindings;
 
-	
 
 	//rendering Vars
 	const int textLocs[3] = { 0, 1, 2 };
@@ -74,6 +73,8 @@ public:
 	bool setLoc(int, int);  //overloads for coordinates
 	bool setLoc(glm::vec2);
 
+	int getCrystal();
+	int getEnergy();
 
 	//Unit management
 	std::map<Unit*, bool> getSelection();

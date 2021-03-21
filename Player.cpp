@@ -21,7 +21,7 @@
 //bool vecSearch(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector. Iterates forwards
 //bool vecRemove(Unit*, std::list<Unit*>&); //Helper function to check if A is in the Vector, if it is it removes A
 
-
+Gamemode* playerGame = &Gamemode::getInstance();
 
 Player::Player(int Npid, Location* location, Map * mapo)
 {
@@ -32,6 +32,9 @@ Player::Player(int Npid, Location* location, Map * mapo)
 	PID = Npid;
 	energy = 0;
 	crystal = 0;
+
+	//Possibly update the GUI here?
+
 	hasThrone = true;
 	zoom = 0;
 	camBoxX = 5; 
@@ -40,8 +43,8 @@ Player::Player(int Npid, Location* location, Map * mapo)
 	
 	map = mapo; //get reference to the map
 
-	Gamemode* game = &Gamemode::getInstance();
-	game->addPlayer(PID, this);  //Adds self to map references
+
+	playerGame->addPlayer(PID, this);  //Adds self to map references
 
 	setLoc(location);  //Set the location to the specified location
 
@@ -117,6 +120,16 @@ bool Player::setLoc(glm::vec2 locate)
 	return false;
 }
 
+int Player::getCrystal()
+{
+	return crystal;
+}
+
+int Player::getEnergy()
+{
+	return energy;
+}
+
 std::map<Unit*, bool> Player::getSelection()
 {
 	return selection;
@@ -124,10 +137,11 @@ std::map<Unit*, bool> Player::getSelection()
 
 void Player::updateBindings()
 {
+
 	bool impl; //Tracks if function i is implemented by ALL members of selection
 	int j = 0; //The index of bindings that we are trying to fill
 	for (int i = 0; i < ACTIONCOUNT; i++) {
-		impl = true;
+		impl = true && !selection.empty();
 		for (auto it = selection.begin(); it != selection.end() && impl; it++) { //for loop stops as soon as impl is false
 			impl = impl && it->first->getActions()[i]; //Makes sure that function i is implemented by every element of selection
 		}
@@ -140,6 +154,14 @@ void Player::updateBindings()
 		bindings[j] = -1;
 		j++;
 	}
+
+	//Now that Bindings is done, update the Gui bindings!
+	playerGame->updateGuiBind(&bindings[0]);
+
+	//Also update the gui selection! pass object by reference
+
+
+
 }
 
 void Player::addUnit(Unit * newUnit)
@@ -253,8 +275,9 @@ void Player::deselectAll()
 	for (auto it = selection.begin(); it != selection.end(); it++) {
 		it->first->deselect();
 	}
-	updateBindings();									//Update the bindings
 	selection.clear();
+	updateBindings();									//Update the bindings
+	
 }
 
 bool Player::checkHasThrone()
@@ -265,6 +288,7 @@ bool Player::checkHasThrone()
 bool Player::incEnergy(int)
 {
 	energy++;
+	
 	return true;
 }
 

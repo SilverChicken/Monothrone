@@ -47,7 +47,7 @@ private:
 	//Objects were rendering
 	Map* map;
 	Player * player;
-	Gui * gui;
+	Gui * gui;  //-> will need multiple for multiplayer
 	
 
 	std::unordered_map<int, Unit *> Thrones;
@@ -75,8 +75,9 @@ public:
 	
 
 
-	//Interfacing Unit -> Player
+	//Interfacing Unit -> Player and relay to Gui
 	void incRessource(int val, int player);
+	void updateGuiBind(int* pBind);
 
 
 	Location* findClosestType(Location *, int);    //finds nearest locateable of the type passed in as int.
@@ -97,7 +98,7 @@ public:
 	void addPlayer(int, Player*);
 
 	Map * getMap();
-
+	
 
 	void update();
 	void draw(GLuint);

@@ -9,14 +9,36 @@
 #include <GLFW/glfw3.h>
 
 #include "FontLoader.h"
+#include <string>
 
+#define BINDINGCOUNT 6
+
+struct unitList { //1 var for each unit type
+	bool worm = 0;
+	bool worker = 0;
+	bool throne = 0;
+	bool refrac = 0;
+	bool manufac = 0;
+};
 
 class Gui {
 
 private:
 	//float toolHeight = 10;
+	const std::string binds[BINDINGCOUNT] = { "Move", "Collect", "Spawn","Build","Consume", "Action" }; //Action names
 
-	float vertices[32] = {                          
+	
+	char* blank; //Use this to print blank spaces
+
+	char* Keybind[BINDINGCOUNT] = {blank, blank, blank, blank, blank, blank };
+	
+	
+
+	char* crystal;
+	char* energy; //saved so we don't have to convert each draw
+	unitList units;
+
+	float vertices[32] = {  //Just for last part of the Gui, the crystal & evergy count                        
 		// positions          // texture coords
 		 0.1f,  0.1f, 0.0f,   1.0f, 1.0f,   // top right
 		 0.1f,  0.0f, 0.0f,   1.0f, 0.0f,   // bottom right

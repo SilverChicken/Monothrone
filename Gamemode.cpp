@@ -44,10 +44,10 @@ void Gamemode::init()
 {
 	ImLoader::Loadtextures();
 
-
+	gui = new Gui();
 	map = new Map();
 	player = new Player(2, map->getLoc(7, 7), map);
-	gui = new Gui();
+	
 
 	//can do that in player too, eventually should.
 
@@ -220,10 +220,17 @@ void Gamemode::incRessource(int type, int player)
 	Player * pl = Players.at(player); //should never be null
 	if (type == ENERGY_CLASS_T) {
 		pl->incEnergy(1);
+		gui->setEnergy(pl->getEnergy());  //Updates the Gui 
 	}
 	else if (type == CRYSTAL_CLASS_T) {
 		pl->incCrystal(1);
+		gui->setCrystal(pl->getCrystal()); 
 	}
+}
+
+void Gamemode::updateGuiBind(int * pBind)
+{
+	gui->setBinds(&pBind[0]);
 }
 
 Location * Gamemode::findClosestType(Location * base, int type)
@@ -295,13 +302,7 @@ Location * Gamemode::findClosestType(Location * base, int type)
 	}
 	//Getting here means the stack becomes empty :(
 	return nullptr; //then the search has failed. we throw an exception, this should basically end the game. Maybe an easter egg?
-	//Basically this is a bit dangerous
-
-	//Sometimes we get here when we shouldn't.
-	//So the stack must empty itself out without finding the right type.
-	//Either the stack grows wrong -> seems not
-	//The Energies don't have the location? -> nah
-	//Type is wrong? -> nope it's well set.
+	//Basically this is a bit dangerous and it should be handled otherly.
 
 }
 
@@ -481,7 +482,7 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 		case GLFW_KEY_N:
 
 			std::cout << "Breakpoint" << std::endl;
-			player->incEnergy(5);
+			//player->incEnergy(5);
 			break;
 
 		case GLFW_KEY_Q:
