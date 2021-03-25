@@ -119,6 +119,10 @@ void Unit::update(Map* map)
 				path.clear(); //give up
 			}
 		}
+
+		//if almost at path then check if we're building
+
+
 	}
 	else if (collecting) {
 		if (map->isAdjacent(loc, collectTarget)) {
@@ -132,10 +136,11 @@ void Unit::update(Map* map)
 			game->incRessource(carrying, owner);
 			collect(game->findClosestType(collectTarget, carrying), map);  // restarts loop   IS RETURNING NULLPTR
 			carrying = 0; //no longer carrying
-
-			
 		}
+	}
 
+	if (spawnTimer) { //If we have an active spawn timer we decrease it
+		spawnTimer--;
 	}
 
 
@@ -283,14 +288,42 @@ bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target
 	}
 }
 
-bool Unit::build(int x, int y, std::string obj)
+bool Unit::FinishBuild()
 {
 	return false;
 }
 
-Unit * Unit::spawn(std::string baby, glm::vec2 place)
+bool Unit::build(Location * location, int obj)
 {
-	return nullptr;
+		
+	
+	building = true;				//Flag that it's building
+	move(location, game->getMap()); //Move to location
+
+	//move until 1 away from location!!! when path has size1 we call the finishBuild function
+
+
+	return false;
+}
+
+void Unit::spawn(Location * location, int obj)
+{
+	//This one doesn't allow movement
+
+	//Find a free spot adjacent-> getlocation!!!
+	Location* spawnLoc = game->getMap()->findClosest(location);
+	//Don't check distance so that we can wallhack
+
+
+	//Spawn timer?
+	spawnTimer = 10;  //Spawn cooldown constexpr?
+
+
+	//Call gamemode function to spawn unit to player -> pass PID, obj
+	game->spawnUnit(owner, obj, spawnLoc);
+
+	//no free spots: no spawn!
+
 }
 
 bool Unit::consume(Unit * food)

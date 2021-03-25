@@ -9,6 +9,7 @@
 #include "Player.h"
 #include "Throne.h"
 #include "Worm.h"
+#include "Worker.h"
 
 
 #include "Ressource.h"
@@ -204,7 +205,7 @@ void Gamemode::SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, 
 	}
 
 	count = int((rand() % Varcry) - round(Varcry / 2) + CRY);
-	std::cout << "Energy cluster count: " << count << std::endl;
+	std::cout << "Crystal cluster count: " << count << std::endl;
 
 	for (int i = 0; i < count; i++) {
 		x = rand() % MAPSIZE;
@@ -231,6 +232,35 @@ void Gamemode::incRessource(int type, int player)
 void Gamemode::updateGuiBind(int * pBind)
 {
 	gui->setBinds(&pBind[0]);
+}
+
+void Gamemode::spawnUnit(int playe, int obj, Location* spawnLoc)
+{
+	Player * pl = Players.at(playe);
+
+	switch (obj) { //NOTE only spawn Unit subclasses
+		case UNIT_CLASS_T:
+			break;
+		case THRONE_CLASS_T:
+			pl->spawnUnit<Throne>(spawnLoc);
+			break;
+		case REFACTORY_CLASS_T:
+			break;
+		case MANUFACTORY_CLASS_T:
+			break;
+		case WORM_CLASS_T:
+			pl->spawnUnit<Worm>(spawnLoc);
+			break;
+		case WORKER_CLASS_T:
+			pl->spawnUnit<Worker>(spawnLoc);
+			break;
+		default:
+			std::cout << "Invalid obj type send to Gamemode::SpawnUnit" << std::endl;
+			break;
+
+
+	}
+
 }
 
 Location * Gamemode::findClosestType(Location * base, int type)
@@ -393,7 +423,10 @@ void Gamemode::update()
 		//Update unit positions mostly and anim?
 
 		//Player will cascade the update to all its units
-		player->update();
+		for (std::pair<int, Player*>  pl : Players) { //Or do iterator and at it
+			pl.second->update();
+		}
+		
 
 	}
 }
@@ -402,6 +435,9 @@ void Gamemode::draw(GLuint shaderProgram)
 {
 
 	//Currently as virtual call the derived function which then calls the ressource draw with 1 param 
+	//Write for loop for each player but use localPlayer for culling
+
+
 	for (Ressource* res : Mountains) {
 		if (!player->cull(res->getLoc())) {
 			res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);

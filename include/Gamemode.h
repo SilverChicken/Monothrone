@@ -78,6 +78,8 @@ public:
 	//Interfacing Unit -> Player and relay to Gui
 	void incRessource(int val, int player);
 	void updateGuiBind(int* pBind);
+	void spawnUnit(int player, int obj, Location* spawnLoc);
+	
 
 
 	Location* findClosestType(Location *, int);    //finds nearest locateable of the type passed in as int.

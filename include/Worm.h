@@ -7,7 +7,7 @@
 class Worm : public Unit
 {
 private:
-	const int textLocs[9] = { 22, 23, 24, 25, 26, 27, 28, 29, 30 };    //locations for Worm anim are index 22-30 (ImLoader.cpp)
+	static constexpr int textLocs[9] = { 22, 23, 24, 25, 26, 27, 28, 29, 30 };    //locations for Worm anim are index 22-30 (ImLoader.cpp)
 
 public:
 	Worm(int, Location*, Map* map);

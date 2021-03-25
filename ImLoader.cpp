@@ -15,7 +15,7 @@
 
 bool ImLoader::Loadtextures()  //Load all the textures we need to play
 {
-	const int texCt = 47;
+	const int texCt = 52;
 	const char* textLoc[texCt] = {  "art/Char_B.png",  "art/Char_P.png", "art/Char_R.png",			// 0,1,2            Player
 						    "art/Manuf_B.png", "art/Manuf_P.png", "./art/Manuf_R.png",				// 3,4,5            Manuf
 						    "art/Throne_B.png", "art/Throne_P.png", "art/Throne_R.png",				// 6,7,8            Throne
@@ -32,7 +32,9 @@ bool ImLoader::Loadtextures()  //Load all the textures we need to play
 							"art/Worker_B0.png", "art/Worker_P0.png", "art/Worker_R0.png",			// 38, 39, 40         Worker		
 							"art/Worker_B1.png", "art/Worker_P1.png", "art/Worker_R1.png",			// 41, 42, 43         Worker1
 							"art/Worker_B2.png", "art/Worker_P2.png", "art/Worker_R2.png",			// 44, 45, 46         Worker2
-						};
+							"art/CRYIcon.png", "art/NRGIcon.png",									// 47, 48		    Icons for Gui
+							"art/Wall_B.png", "art/Wall_P.png", "art/Wall_R.png"                    // 49, 50, 51
+	};
 
 	textures = new unsigned int[texCt];
 

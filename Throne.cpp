@@ -31,21 +31,6 @@ Throne::~Throne()
 
 }
 
-/*
-void Throne::incRessource(int type)
-{
-	if (playerRef) {
-		if (type == ENERGY_CLASS_T) {
-			playerRef->incEnergy(1);
-		}
-		else if (type == CRYSTAL_CLASS_T) {
-			playerRef->incCrystal(1);
-		}
-		
-	}
-}
-*/
-
 void Throne::draw(unsigned int texture, GLuint shaderprog)
 {
 	//send material information to the shader 
@@ -69,9 +54,21 @@ bool Throne::build(int x, int y, std::string obj)
 	return false;
 }
 
-Unit * Throne::spawn(std::string baby, glm::vec2 place)
+void Throne::spawn(Location * location, int obj)
 {
-	return nullptr;
+	if (!spawnTimer) {
+
+		//Some method of choosing which Class we're spawning, local variable that gets set with upgrades, use as obj
+		
+		//use obj as a selector? or just don't
+
+		
+		//for now just spawn Worms
+		Unit::spawn(location, WORM_CLASS_T);
+
+
+
+	}
 }
 
 bool Throne::consume(Unit * food)

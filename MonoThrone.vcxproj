@@ -173,6 +173,7 @@
     <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Unit.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="Wall.cpp" />
     <ClCompile Include="Window.cpp" />
     <ClCompile Include="Worker.cpp" />
     <ClCompile Include="Worm.cpp" />
@@ -202,6 +203,7 @@
     <ClInclude Include="include\Timer.h" />
     <ClInclude Include="include\Unit.h" />
     <ClInclude Include="include\Utils.h" />
+    <ClInclude Include="include\Wall.h" />
     <ClInclude Include="include\Window.h" />
     <ClInclude Include="include\Worker.h" />
     <ClInclude Include="include\Worm.h" />

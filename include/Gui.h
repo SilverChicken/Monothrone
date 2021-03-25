@@ -25,12 +25,12 @@ class Gui {
 
 private:
 	//float toolHeight = 10;
-	const std::string binds[BINDINGCOUNT] = { "Move", "Collect", "Spawn","Build","Consume", "Action" }; //Action names
+	const std::string binds[BINDINGCOUNT] = { "Move", "Collect", "Build","Spawn","Consume", "Action" }; //Action names
 
-	
+	const int textLocs[2] = { 47, 48 }; //first is nrg second is crystal
+
 	char* blank; //Use this to print blank spaces
-
-	char* Keybind[BINDINGCOUNT] = {blank, blank, blank, blank, blank, blank };
+	char* Keybind[BINDINGCOUNT] = {NULL, NULL, NULL, NULL, NULL, NULL };
 	
 	
 
@@ -69,7 +69,8 @@ public:
 
 	//Render
 
-	void draw();
+	void draw(); //Draws the text (must have shader disabled)
+	void drawIcons(); //Draws the rest (this needs shader!)
 
 
 };

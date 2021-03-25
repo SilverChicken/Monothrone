@@ -333,6 +333,9 @@ void Player::actionKey(int key)
 		case BUILD_LOC://Build
 			break;
 		case SPAWN_LOC://Spawn
+			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
+				it->first->spawn(loc, 0); //Placeholder obj for now
+			}
 			break;
 		case CONSUME_LOC://Consume
 			break;

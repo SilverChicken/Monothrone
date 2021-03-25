@@ -133,3 +133,7 @@ void Gui::draw()
 	Font.Print( energy, 500, 30);
 
 }
+
+void Gui::drawIcons()
+{
+}

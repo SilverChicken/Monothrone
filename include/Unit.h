@@ -1,6 +1,5 @@
 #pragma once
 #include"Locateable.h"
-#include<string>
 #include<vector>
 #include<list>
 
@@ -10,7 +9,6 @@
 
 
 class Map;
-//class Throne;
 class Gamemode;
 
 
@@ -18,7 +16,6 @@ class Unit : public Locateable
 {
 private:
 	int owner;
-	//Throne * throneRef;
 	
 	//Helper Vars for movement and collection
 	int moveTries = 0;        //Keeps track of number of times we get stuck in a row
@@ -43,13 +40,21 @@ protected:
 	int animState = 0;
 	int partAnimState = 0;
 	
-	std::list<Location *> path; //could use a stack instead
+	std::list<Location *> path; //could use a stack instead? or a deque
 	 
 
+	//Collect variables and functions
 	bool collecting = false;
 	int carrying = 0;           //0- nothing, 3- crystal, 2- energy  
 	bool FinishCollect(Map* map);       //Called once the unit has arrived and is adjacent to a collectible
 
+	//Build variables and functions
+	bool building = false;
+	bool FinishBuild();
+
+
+	//Spawn variables and functions
+	int spawnTimer = 0;
 
 
 	bool actions[ACTIONCOUNT];
@@ -77,9 +82,9 @@ public:
 	
 	virtual bool collect(Location *, Map*);  // 1- Collect something at (x,y)  maybe actually takes a ressource pointer
 
-	virtual bool build(int x, int y, std::string obj);		  // 2- Build obj *string* at x,y
+	virtual bool build(Location *, int obj);		  // 2- Build locateable of classID obj at x,y
 	
-	virtual Unit* spawn(std::string baby, glm::vec2 place);   // 3- Spawn a unit *string* at a location, checks if free first
+	virtual void spawn(Location *, int obj);   // 3- Spawn a unit *string* at a location, must be fully imp by child
 	
 	virtual bool consume(Unit* food);						  // 4- Consume a unit to upgrade internally
 	
