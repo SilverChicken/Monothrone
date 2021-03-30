@@ -143,6 +143,13 @@ void Unit::update(Map* map)
 		spawnTimer--;
 	}
 
+	if (building) {
+		if (path.size() == 1) { //1 away from target
+			path.clear();
+			FinishBuild();
+		}
+	}
+
 
 }
 
@@ -290,6 +297,11 @@ bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target
 
 bool Unit::FinishBuild()
 {
+	//We are 1 away from the destination, check tho
+
+	//Creat a pointer to wall type
+	//Make it occupy a space. Give reference to game in unordered map of ref to obj
+
 	return false;
 }
 

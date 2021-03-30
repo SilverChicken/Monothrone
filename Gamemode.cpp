@@ -66,11 +66,11 @@ void Gamemode::init()
 	//Throne MUST be spawned first
 	Unit* throne = player->spawnUnit<Throne>(map->getLoc(5, 5));
 
-	for (int i = 0; i < 6; i++) {
+	for (int i = 0; i < 4; i++) {
 		player->spawnUnit<Worm>(map->getLoc(5, 5));
 	}
 
-
+	
 }
 
 void Gamemode::cleanup()

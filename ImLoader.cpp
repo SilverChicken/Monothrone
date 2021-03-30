@@ -15,7 +15,7 @@
 
 bool ImLoader::Loadtextures()  //Load all the textures we need to play
 {
-	const int texCt = 52;
+	const int texCt = 73;
 	const char* textLoc[texCt] = {  "art/Char_B.png",  "art/Char_P.png", "art/Char_R.png",			// 0,1,2            Player
 						    "art/Manuf_B.png", "art/Manuf_P.png", "./art/Manuf_R.png",				// 3,4,5            Manuf
 						    "art/Throne_B.png", "art/Throne_P.png", "art/Throne_R.png",				// 6,7,8            Throne
@@ -33,7 +33,14 @@ bool ImLoader::Loadtextures()  //Load all the textures we need to play
 							"art/Worker_B1.png", "art/Worker_P1.png", "art/Worker_R1.png",			// 41, 42, 43         Worker1
 							"art/Worker_B2.png", "art/Worker_P2.png", "art/Worker_R2.png",			// 44, 45, 46         Worker2
 							"art/CRYIcon.png", "art/NRGIcon.png",									// 47, 48		    Icons for Gui
-							"art/Wall_B.png", "art/Wall_P.png", "art/Wall_R.png"                    // 49, 50, 51
+							"art/Wall_B.png", "art/Wall_P.png", "art/Wall_R.png",                   // 49, 50, 51       Wall textures
+							"art/Spawn_B0.png", "art/Spawn_P0.png", "art/Spawn_R0.png",             // 52, 53, 54       Spawn 0
+							"art/Spawn_B1.png", "art/Spawn_P1.png", "art/Spawn_R1.png",             // 55, 56, 57       Spawn 1
+							"art/Spawn_B2.png", "art/Spawn_P2.png", "art/Spawn_R2.png",             // 58, 59, 60       Spawn 2
+							"art/Death_B0.png", "art/Death_P0.png", "art/Death_R0.png",             // 61, 62, 63       Death 0
+							"art/Death_B1.png", "art/Death_P1.png", "art/Death_R1.png",             // 64, 65, 66       Death 1
+							"art/Death_B2.png", "art/Death_P2.png", "art/Death_R2.png",             // 67, 68, 69       Death 2
+							"art/Death_B3.png", "art/Death_P3.png", "art/Death_R3.png",             // 70, 71, 72       Death 3
 	};
 
 	textures = new unsigned int[texCt];

@@ -40,8 +40,10 @@ protected:
 	int animState = 0;
 	int partAnimState = 0;
 	
-	std::list<Location *> path; //could use a stack instead? or a deque
+	std::list<Location *> path; //could use a stack instead? or a deque is the one
 	 
+	//Turn flags to state machine struct that is either idle, moving, collecting, carrying, or building?
+
 
 	//Collect variables and functions
 	bool collecting = false;

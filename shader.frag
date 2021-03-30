@@ -94,6 +94,12 @@ vec4 renderMap(){
 		return backcolor;
 	}
 
+	//Make sure to send the texCoord for buttons is sent (in constructor?)
+	//Then if coordinate specific -> FragPos > __ && FragPos < ___ w x and y 
+	//Make sure we bind the icons -> render seperate? 
+
+	//return texture(tex, texCoord);
+
 }
 
 
