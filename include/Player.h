@@ -109,6 +109,7 @@ public:
 	bool addVision(Location*);
 	bool removeVision(Location*);
 	bool removeCloud(Location*);
+	Location * getBotLeft();      //Basically tells us where the camera is
 	float changeZoom(float);
 	bool cull(Location *);        //Says if the object at location is on screen
 	void draw(unsigned int*, GLuint);

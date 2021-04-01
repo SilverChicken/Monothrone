@@ -7,13 +7,18 @@
 Wall::Wall(int own, Location * location, Map* map)
 {
 	owner = own;
-	setLoc(map->findClosest(loc));
+	setLoc(map->findClosest(location));
 
 	//classType = 0;
 }
 
 Wall::~Wall()
 {
+}
+
+int Wall::getOwner()
+{
+	return owner;
 }
 
 void Wall::destroy()

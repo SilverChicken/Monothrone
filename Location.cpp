@@ -1,5 +1,5 @@
 #include "Location.h"
-#include"Locateable.h"
+//#include"Locateable.h"
 #include <iostream>
 
 Location::Location()
@@ -26,8 +26,7 @@ glm::vec2 Location::getPos() {
 	return pos;
 }
 
-Locateable * Location::getOwner()
-{
+Locateable * Location::getOwner(){
 	return owner;  
 }
 
@@ -57,3 +56,5 @@ bool Location::release(Locateable* obj) { //gets called by something after it ta
 	}
 	return false;
 }
+
+

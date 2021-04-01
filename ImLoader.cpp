@@ -32,7 +32,7 @@ bool ImLoader::Loadtextures()  //Load all the textures we need to play
 							"art/Worker_B0.png", "art/Worker_P0.png", "art/Worker_R0.png",			// 38, 39, 40         Worker		
 							"art/Worker_B1.png", "art/Worker_P1.png", "art/Worker_R1.png",			// 41, 42, 43         Worker1
 							"art/Worker_B2.png", "art/Worker_P2.png", "art/Worker_R2.png",			// 44, 45, 46         Worker2
-							"art/CRYIcon.png", "art/NRGIcon.png",									// 47, 48		    Icons for Gui
+							"art/CRYSTIcon.png", "art/NRGIcon.png",									// 47, 48		    Icons for Gui
 							"art/Wall_B.png", "art/Wall_P.png", "art/Wall_R.png",                   // 49, 50, 51       Wall textures
 							"art/Spawn_B0.png", "art/Spawn_P0.png", "art/Spawn_R0.png",             // 52, 53, 54       Spawn 0
 							"art/Spawn_B1.png", "art/Spawn_P1.png", "art/Spawn_R1.png",             // 55, 56, 57       Spawn 1

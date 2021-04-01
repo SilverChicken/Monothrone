@@ -331,6 +331,9 @@ void Player::actionKey(int key)
 			}
 			break;
 		case BUILD_LOC://Build
+			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
+				it->first->build(loc, 0); //Placeholder obj for now
+			}
 			break;
 		case SPAWN_LOC://Spawn
 			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
@@ -443,6 +446,11 @@ bool Player::removeCloud(Location *)
 	return false;
 }
 
+Location * Player::getBotLeft()
+{
+	return botLeft;
+}
+
 float Player::changeZoom(float delta)
 {
 
@@ -496,8 +504,8 @@ void Player::draw(unsigned int* texture, GLuint shaderprog)
 	//std::cout<< loc->getPos().x << "   " << loc->getPos().y << std::endl;
 
 
-	glBindVertexArray(VAO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBindVertexArray(Locateable::VAO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, Locateable::EBO);
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 

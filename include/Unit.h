@@ -7,6 +7,10 @@
 #define PARTANIMCT 6
 #define PARTANIMSTEP 2
 
+#define SPAWNANIMCT 9
+#define DEATHANIMCT 12
+#define LIFEANIMSTEP 3
+
 
 class Map;
 class Gamemode;
@@ -23,9 +27,16 @@ private:
 	Location* collectTarget;  //Location we are trying to collect from
 
 	const int particleLoc[PARTANIMCT] = {32, 35, 33, 36, 34, 37}; //Location of overlay texture for selected units, will be 6 evens are nrg odd is cryst
+	const int spawnLoc[SPAWNANIMCT] = {52, 53, 54, 55, 56, 57, 58, 59, 60};
+	const int deathLoc[DEATHANIMCT] = {61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72};
+
 
 	bool selected;
 
+
+	bool swap(Location*); //used if two of your units are in each others way. Stops blockage midway. Need to also stop blockage part way use find closest less?
+
+	//const bool moveCond(Location *);  //used to send to Map::getClosestToCnd to have appropriate movement
 
 
 protected:
@@ -43,6 +54,7 @@ protected:
 	std::list<Location *> path; //could use a stack instead? or a deque is the one
 	 
 	//Turn flags to state machine struct that is either idle, moving, collecting, carrying, or building?
+	int lifeState = 0; //lifeState indicates spawn animation at 0, normal behavior 1, death anim 2
 
 
 	//Collect variables and functions
@@ -66,6 +78,7 @@ public:
 	virtual ~Unit(); //needs to be virtual but that makes an exception?
 
 	int getTexLoc();
+	int getOwner();
 
 	static const int selectLoc = 31; //Location of overlay texture for selected units
 
@@ -90,7 +103,7 @@ public:
 	
 	virtual bool consume(Unit* food);						  // 4- Consume a unit to upgrade internally
 	
-	
+	//5 some random extra action if we need it
 	
 };
 

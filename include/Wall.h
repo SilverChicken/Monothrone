@@ -17,6 +17,8 @@ public:
 	Wall(int own, Location * location, Map* map);
 	~Wall();
 
+	int getOwner();
+
 	void destroy();
 
 	void draw(GLuint);

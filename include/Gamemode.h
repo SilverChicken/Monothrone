@@ -35,6 +35,7 @@ class Location;
 class Unit;
 class Throne;
 class Ressource;
+class Wall;
 class Gui;
 
 class Gamemode
@@ -52,6 +53,7 @@ private:
 
 	std::unordered_map<int, Unit *> Thrones;
 	std::unordered_map<int, Player *> Players;
+	std::unordered_map<Wall*, int> Walls;
 
 	std::vector<Ressource *> Mountains; //Refs to the mountains
 	std::vector<Ressource *> Crystals;  //Refs to the crystals
@@ -84,6 +86,10 @@ public:
 
 	Location* findClosestType(Location *, int);    //finds nearest locateable of the type passed in as int.
 
+	//Super specific definition, used to move thru your own units
+	Location* findClosestToCnd(Location*, Location*, int, const bool cnd(int, Location*));
+
+
 	std::vector<Ressource *> getMountains();
 	std::vector<Ressource *> getCrystals();
 	std::vector<Ressource *> getEnergies();
@@ -91,6 +97,7 @@ public:
 	bool addCrystals(Ressource *);        //------------------ Crystal
 	bool addEnergies(Ressource *);        //Called whenever an Energy is Spawned
 	void removeRessource(Ressource *);    //Removes Crystal or Energy
+	void addWall(Wall*);
 	
 
 

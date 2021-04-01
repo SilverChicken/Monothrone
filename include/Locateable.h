@@ -38,12 +38,16 @@ static unsigned int indices[6] = {
 	1, 2, 3    // second triangle
 };
 
+static bool inited = false; //Only send data to OpenGl once for all locateables?
+
+
+
 class Locateable
 {
 protected:
 	Location* loc;
 
-	int classType = 0; //type flag that all subs will inherit -> typeOf; Make into CONSTANTS eventually
+	int classType = 0; //type flag that all subs will inherit -> typeOf; Make into CONSTANTS eventually reorganize order
 	// 0 - Just locateable
 	// 1 - Mountain
 	// 2 - Energy
@@ -60,15 +64,21 @@ protected:
 
 	
 
-	GLuint VBO_vert, VAO, EBO;
+	static GLuint VBO_vert, VAO, EBO;
 
 	
 
 public:
 	Locateable();
 	virtual ~Locateable();
+
+	static void cleanup(); //only call once
+
 	int getClassType();
 	Location* getLoc();                 //Only works for non-overlap, for overlap define own function		
 	bool setLoc(Location* newLoc);      //logic here makes sure it does not have 2 locations at once
+
+	bool swapLoc(Locateable*);               //Swaps 2 Locateabes' locs should be threadsafe
+
 };
 

@@ -114,7 +114,7 @@ vec4 renderTile(sampler2D tex, vec2 coord){
 		} else {
 			return color;
 		}
-	} else if (overlay == 2.0){
+	} else if (overlay == 2.0){               //When we want the texture on top of the particle
 		if(color.a == 0.0f){                  
 			return texture(particle, coord);  //Overlay the particle
 		} else {
@@ -128,6 +128,13 @@ vec4 renderTile(sampler2D tex, vec2 coord){
 			return texture(overTex, coord);
 		} else {
 			return color;
+		}
+	} else if (overlay == 4.0){     //When we want particle over the texture
+		vec4 text = texture(particle, coord);
+		if(text.a == 0.0f){                  
+			return color;			//Overlay the particle whenever it's not clear
+		} else {
+			return text;
 		}
 	} else {
 		return color;

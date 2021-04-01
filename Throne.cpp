@@ -20,7 +20,7 @@ Throne::Throne(int owner, Location * loc, Map * map):Unit(owner, loc, map)
 	//Define which actions are defined
 	actions[0] = false;
 	actions[1] = false;
-	actions[2] = true;
+	actions[2] = false;
 	actions[3] = true;
 	actions[4] = true;
 	actions[5] = false;

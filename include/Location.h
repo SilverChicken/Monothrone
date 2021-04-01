@@ -7,7 +7,7 @@ class Locateable;
 class Location
 {
 private:
-	bool lock; //1 is free, 0 is taken
+	bool lock; //1 is free, 0 is taken  maybe make into unique_lock from mutex
 	glm::vec2 pos;
 	Locateable* owner;
 public:
@@ -20,6 +20,8 @@ public:
 	bool take(Locateable* obj);                         //takes if free and sets DO NOT CALL DIRECTLY. Use locateable.setLoc
 	Location* occupy(Locateable* player);               //gets location but does not take lock, for player, & vision
 	bool release(Locateable* obj);
+
+	
 	
 	glm::vec2 getPos();
 	Locateable* getOwner();

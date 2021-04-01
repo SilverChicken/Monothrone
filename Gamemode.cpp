@@ -1,5 +1,6 @@
 #include "Gamemode.h"
 #include <iostream>
+#include <queue>
 #include <stdlib.h>
 #include <time.h>
 
@@ -11,6 +12,7 @@
 #include "Worm.h"
 #include "Worker.h"
 
+#include "Wall.h"
 
 #include "Ressource.h"
 #include "Mountain.h"
@@ -47,7 +49,7 @@ void Gamemode::init()
 
 	gui = new Gui();
 	map = new Map();
-	player = new Player(2, map->getLoc(7, 7), map);
+	player = new Player(1, map->getLoc(7, 7), map);
 	
 
 	//can do that in player too, eventually should.
@@ -85,6 +87,8 @@ void Gamemode::cleanup()
 			delete Players[i];    //This destructor will propagate to Units of Player
 		}
 	}
+
+	Locateable::cleanup();
 
 	delete(map);
 }
@@ -336,6 +340,65 @@ Location * Gamemode::findClosestType(Location * base, int type)
 
 }
 
+
+
+Location * Gamemode::findClosestToCnd(Location * start, Location * target, int ownerP, const bool cond(int, Location*))
+{
+	//Priority queue, look till free, go toward second location -> min distance
+
+	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
+
+	std::priority_queue<std::pair<Location*, float>, std::vector<std::pair<Location*, float>>, decltype(&Utils::locComp)> stack(Utils::locComp);
+	std::unordered_map<Location*, float> cost;
+
+	float newCost = 0;
+	glm::vec2 newPos;
+	Location* newLoc;
+
+	stack.push(std::pair<Location*, float>(start, 0.0f)); //add the start location
+	cost.emplace(start, 0.0f);
+
+
+	//How to we get a unit to do this search? ALL WE NEED IS A OWNER INT
+	/*
+	Unit* startOwn = (Unit*)start->getOwner(); //oh fuck, this search goes around a random point.
+	if (!startOwn) { //Make sure we have a valid owner in order to use the condition, should only happen if improperly called
+		std::cout << "Gamemode::findClosestToCnd failed to find the owner of start" << std::endl;
+		return nullptr;
+	}*/
+
+
+	while (!stack.empty()) {
+		Location* current = stack.top().first;
+		stack.pop();
+
+		if (cond(ownerP,current)) {  //if we find a free spot, return
+			return current;
+		}
+
+		newCost = cost.at(current) + 3;  //Everytime we move away from the original point, 3* as bad as getting closer to the target.
+
+		for (glm::vec2 dir : dirs) {
+			newPos = current->getPos() + dir;    //Make sure we aren't running off the map
+			newLoc = map->getLoc(newPos);
+
+			bool cnd = cost.find(newLoc) == cost.end();  //check if it's already there
+			if (!cnd) {
+				cnd = newCost < cost.at(newLoc);         //check if we found a better path to it, 
+			}
+
+			if (cnd) { //then newLoc is not in cost so we add it to all of them, since it must be taken
+				cost.emplace(newLoc, newCost);
+				stack.push(std::pair<Location*, float>(newLoc, newCost + Utils::calcDist(newLoc, target)));
+			}
+		}
+	}
+	return nullptr;
+}
+
+
+
+
 std::vector<Ressource*> Gamemode::getMountains()
 {
 	return Mountains;
@@ -387,6 +450,11 @@ void Gamemode::removeRessource(Ressource * res)
 	else if (res->getClassType() == ENERGY_CLASS_T) {
 		Utils::vecRemove<Ressource>(res, Energies);
 	}
+}
+
+void Gamemode::addWall(Wall * newWall)
+{
+	Walls[newWall] = newWall->getOwner();
 }
 
 Unit * Gamemode::getThrone(int own)
@@ -454,7 +522,16 @@ void Gamemode::draw(GLuint shaderProgram)
 		}
 	}
 
+	for (auto wall : Walls) {
+		if (!player->cull(wall.first->getLoc())) {
+			wall.first->draw(shaderProgram);
+		}
+	}
+
 	player->draw(ImLoader::textures, shaderProgram);
+
+	glm::vec2 camLoc = player->getBotLeft()->getPos();
+	gui->drawIcons(shaderProgram, camLoc.x, camLoc.y);
 
 }
 
@@ -467,6 +544,7 @@ void Gamemode::drawGui()
 {
 	gui->draw();
 }
+
 
 void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
