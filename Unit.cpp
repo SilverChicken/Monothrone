@@ -289,6 +289,9 @@ bool Unit::move(Location* targetLoc, Map* map)
 	if (!target) {
 		return false; //Shouldn't ever happen
 	}
+	if (target == loc) { //already there
+		return false;
+	}
 
 
 	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
