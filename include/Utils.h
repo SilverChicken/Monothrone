@@ -13,6 +13,7 @@ public:
 	template <typename T>
 	static void vecRemove(T* res, std::vector<T*>& list);
 	static int vecSearch(Location * location, std::vector<Location*>& list);
+	static bool vecSearchInt(int i, std::vector<int>& vec);
 };
 
 //Make all template?

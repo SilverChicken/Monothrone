@@ -80,6 +80,7 @@ public:
 	//Interfacing Unit -> Player and relay to Gui
 	void incRessource(int val, int player);
 	void updateGuiBind(int* pBind);
+	void updateGuiUnit(std::vector<int>&);
 	void spawnUnit(int player, int obj, Location* spawnLoc);
 	
 

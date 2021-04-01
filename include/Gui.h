@@ -13,14 +13,8 @@
 #include <vector>
 
 #define BINDINGCOUNT 6
+#define UNITCOUNT 15     //Mirror MAX_CLASS_T
 
-struct unitList { //1 var for each unit type
-	bool worm = 0;
-	bool worker = 0;
-	bool throne = 0;
-	bool refrac = 0;
-	bool manufac = 0;
-};
 
 class Gui {
 
@@ -28,7 +22,8 @@ private:
 	//float toolHeight = 10;
 	const std::string binds[BINDINGCOUNT] = { "Move", "Collect", "Build","Spawn","Consume", "Action" }; //Action names
 
-	//const std::string units[unitCt] = {"Throne", "Refractory", "Manufactory", "Worm", "Worker" }; and so on
+	const std::string units[UNITCOUNT] = {" ", "Mountain", "Energy", "Crystal", "Unit",
+									"Throne", "Refractory", "Manufactory", "Worm", "Worker" }; // index is Class_T
 
 	const int textLocs[2] = { 47, 48 }; //first is nrg second is crystal
 
@@ -39,7 +34,7 @@ private:
 
 	char* crystal;
 	char* energy; //saved so we don't have to convert each draw
-	unitList units;
+	//unitList units;
 
 	float vertices[32] = {  //Just for last part of the Gui, the crystal & evergy count                        
 		// positions          // texture coords
@@ -68,7 +63,7 @@ public:
 	void setCrystal(int);
 	void setEnergy(int);
 	void setBinds(int*); //Sets the curent bindings takes the bindings array from Player
-	void setUnits();    
+	void setUnits(std::vector<int>&);    
 
 
 	//Render

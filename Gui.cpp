@@ -114,8 +114,20 @@ void Gui::setBinds(int * pBinds)
 
 }
 
-void Gui::setUnits()
+void Gui::setUnits(std::vector<int>& unitsInSel)
 {
+	UnitBind.clear();
+
+	std::string name;
+	char* Cname;
+
+	for (int Ct : unitsInSel) { //Assume Unique
+		name = units[Ct];
+		Cname = new char[name.size() + 1];
+		strcpy_s(Cname, name.size() + 1, name.c_str());
+		UnitBind.push_back(Cname);
+	}
+	
 }
 
 void Gui::draw()
@@ -130,6 +142,25 @@ void Gui::draw()
 	//Write in terms of WINSIZE? No, be globals that are set by a switch on RESOLUTION set in menus
 
 	Font.Print((char*)"Units: ", 15, 85);   
+
+	//Draw the unit names
+	Font.SetCursor(60, 85);
+	int unitSize = UnitBind.size();
+	for (int i = 0; i != unitSize; i++) {
+		//Print each word, the cursor auto updates
+		char* word = UnitBind[i];
+		Font.Print(word);
+
+		//add , and space if not last
+		if (i != unitSize - 1) {
+			Font.Print((char*)", ");
+		}
+	}
+
+
+
+
+
 	Font.Print((char*)"Q- ", 10, 55);
 	Font.Print((char*)"W- ", 160, 55);
 	Font.Print((char*)"E- ", 310, 55);

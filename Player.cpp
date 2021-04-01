@@ -135,6 +135,20 @@ std::map<Unit*, bool> Player::getSelection()
 	return selection;
 }
 
+void Player::UpdateSelectedUnits() //Called after we update bindings!
+{
+	std::vector<int> selectType;
+	int classT;
+
+	for (auto it = selection.begin(); it != selection.end(); it++) {
+		classT = it->first->getClassType();
+		selectType.push_back(classT);
+	}
+	playerGame->updateGuiUnit(selectType);
+
+	
+}
+
 void Player::updateBindings()
 {
 
@@ -159,7 +173,7 @@ void Player::updateBindings()
 	playerGame->updateGuiBind(&bindings[0]);
 
 	//Also update the gui selection! pass object by reference
-
+	UpdateSelectedUnits();
 
 
 }

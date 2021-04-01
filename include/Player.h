@@ -78,6 +78,7 @@ public:
 
 	//Unit management
 	std::map<Unit*, bool> getSelection();
+	void UpdateSelectedUnits(); //Will also update the GUI
 	void update();
 
 	//Pauses the game(for now)

@@ -232,11 +232,18 @@ void Unit::update(Map* map)
 	}
 
 	if (carrying) { //Then it's Crystal or Energy
+
+		//maybe put in function?
 		partAnimState = (partAnimState + PARTANIMSTEP) % PARTANIMCT;
 		if (map->isAdjacent(loc, game->getThrone(owner)->getLoc())) { //Then we made it back to Throne!
 			game->incRessource(carrying, owner);
-			collect(game->findClosestType(collectTarget, carrying), map);  // restarts loop   IS RETURNING NULLPTR
+			go = game->findClosestType(collectTarget, carrying);
+			if (go) {
+				collect(go, map);  // restarts loop if valid ressource exists
+			}
+			
 			carrying = 0; //no longer carrying
+
 		}
 	}
 
@@ -278,6 +285,10 @@ bool Unit::move(Location* targetLoc, Map* map)
 
 	//target = map->findClosestTo(targetLoc, loc); //Dont't call this
 	target = game->findClosestToCnd(targetLoc, loc, owner, moveCond);
+
+	if (!target) {
+		return false; //Shouldn't ever happen
+	}
 
 
 	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
@@ -366,9 +377,18 @@ bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target
 		Location* newTC = (game->findClosestType(collectTarget, CRYSTAL_CLASS_T));
 		//But eventually these will return null!!!
 
-
-		int whichT = (int)(Utils::calcDist(loc, newTC) < Utils::calcDist(loc, newTE)) + 2; //if C is closer this is 3, else 2
-		collect(game->findClosestType(collectTarget, whichT), map); //which one are we going for?
+		if (!newTE && !newTC) {
+		}
+		else if (!newTE) {
+			collect(newTC, map);
+		}
+		else if (!newTC) {
+			collect(newTE, map);
+		}
+		else { //both valid
+			bool whichT = Utils::calcDist(loc, newTC) < Utils::calcDist(loc, newTE);
+			collect( whichT ? newTC : newTE, map); //which one are we going for?
+		}
 
 		return false;
 	}
@@ -447,6 +467,8 @@ void Unit::spawn(Location * location, int obj)
 	//Find a free spot adjacent-> getlocation!!!
 	Location* spawnLoc = game->getMap()->findClosest(location);
 	//Don't check distance so that we can wallhack
+	//if no locations return then there are no free locations
+	
 
 
 	//Spawn timer?

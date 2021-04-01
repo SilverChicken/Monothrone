@@ -238,6 +238,18 @@ void Gamemode::updateGuiBind(int * pBind)
 	gui->setBinds(&pBind[0]);
 }
 
+void Gamemode::updateGuiUnit(std::vector<int>& us)
+{
+	//Makes the selection unique
+	std::vector<int> uniqUnits;
+	for (int i : us) {
+		if (!Utils::vecSearchInt(i, uniqUnits)) {
+			uniqUnits.push_back(i);
+		}
+	}
+	gui->setUnits(uniqUnits);
+}
+
 void Gamemode::spawnUnit(int playe, int obj, Location* spawnLoc)
 {
 	Player * pl = Players.at(playe);
