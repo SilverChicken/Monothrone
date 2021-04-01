@@ -175,13 +175,20 @@ bool Map::isAdjacent(Location * A, Location * B)
 {
 	glm::vec2 Apos = A->getPos();
 	glm::vec2 Bpos = B->getPos();
-	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
+	//glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
 
+	/*
 	for (glm::vec2 dir : dirs) {
 		if (Apos + dir == Bpos) {
 			return true;
 		}
+	}*/
+
+	if (glm::length(Apos - Bpos) <= 1.1f) { //Change to get isWithinDist
+		return true;
 	}
+
+
 	return false;
 
 }
@@ -275,7 +282,7 @@ Location * Map::findClosestTo(Location * start, Location * target) //closest poi
 	Location* newLoc;
 
 	stack.push(std::pair<Location*, float>(start, 0.0f)); //add the start location
-	cost.emplace(start, 0);
+	cost.emplace(start, 0.0f);
 
 	while (!stack.empty()) {
 		Location* current = stack.top().first;
@@ -304,6 +311,8 @@ Location * Map::findClosestTo(Location * start, Location * target) //closest poi
 	}
 	return nullptr;
 }
+
+
 
 void Map::draw()
 {

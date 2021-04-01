@@ -11,6 +11,7 @@
 
 //Eventually remove
 #include "Ressource.h"
+#include "Wall.h"
 //#include "Throne.h"
 
 
@@ -18,15 +19,16 @@
 
 //bool const locComp(std::pair<Location*, float>, std::pair<Location*, float>);
 //float calcDist2(Location*, Location*);   //calculates the distance to target
-
-
 //Gamemode* game = &Gamemode::getInstance();
+
+const bool moveCond(int, Location *);
 
 
 Unit::Unit(int own, Location* loc, Map * map)
 {
 	owner = own;
 	animState = own;                //Initialize animState to owner as state 0
+	partAnimState = own;            //For Spawn animation we also want it init to owner
 	setLoc(map->findClosest(loc));  //This will always be true;
 	selected = false;
 
@@ -35,23 +37,6 @@ Unit::Unit(int own, Location* loc, Map * map)
 	//Set class identifier
 	classType = UNIT_CLASS_T;
 
-	//get rid, move to gamemode
-	/*
-	Unit * thro = game->getThrone(own);
-	if (thro) {   
-		if (thro->getClassType() == THRONE_CLASS_T) {  //Class type for throne
-			throneRef = (Throne*)thro;
-		}
-		else {
-			throneRef = nullptr;
-		}
-		
-	}
-	else {  //Happens for Throne class only as 1st to spawn
-		throneRef = nullptr;
-	}
-	
-	*/
 
 }
 
@@ -64,6 +49,71 @@ int Unit::getTexLoc()
 {
 	return textLoc;
 }
+
+int Unit::getOwner()
+{
+	return owner;
+}
+
+
+bool Unit::swap(Location * swapLocation) //This is go
+{
+	//check that we are both adjacent
+	if (game->getMap()->isAdjacent(loc, swapLocation)) {
+		Locateable* other = swapLocation->getOwner();
+		if (!other) {
+			return false;
+		}
+		if (other->getClassType() >= UNIT_CLASS_T) {  //Then we are trying to swap with a unit
+			Unit* otherU = (Unit*)other;              //Safe cast make dynamic? std::static_cast<Unit*>
+			if (otherU->owner == owner && otherU->actions[0]) {             //Check that they have the same owner & otherU can move
+
+				//Then we can swap!
+
+				//if other not moving, just make them release , then you release then they take yours and you take theirs
+				//update will take care of popping the location from path.
+				if (otherU->path.empty()) {
+					swapLoc(otherU);
+					return true;
+				}
+				//what if they are also moving?
+				else if (otherU->path.front() == loc) {//then check their path.front  if it's our location then we perform the swap and pop their front
+					swapLoc(otherU);
+					otherU->path.pop_front();
+					return true;
+				}
+
+
+				//if it's not our location then they'll move out of our way anyway! so return false
+
+
+			}
+		}
+	}
+
+	return false;
+}
+
+//Not a member for sending reasons
+const bool moveCond(int thisOwn, Location * target) //thisOwn is the owner of the unit probably moving
+{
+	if (target->state) {
+		return true;
+	}
+	Locateable* other = target->getOwner();
+	if (other) {
+		if (other->getClassType() >= UNIT_CLASS_T) {
+			Unit* otherU = (Unit*)other; //safe cast make dynamic?
+			if (otherU->getOwner() == thisOwn && otherU->getActions()[0]) { //same owner and it can move
+				//then we are swappable!
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
 
 void Unit::draw(unsigned int texture, GLuint shaderprog)
 {
@@ -86,6 +136,16 @@ void Unit::draw(unsigned int texture, GLuint shaderprog)
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, ImLoader::textures[particleLoc[partAnimState]]);
 	}
+
+
+	//Not super happy with this, out of bounds possible with particleLoc, spawnLoc and deathLoc since we use the same var to index
+
+
+	else if (lifeState == 0) { //Run the Spawn animation pb if we select
+		glUniform1f(glGetUniformLocation(shaderprog, "overlay"), 4.0f);        //Just particle but it's the spawn anim
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, ImLoader::textures[spawnLoc[partAnimState]]);
+	}
 	else {
 		glUniform1f(glGetUniformLocation(shaderprog, "overlay"), 0.0f);        //None
 	}
@@ -104,9 +164,47 @@ void Unit::update(Map* map)
 {
 
 	
+	if (lifeState == 0) {
+
+		//putting this here ensures that no actions can happen since it returns from update.
+
+		//Use the particle anim variable!
+		partAnimState = (partAnimState + LIFEANIMSTEP) ;   //Spawn only plays once, no looping
+
+		if (partAnimState >= SPAWNANIMCT) { //Go into normal mode
+			lifeState = 1;
+			partAnimState = 0;
+		}
+
+		return;
+	}
+	else if (lifeState == 2) { //On death make sure to reset particle anim state
+
+		partAnimState = (partAnimState + LIFEANIMSTEP) % DEATHANIMCT;
+
+		if (partAnimState >= DEATHANIMCT) { //Go into normal mode
+			
+			//Basically destroy and cleanup
+
+		}
+
+		return;
+	}
+
+
 	Location* go;
 
+	if (building && !path.empty()) { //Check if we're buidling before we move possibly optimize and put into mvt routine
+		go = path.front();
+		if (go == target) {
+			path.clear();
+			FinishBuild();
+		}
+	}
+
+
 	if (!path.empty()) {        //Update location set by move
+		
 		go = path.front();
 		if (setLoc(go)) {		//If we can go, then we pop it. 
 			path.pop_front();  
@@ -115,10 +213,17 @@ void Unit::update(Map* map)
 		else {   //Oh no, this is no longer a valid path!
 			//What if it's never = 3* not free?
 			moveTries++;
-			if (moveTries > 2) { //move() here to target again after n tries -> ends up looking really weird, since issues at end of mvt
+			if (swap(go)) { //if taken by someone swappable
+				path.pop_front(); //Then movement was success!
+				moveTries = 0;
+			} else if(moveTries > 2) {//move() here to target again after n tries -> ends up looking really weird, since issues at end of mvt
 				path.clear(); //give up
 			}
 		}
+
+		//if almost at path then check if we're building
+
+
 	}
 	else if (collecting) {
 		if (map->isAdjacent(loc, collectTarget)) {
@@ -132,18 +237,21 @@ void Unit::update(Map* map)
 			game->incRessource(carrying, owner);
 			collect(game->findClosestType(collectTarget, carrying), map);  // restarts loop   IS RETURNING NULLPTR
 			carrying = 0; //no longer carrying
-
-			
 		}
-
 	}
+
+	if (spawnTimer) { //If we have an active spawn timer we decrease it
+		spawnTimer--;
+	}
+
+
 
 
 }
 
 bool Unit::select(int PID)
 {
-	if (PID == owner) {
+	if (PID == owner && lifeState == 1) {
 		selected = true;
 		return true;
 	}
@@ -168,7 +276,9 @@ bool * Unit::getActions()
 bool Unit::move(Location* targetLoc, Map* map)
 {
 
-	target = map->findClosestTo(targetLoc, loc);
+	//target = map->findClosestTo(targetLoc, loc); //Dont't call this
+	target = game->findClosestToCnd(targetLoc, loc, owner, moveCond);
+
 
 	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
 
@@ -184,7 +294,7 @@ bool Unit::move(Location* targetLoc, Map* map)
 
 	stack.push(std::pair<Location*,float>(loc, 0.0f)); //add the start location
 	from.emplace(loc, nullptr);
-	cost.emplace(loc, 0);
+	cost.emplace(loc, 0.0f);
 
 	while (!stack.empty()) {
 		Location* current = stack.top().first;
@@ -215,11 +325,11 @@ bool Unit::move(Location* targetLoc, Map* map)
 			if (!cnd) {
 				cnd = newCost < cost.at(newLoc);         //check if we found a better path to it, 
 			}
-
-			if (cnd && newLoc->state) { //then newLoc is not in cost so we add it to all of them, if it's free
+			//then newLoc is not in cost so we add it to all of them, if it's free
+			if (cnd && moveCond(owner, newLoc)) {//Used to be newLoc->state    //Change state to moveCon
 				cost.emplace(newLoc, newCost);
 				from.emplace(newLoc, current);
-				stack.push(std::pair<Location*, int>(newLoc, newCost + Utils::calcDist(newLoc, target)));
+				stack.push(std::pair<Location*,float>(newLoc, newCost + Utils::calcDist(newLoc, target)));    //this is loss of data converts
 			}
 		} 
 	}
@@ -244,11 +354,24 @@ bool Unit::collect(Location * location, Map* map)
 }
 
 
+
+
 bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target 
 {
 	Locateable* locOwner = collectTarget->getOwner();
 	//this can still be nullptr!!!
-	if (!locOwner) return false;
+	if (!locOwner) {
+		//find closest between energy and crystal?
+		Location* newTE = (game->findClosestType(collectTarget, ENERGY_CLASS_T));
+		Location* newTC = (game->findClosestType(collectTarget, CRYSTAL_CLASS_T));
+		//But eventually these will return null!!!
+
+
+		int whichT = (int)(Utils::calcDist(loc, newTC) < Utils::calcDist(loc, newTE)) + 2; //if C is closer this is 3, else 2
+		collect(game->findClosestType(collectTarget, whichT), map); //which one are we going for?
+
+		return false;
+	}
 
 
 	int typeObj = locOwner->getClassType();
@@ -283,44 +406,72 @@ bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target
 	}
 }
 
-bool Unit::build(int x, int y, std::string obj)
+bool Unit::FinishBuild()
 {
+	//We are 1 away from the destination, check tho
+	if (game->getMap()->isAdjacent(loc, target)) {
+
+		//For now we just make a wall * and then in future use obj
+		Wall * wall = new Wall(owner, target, game->getMap());
+
+		building = false;
+
+		game->addWall(wall);
+		//Add to gamemode map to draw
+
+
+		return true;
+
+	}
+
 	return false;
 }
 
-Unit * Unit::spawn(std::string baby, glm::vec2 place)
+bool Unit::build(Location * location, int obj)
 {
-	return nullptr;
+		
+	
+	building = true;				//Flag that it's building
+	move(location, game->getMap()); //Move to location
+
+	//move until 1 away from location!!! when path has size1 we call the finishBuild function
+
+
+	return false;
+}
+
+void Unit::spawn(Location * location, int obj)
+{
+	//This one doesn't allow movement
+
+	//Find a free spot adjacent-> getlocation!!!
+	Location* spawnLoc = game->getMap()->findClosest(location);
+	//Don't check distance so that we can wallhack
+
+
+	//Spawn timer?
+	spawnTimer = 10;  //Spawn cooldown constexpr?
+
+
+	//Call gamemode function to spawn unit to player -> pass PID, obj
+	game->spawnUnit(owner, obj, spawnLoc);
+
+	//no free spots: no spawn!
+
 }
 
 bool Unit::consume(Unit * food)
 {
+
+	//Units have priority-> Unit class # lower = stronger.
+
+	//consume called at player level, finds lowest value in selection, 
+
+	//that one consumes the others if multiple one of them consumes all? or distribute
+
+	//Then the destroy is passed and based on locateable # the caller of consume (eater) updates internally
+
+
 	return false;
 }
 
-
-/*
-
-bool const locComp(std::pair<Location*, float> a, std::pair<Location*, float> b) //compare priority, if the same use x values
-{
-	//Need to be careful, if reflexive false, then keys are equivalent -> prioritize x over y
-
-	if (a.second != b.second) {
-		return a.second > b.second;
-	}
-	else { //If they are equal check if they have the same x
-		float da = a.first->getPos().x ;
-		float db = b.first->getPos().x ;
-		return (da < db);
-	}
-	
-}
-
-
-float calcDist2(Location* a, Location* b) { //Rounded Euclidian distance
-	float x = a->getPos().x - b->getPos().x;
-	float y = a->getPos().y - b->getPos().y;
-	return (sqrt(x*x + y*y));
-}
-
-*/

@@ -91,7 +91,6 @@ public:
 	//  priority is left, right down then up
 	
 	Location* findClosestTo(Location*, Location*); //finds closest free spot stating at first that is closest to the second argument
-	
 
 	void draw();
 

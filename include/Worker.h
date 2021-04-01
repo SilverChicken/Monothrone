@@ -7,7 +7,7 @@
 class Worker :	public Unit
 {
 private:
-	const int textLocs[9] = { 38, 39, 40, 41, 42, 43, 44, 45, 46 };    //locations for worker are index 38-46 (ImLoader.cpp)
+	static constexpr int textLocs[9] = { 38, 39, 40, 41, 42, 43, 44, 45, 46 };    //locations for worker are index 38-46 (ImLoader.cpp)
 
 public:
 	Worker(int, Location*, Map* map);

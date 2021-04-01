@@ -35,6 +35,7 @@ class Location;
 class Unit;
 class Throne;
 class Ressource;
+class Wall;
 class Gui;
 
 class Gamemode
@@ -47,11 +48,12 @@ private:
 	//Objects were rendering
 	Map* map;
 	Player * player;
-	Gui * gui;
+	Gui * gui;  //-> will need multiple for multiplayer
 	
 
 	std::unordered_map<int, Unit *> Thrones;
 	std::unordered_map<int, Player *> Players;
+	std::unordered_map<Wall*, int> Walls;
 
 	std::vector<Ressource *> Mountains; //Refs to the mountains
 	std::vector<Ressource *> Crystals;  //Refs to the crystals
@@ -75,11 +77,18 @@ public:
 	
 
 
-	//Interfacing Unit -> Player
+	//Interfacing Unit -> Player and relay to Gui
 	void incRessource(int val, int player);
+	void updateGuiBind(int* pBind);
+	void spawnUnit(int player, int obj, Location* spawnLoc);
+	
 
 
 	Location* findClosestType(Location *, int);    //finds nearest locateable of the type passed in as int.
+
+	//Super specific definition, used to move thru your own units
+	Location* findClosestToCnd(Location*, Location*, int, const bool cnd(int, Location*));
+
 
 	std::vector<Ressource *> getMountains();
 	std::vector<Ressource *> getCrystals();
@@ -88,6 +97,7 @@ public:
 	bool addCrystals(Ressource *);        //------------------ Crystal
 	bool addEnergies(Ressource *);        //Called whenever an Energy is Spawned
 	void removeRessource(Ressource *);    //Removes Crystal or Energy
+	void addWall(Wall*);
 	
 
 
@@ -97,7 +107,7 @@ public:
 	void addPlayer(int, Player*);
 
 	Map * getMap();
-
+	
 
 	void update();
 	void draw(GLuint);

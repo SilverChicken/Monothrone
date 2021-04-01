@@ -12,7 +12,7 @@ Worm::Worm(int owner, Location* loc, Map* map) :Unit(owner, loc, map)
 	//Define which actions are defined
 	actions[0] = true;
 	actions[1] = true;
-	actions[2] = false;
+	actions[2] = true;
 	actions[3] = false;
 	actions[4] = true;
 	actions[5] = false;
