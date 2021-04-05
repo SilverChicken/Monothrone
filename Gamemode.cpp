@@ -72,6 +72,14 @@ void Gamemode::init()
 		player->spawnUnit<Worm>(map->getLoc(5, 5));
 	}
 
+
+
+	//Dummy enemies
+	Unit* enemy_1 = new Worm(0, map->getLoc(8,5), map);
+	Unit* enemy_2 = new Worm(0, map->getLoc(8,7), map);
+
+	Enemies.push_back(enemy_1);
+	Enemies.push_back(enemy_2);
 	
 }
 
@@ -354,7 +362,7 @@ Location * Gamemode::findClosestType(Location * base, int type)
 
 
 
-Location * Gamemode::findClosestToCnd(Location * start, Location * target, int ownerP, const bool cond(int, Location*))
+Location * Gamemode::findClosestToCnd(Location * start, Location * target, Unit* ownerP, const bool cond(Unit*, Location*))
 {
 	//Priority queue, look till free, go toward second location -> min distance
 
@@ -384,7 +392,7 @@ Location * Gamemode::findClosestToCnd(Location * start, Location * target, int o
 		Location* current = stack.top().first;
 		stack.pop();
 
-		if (cond(ownerP,current)) {  //if we find a free spot, return
+		if (cond(ownerP,current)) {  //if we find a location that meets the condition we return it
 			return current;
 		}
 
@@ -503,9 +511,14 @@ void Gamemode::update()
 		//Update unit positions mostly and anim?
 
 		//Player will cascade the update to all its units
-		for (std::pair<int, Player*>  pl : Players) { //Or do iterator and at it
+		for (std::pair<int, Player*> pl : Players) { //Or do iterator and at it
 			pl.second->update();
 		}
+
+		for (Unit* ene : Enemies) {
+			ene->update(map);
+		}
+	
 		
 
 	}
@@ -531,6 +544,12 @@ void Gamemode::draw(GLuint shaderProgram)
 	for (Ressource* res : Energies) {
 		if (!player->cull(res->getLoc())) {
 			res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
+		}
+	}
+
+	for (Unit* ene : Enemies) {
+		if (!player->cull(ene->getLoc())) {
+			ene->draw(ImLoader::textures[ene->getTexLoc()], shaderProgram);
 		}
 	}
 
@@ -594,7 +613,7 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 			break;
 
 		case GLFW_KEY_ENTER:
-			player->select();
+			player->select(player->getLoc());
 			break;
 
 		case GLFW_KEY_LEFT_SHIFT:

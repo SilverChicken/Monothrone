@@ -51,6 +51,8 @@ private:
 	Gui * gui;  //-> will need multiple for multiplayer
 	
 
+	std::vector<Unit *> Enemies; //Refs to the mountains
+
 	std::unordered_map<int, Unit *> Thrones;
 	std::unordered_map<int, Player *> Players;
 	std::unordered_map<Wall*, int> Walls;
@@ -86,10 +88,11 @@ public:
 
 
 	Location* findClosestType(Location *, int);    //finds nearest locateable of the type passed in as int.
+	//Super specific definition, used to move thru your own units, or like get other units? make take unit and cnd unit
+	Location* findClosestToCnd(Location*, Location*, Unit*, const bool cnd(Unit*, Location*));
 
-	//Super specific definition, used to move thru your own units
-	Location* findClosestToCnd(Location*, Location*, int, const bool cnd(int, Location*));
-
+	Location* findClosestType(Location *, int, int bound); //Same as findClosestType but bounded
+	Location* findClosestToCnd(Location*, Location*, Unit*, const bool cnd(Unit*, Location*), int);
 
 	std::vector<Ressource *> getMountains();
 	std::vector<Ressource *> getCrystals();

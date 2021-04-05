@@ -89,8 +89,11 @@ public:
 
 	Location* findClosest(Location*);              //-> returns the location of the very closest available point to specified location,
 	//  priority is left, right down then up
-	
 	Location* findClosestTo(Location*, Location*); //finds closest free spot stating at first that is closest to the second argument
+
+	//Write bounded versions for bounded search
+	Location* findClosest(Location*, int bound);              //Same as findClosest but search bounded to 'bound' steps
+	Location* findClosestTo(Location*, Location*, int bound); 
 
 	void draw();
 

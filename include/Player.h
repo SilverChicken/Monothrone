@@ -87,7 +87,7 @@ public:
 
 	//Gameplay fcts
 	bool move(int);
-	bool select();
+	bool select(Location*);
 	Unit* deselect();
 	void deselectAll();
 	bool checkHasThrone();

@@ -21,7 +21,7 @@
 //float calcDist2(Location*, Location*);   //calculates the distance to target
 //Gamemode* game = &Gamemode::getInstance();
 
-const bool moveCond(int, Location *);
+
 
 
 Unit::Unit(int own, Location* loc, Map * map)
@@ -95,7 +95,7 @@ bool Unit::swap(Location * swapLocation) //This is go
 }
 
 //Not a member for sending reasons
-const bool moveCond(int thisOwn, Location * target) //thisOwn is the owner of the unit probably moving
+const bool moveCond(Unit* thisOwn, Location * target) //thisOwn is the owner of the unit probably moving
 {
 	if (target->state) {
 		return true;
@@ -104,7 +104,7 @@ const bool moveCond(int thisOwn, Location * target) //thisOwn is the owner of th
 	if (other) {
 		if (other->getClassType() >= UNIT_CLASS_T) {
 			Unit* otherU = (Unit*)other; //safe cast make dynamic?
-			if (otherU->getOwner() == thisOwn && otherU->getActions()[0]) { //same owner and it can move
+			if (otherU->getOwner() == thisOwn->getClassType() && otherU->getActions()[0]) { //same owner and it can move
 				//then we are swappable!
 				return true;
 			}
@@ -284,7 +284,10 @@ bool Unit::move(Location* targetLoc, Map* map)
 {
 
 	//target = map->findClosestTo(targetLoc, loc); //Dont't call this
-	target = game->findClosestToCnd(targetLoc, loc, owner, moveCond);
+	//Locally declared function!
+	const bool moveCond(Unit*, Location *);
+
+	target = game->findClosestToCnd(targetLoc, loc, this, moveCond);
 
 	if (!target) {
 		return false; //Shouldn't ever happen
@@ -340,7 +343,7 @@ bool Unit::move(Location* targetLoc, Map* map)
 				cnd = newCost < cost.at(newLoc);         //check if we found a better path to it, 
 			}
 			//then newLoc is not in cost so we add it to all of them, if it's free
-			if (cnd && moveCond(owner, newLoc)) {//Used to be newLoc->state    //Change state to moveCon
+			if (cnd && moveCond(this, newLoc)) {//Used to be newLoc->state    //Change state to moveCon
 				cost.emplace(newLoc, newCost);
 				from.emplace(newLoc, current);
 				stack.push(std::pair<Location*,float>(newLoc, newCost + Utils::calcDist(newLoc, target)));    //this is loss of data converts

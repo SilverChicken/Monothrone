@@ -246,9 +246,9 @@ bool Player::move(int dir)
 	return false;
 }
 
-bool Player::select()
+bool Player::select(Location* location)
 {
-	Locateable* unit = loc->getOwner();
+	Locateable* unit = location->getOwner();
 	if ( unit == nullptr) {
 		return false;
 	}
@@ -256,15 +256,40 @@ bool Player::select()
 		Unit * target = (Unit*)unit;      //Then this is a safe cast
 
 		if (selection.find(target) == selection.end()) {
-			if (target->select(PID)) { //make sure it wasn't already selected
+			if (target->select(PID)) { //make sure it wasn't already selected just double checks
 				selection[target] = true;
 				updateBindings();									//Update the bindings
+				return true;
+			}
+		}
+		else { //it was already selected
+
+			const bool selectCond(Unit*, Location *);
+			Location* newSel = playerGame->findClosestToCnd(location, loc, target, selectCond);
+			if (newSel) { //If we;re out of the unit then don't
+				select(newSel); //select the closest one which is this one.
+			//but what if we run out? Bound the search
+			}
+			
+		}
+	}
+	return false;
+}
+
+const bool selectCond(Unit* Utype, Location * location) { //needs another parameter, or a unit pointer instead
+	Locateable* locate = location->getOwner();
+	if (locate != nullptr) {
+		if (location->getOwner()->getClassType() == Utype->getClassType()) {
+			Unit* otherU = (Unit*)locate;
+			if (otherU->getOwner() == Utype->getOwner() && !otherU->isSelected()) {
 				return true;
 			}
 		}
 	}
 	return false;
 }
+
+
 
 Unit * Player::deselect()
 {
