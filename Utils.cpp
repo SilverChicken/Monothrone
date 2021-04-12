@@ -1,4 +1,5 @@
 #include "Utils.h"
+#include "include\Utils.h"
 
 bool Utils::listSearch(Location * location, std::list<Location*>& list)
 {
@@ -35,6 +36,16 @@ int Utils::vecSearch(Location * location, std::vector<Location*>& list) //linear
 	std::vector<Location *>::iterator it;
 	for (it = list.end(); it != list.begin();) {
 		if (*--it == location) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool Utils::vecSearchInt(int i, std::vector<int>& vec) //super standard search
+{
+	for (int j = 0; j != vec.size(); j++) {
+		if (vec[j] == i) {
 			return true;
 		}
 	}

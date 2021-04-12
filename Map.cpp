@@ -312,6 +312,113 @@ Location * Map::findClosestTo(Location * start, Location * target) //closest poi
 	return nullptr;
 }
 
+Location * Map::findClosest(Location * base, int bound)
+{
+	//Visited is a map which we may want to keep around for caching, eh probs not?
+	std::unordered_map<Location*, bool> visited;
+	std::list<Location*> stack;   //the current stack to look through, should be a deque
+
+	stack.push_back(base);
+
+	while (!stack.empty() && visited.size() < bound) {
+
+		Location* base = stack.front();
+		stack.pop_front();
+		Location * newVert;
+
+		if (base->state) {
+			return base;
+		}
+		else { //dfs search
+			int x = (int)base->getPos().x;
+			int y = (int)base->getPos().y;
+			int x2 = 0;
+			int y2 = 0;
+
+
+			visited[base] = base->state; //we have now visited this vertex
+
+			if (x > 0) { //there's a vertex on the left
+				x2 = x - 1;
+				y2 = y;
+				newVert = getLoc(x2, y2);
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
+					stack.push_back(newVert);        //If it wasn't then we add it to the visited list
+				}
+			}
+			if (x < MAPSIZE - 1) { //vertex to the right
+				x2 = x + 1;
+				y2 = y;
+				newVert = getLoc(x2, y2);
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+					stack.push_back(newVert);
+				}
+			}
+			if (y > 0) {
+				x2 = x;
+				y2 = y - 1;
+				newVert = getLoc(x2, y2);
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+					stack.push_back(newVert);
+				}
+			}
+			if (y < MAPSIZE - 1) {
+				x2 = x;
+				y2 = y + 1;
+				newVert = getLoc(x2, y2);
+				if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+					stack.push_back(newVert);
+				}
+			}
+		}
+
+	}	//Now the vertices are added so back to the top of the while loop!
+}
+
+Location * Map::findClosestTo(Location * start, Location * target, int bound)
+{
+	//Priority queue, look till free, go toward second location -> min distance
+
+	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
+
+	std::priority_queue<std::pair<Location*, float>, std::vector<std::pair<Location*, float>>, decltype(&Utils::locComp)> stack(Utils::locComp);
+	std::unordered_map<Location*, float> cost;
+
+	float newCost = 0;
+	glm::vec2 newPos;
+	Location* newLoc;
+
+	stack.push(std::pair<Location*, float>(start, 0.0f)); //add the start location
+	cost.emplace(start, 0.0f);
+
+	while (!stack.empty() && cost.size() <= bound) { //Enforces bound on visited verts
+		Location* current = stack.top().first;
+		stack.pop();
+
+		if (current->state) {  //if we find a free spot, return
+			return current;
+		}
+
+		newCost = cost.at(current) + 3;  //Everytime we move away from the original point, 3* as bad as getting closer to the target.
+
+		for (glm::vec2 dir : dirs) {
+			newPos = current->getPos() + dir;    //Make sure we aren't running off the map
+			newLoc = getLoc(newPos);
+
+			bool cnd = cost.find(newLoc) == cost.end();  //check if it's already there
+			if (!cnd) {
+				cnd = newCost < cost.at(newLoc);         //check if we found a better path to it, 
+			}
+
+			if (cnd) { //then newLoc is not in cost so we add it to all of them, since it must be taken
+				cost.emplace(newLoc, newCost);
+				stack.push(std::pair<Location*, float>(newLoc, newCost + Utils::calcDist(newLoc, target)));
+			}
+		}
+	}
+	return nullptr;
+}
+
 
 
 void Map::draw()
