@@ -27,13 +27,13 @@ private:
 
 	const int textLocs[2] = { 47, 48 }; //first is nrg second is crystal
 
-	char* blank; //Use this to print blank spaces
+	char* blank = NULL; //Use this to print blank spaces
 	char* Keybind[BINDINGCOUNT] = {NULL, NULL, NULL, NULL, NULL, NULL };
 	
 	std::vector<char*> UnitBind;
 
-	char* crystal;
-	char* energy; //saved so we don't have to convert each draw
+	char* crystal = nullptr;
+	char* energy = nullptr; //saved so we don't have to convert each draw
 	//unitList units;
 
 	float vertices[32] = {  //Just for last part of the Gui, the crystal & evergy count                        

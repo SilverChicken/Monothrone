@@ -49,12 +49,12 @@ bool Throne::collect(Location *, Map*)
 	return false;
 }
 
-bool Throne::build(int x, int y, std::string obj)
+bool Throne::build(Location*, int obj)
 {
 	return false;
 }
 
-void Throne::spawn(Location * location, int obj)
+Unit* Throne::spawn(Location * location, int obj)
 {
 	if (!spawnTimer) {
 
@@ -64,11 +64,13 @@ void Throne::spawn(Location * location, int obj)
 
 		
 		//for now just spawn Worms
-		Unit::spawn(location, WORM_CLASS_T);
+		return Unit::spawn(location, WORM_CLASS_T);
 
 
 
 	}
+
+	return nullptr; //careful this happens a lot
 }
 
 bool Throne::consume(Unit * food)

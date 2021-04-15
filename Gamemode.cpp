@@ -72,14 +72,6 @@ void Gamemode::init()
 		player->spawnUnit<Worm>(map->getLoc(5, 5));
 	}
 
-
-
-	//Dummy enemies
-	Unit* enemy_1 = new Worm(0, map->getLoc(8,5), map);
-	Unit* enemy_2 = new Worm(0, map->getLoc(8,7), map);
-
-	Enemies.push_back(enemy_1);
-	Enemies.push_back(enemy_2);
 	
 }
 
@@ -246,19 +238,24 @@ void Gamemode::updateGuiBind(int * pBind)
 	gui->setBinds(&pBind[0]);
 }
 
-void Gamemode::updateGuiUnit(std::vector<int>& us)
+void Gamemode::updateGuiUnit(std::vector<int>& selection)
 {
-	//Makes the selection unique
 	std::vector<int> uniqUnits;
-	for (int i : us) {
-		if (!Utils::vecSearchInt(i, uniqUnits)) {
-			uniqUnits.push_back(i);
+	bool unique;
+	int sel;
+	for (int i = 0; i < (int)selection.size(); i++) {
+		sel = selection[i];
+		unique = true;
+		for (int j = i + 1; j < (int)selection.size() && unique; j++) {
+			unique = sel != selection[j];
+		}
+		if (unique) {
+			uniqUnits.push_back(sel);
 		}
 	}
-	gui->setUnits(uniqUnits);
 }
 
-void Gamemode::spawnUnit(int playe, int obj, Location* spawnLoc)
+Unit* Gamemode::spawnUnit(int playe, int obj, Location* spawnLoc)
 {
 	Player * pl = Players.at(playe);
 
@@ -266,25 +263,23 @@ void Gamemode::spawnUnit(int playe, int obj, Location* spawnLoc)
 		case UNIT_CLASS_T:
 			break;
 		case THRONE_CLASS_T:
-			pl->spawnUnit<Throne>(spawnLoc);
+			return pl->spawnUnit<Throne>(spawnLoc);
 			break;
 		case REFACTORY_CLASS_T:
 			break;
 		case MANUFACTORY_CLASS_T:
 			break;
 		case WORM_CLASS_T:
-			pl->spawnUnit<Worm>(spawnLoc);
+			return pl->spawnUnit<Worm>(spawnLoc);
 			break;
 		case WORKER_CLASS_T:
-			pl->spawnUnit<Worker>(spawnLoc);
+			return pl->spawnUnit<Worker>(spawnLoc);
 			break;
 		default:
 			std::cout << "Invalid obj type send to Gamemode::SpawnUnit" << std::endl;
 			break;
-
-
 	}
-
+	return nullptr;
 }
 
 Location * Gamemode::findClosestType(Location * base, int type)
@@ -392,7 +387,134 @@ Location * Gamemode::findClosestToCnd(Location * start, Location * target, Unit*
 		Location* current = stack.top().first;
 		stack.pop();
 
-		if (cond(ownerP,current)) {  //if we find a location that meets the condition we return it
+
+		if (cond(ownerP,current)) {  //if we find a free spot, return
+			return current;
+		}
+
+		newCost = cost.at(current) + 3;  //Everytime we move away from the original point, 3* as bad as getting closer to the target.
+
+		for (glm::vec2 dir : dirs) {
+			newPos = current->getPos() + dir;    //Make sure we aren't running off the map
+			newLoc = map->getLoc(newPos);
+
+			bool cnd = cost.find(newLoc) == cost.end();  //check if it's already there
+			if (!cnd) {
+				cnd = newCost < cost.at(newLoc);         //check if we found a better path to it, 
+			}
+
+			if (cnd) { //then newLoc is not in cost so we add it to all of them, since it must be taken
+				cost.emplace(newLoc, newCost);
+				stack.push(std::pair<Location*, float>(newLoc, newCost + Utils::calcDist(newLoc, target)));
+			}
+		}
+	}
+	return nullptr;
+}
+
+Location* Gamemode::findClosestType(Location* base, int type, int bound)
+{
+	//Dfs early termination, looking for classT of owner
+
+	std::unordered_map<Location*, bool> visited;
+	std::list<Location*> stack;   //the current stack to look through, should be a deque
+
+	stack.push_back(base);
+
+	while (!stack.empty() && (int)visited.size() < bound) {
+
+		Location* base = stack.front();
+		stack.pop_front();
+		Location* newVert;
+
+		if (base->getOwner() != nullptr) {
+			//race condition on base if someone else takes it between these 2 lines? never happens bc exception
+			if (base->getOwner()->getClassType() == type) {
+				return base;
+			}
+		}
+
+
+		int x = (int)base->getPos().x;
+		int y = (int)base->getPos().y;
+		int x2 = 0;
+		int y2 = 0;
+
+
+		visited[base] = base->state; //we have now visited this vertex
+
+		if (x > 0) { //there's a vertex on the left
+			x2 = x - 1;
+			y2 = y;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
+				stack.push_back(newVert);        //If it wasn't then we add it to the visited list
+			}
+		}
+		if (x < MAPSIZE - 1) { //vertex to the right
+			x2 = x + 1;
+			y2 = y;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				stack.push_back(newVert);
+			}
+		}
+		if (y > 0) {
+			x2 = x;
+			y2 = y - 1;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				stack.push_back(newVert);
+			}
+		}
+		if (y < MAPSIZE - 1) {
+			x2 = x;
+			y2 = y + 1;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				stack.push_back(newVert);
+			}
+		}
+
+		//Now the vertices are added so back to the top of the while loop!
+
+	}
+	//Getting here means the stack becomes empty :(
+	return nullptr; //then the search has failed. we throw an exception, this should basically end the game. Maybe an easter egg?
+	//Basically this is a bit dangerous and it should be handled otherly.
+}
+
+Location* Gamemode::findClosestToCnd(Location* start, Location* target, Unit* ownerP, const bool cond(Unit*, Location*), int bound)
+{
+	//Priority queue, look till free, go toward second location -> min distance
+
+	glm::vec2 dirs[4] = { glm::vec2(0.0f, 1.0f), glm::vec2(0.0f, -1.0f), glm::vec2(1.0f, 0.0f), glm::vec2(-1.0f, 0.0f) };
+
+	std::priority_queue<std::pair<Location*, float>, std::vector<std::pair<Location*, float>>, decltype(&Utils::locComp)> stack(Utils::locComp);
+	std::unordered_map<Location*, float> cost;
+
+	float newCost = 0;
+	glm::vec2 newPos;
+	Location* newLoc;
+
+	stack.push(std::pair<Location*, float>(start, 0.0f)); //add the start location
+	cost.emplace(start, 0.0f);
+
+
+	//How to we get a unit to do this search? ALL WE NEED IS A OWNER INT
+	/*
+	Unit* startOwn = (Unit*)start->getOwner(); //oh fuck, this search goes around a random point.
+	if (!startOwn) { //Make sure we have a valid owner in order to use the condition, should only happen if improperly called
+		std::cout << "Gamemode::findClosestToCnd failed to find the owner of start" << std::endl;
+		return nullptr;
+	}*/
+
+
+	while (!stack.empty() && (int)cost.size() < bound) {
+		Location* current = stack.top().first;
+		stack.pop();
+
+		if (cond(ownerP, current)) {  //if we find a free spot, return
 			return current;
 		}
 
@@ -511,14 +633,9 @@ void Gamemode::update()
 		//Update unit positions mostly and anim?
 
 		//Player will cascade the update to all its units
-		for (std::pair<int, Player*> pl : Players) { //Or do iterator and at it
+		for (std::pair<int, Player*>  pl : Players) { //Or do iterator and at it
 			pl.second->update();
 		}
-
-		for (Unit* ene : Enemies) {
-			ene->update(map);
-		}
-	
 		
 
 	}
@@ -544,12 +661,6 @@ void Gamemode::draw(GLuint shaderProgram)
 	for (Ressource* res : Energies) {
 		if (!player->cull(res->getLoc())) {
 			res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
-		}
-	}
-
-	for (Unit* ene : Enemies) {
-		if (!player->cull(ene->getLoc())) {
-			ene->draw(ImLoader::textures[ene->getTexLoc()], shaderProgram);
 		}
 	}
 

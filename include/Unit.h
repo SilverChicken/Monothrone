@@ -99,7 +99,7 @@ public:
 
 	virtual bool build(Location *, int obj);		  // 2- Build locateable of classID obj at x,y
 	
-	virtual void spawn(Location *, int obj);   // 3- Spawn a unit *string* at a location, must be fully imp by child
+	virtual Unit* spawn(Location *, int obj);   // 3- Spawn a unit *string* at a location, must be fully imp by child
 	
 	virtual bool consume(Unit* food);						  // 4- Consume a unit to upgrade internally
 	

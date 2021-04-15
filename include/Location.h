@@ -9,7 +9,7 @@ class Location
 private:
 	bool lock; //1 is free, 0 is taken  maybe make into unique_lock from mutex
 	glm::vec2 pos;
-	Locateable* owner;
+	Locateable* owner = nullptr;
 public:
 	bool state;
 	Location();

@@ -46,9 +46,9 @@ private:
 	Timer ticker = Timer::getInstance();
 
 	//Objects were rendering
-	Map* map;
-	Player * player;
-	Gui * gui;  //-> will need multiple for multiplayer
+	Map* map = nullptr;
+	Player * player = nullptr;
+	Gui * gui = nullptr;  //-> will need multiple for multiplayer
 	
 
 	std::vector<Unit *> Enemies; //Refs to the mountains
@@ -83,7 +83,7 @@ public:
 	void incRessource(int val, int player);
 	void updateGuiBind(int* pBind);
 	void updateGuiUnit(std::vector<int>&);
-	void spawnUnit(int player, int obj, Location* spawnLoc);
+	Unit* spawnUnit(int player, int obj, Location* spawnLoc);
 	
 
 

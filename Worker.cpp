@@ -51,12 +51,12 @@ bool Worker::collect(Location * location, Map * map)
 	return Unit::collect(location, map);
 }
 
-bool Worker::build(int x, int y, std::string obj)
+bool Worker::build(Location*, int obj)
 {
 	return false;
 }
 
-Unit * Worker::spawn(std::string baby, glm::vec2 place)
+Unit * Worker::spawn(Location*, int obj)
 {
 	return nullptr;
 }

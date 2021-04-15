@@ -45,7 +45,7 @@ static bool inited = false; //Only send data to OpenGl once for all locateables?
 class Locateable
 {
 protected:
-	Location* loc;
+	Location* loc = nullptr;
 
 	int classType = 0; //type flag that all subs will inherit -> typeOf; Make into CONSTANTS eventually reorganize order
 	// 0 - Just locateable

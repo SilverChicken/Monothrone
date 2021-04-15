@@ -32,7 +32,7 @@ class Player : Locateable
 {
 private:
 	int PID;
-	Map* map;
+	Map* map = nullptr;
 
 	//Gameplay Vars
 	int energy;

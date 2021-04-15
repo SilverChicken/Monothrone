@@ -34,13 +34,13 @@ bool Worm::collect(Location * location, Map* map)
 	return Unit::collect(location, map);
 }
 
-bool Worm::build(int x, int y, std::string obj)
+bool Worm::build(Location*, int obj)
 {
 
 	return false;
 }
 
-Unit * Worm::spawn(std::string baby, glm::vec2 place)
+Unit * Worm::spawn(Location*, int obj)
 {
 
 	return nullptr;

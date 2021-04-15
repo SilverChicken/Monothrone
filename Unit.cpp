@@ -104,7 +104,10 @@ const bool moveCond(Unit* thisOwn, Location * target) //thisOwn is the owner of 
 	if (other) {
 		if (other->getClassType() >= UNIT_CLASS_T) {
 			Unit* otherU = (Unit*)other; //safe cast make dynamic?
-			if (otherU->getOwner() == thisOwn->getClassType() && otherU->getActions()[0]) { //same owner and it can move
+			//if (otherU == thisOwn) { //make sure we're not finding ourselves?
+			//	return false;
+			//}
+			if (otherU->getOwner() == thisOwn->getOwner() && otherU->getActions()[0]) { //same owner and it can move
 				//then we are swappable!
 				return true;
 			}
@@ -466,7 +469,7 @@ bool Unit::build(Location * location, int obj)
 	return false;
 }
 
-void Unit::spawn(Location * location, int obj)
+Unit* Unit::spawn(Location * location, int obj)
 {
 	//This one doesn't allow movement
 
@@ -482,7 +485,7 @@ void Unit::spawn(Location * location, int obj)
 
 
 	//Call gamemode function to spawn unit to player -> pass PID, obj
-	game->spawnUnit(owner, obj, spawnLoc);
+	return game->spawnUnit(owner, obj, spawnLoc);
 
 	//no free spots: no spawn!
 
