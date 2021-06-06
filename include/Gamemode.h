@@ -38,6 +38,9 @@ class Ressource;
 class Wall;
 class Gui;
 
+class Client;
+class Server;
+
 class Gamemode
 {
 private:
@@ -45,10 +48,15 @@ private:
 	//Timer for tick function
 	Timer ticker = Timer::getInstance();
 
-	//Objects were rendering
+	//Server/Client
+	Server* serv = nullptr;
+	Client* client = nullptr;
+	bool isHost = false;
+
+	//Objects we're rendering
 	Map* map = nullptr;
 	Player * player = nullptr;
-	Gui * gui = nullptr;  //-> will need multiple for multiplayer
+	Gui * gui = nullptr;  //-> will need multiple for multiplayer?
 	
 
 	std::vector<Unit *> Enemies; //Refs to the mountains

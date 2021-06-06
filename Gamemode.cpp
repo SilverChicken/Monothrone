@@ -23,6 +23,9 @@
 
 #include "Utils.h"
 
+#include "Client.h"
+#include "Server.h"
+
 
 unsigned int * ImLoader::textures; //The static array from ImLoader
 
@@ -51,6 +54,8 @@ void Gamemode::init()
 	map = new Map();
 	player = new Player(1, map->getLoc(7, 7), map);
 	
+	client = new Client(); //This one we will use no matter what for timing and sessions. Init server later if we chose to host
+	
 
 	//can do that in player too, eventually should.
 
@@ -72,6 +77,13 @@ void Gamemode::init()
 		player->spawnUnit<Worm>(map->getLoc(5, 5));
 	}
 
+
+	//Dummy enemies
+	Unit* enemy_1 = new Worm(0, map->getLoc(8, 5), map);
+	Unit* enemy_2 = new Worm(0, map->getLoc(8, 7), map);
+
+	Enemies.push_back(enemy_1);
+	Enemies.push_back(enemy_2);
 	
 }
 
@@ -637,6 +649,9 @@ void Gamemode::update()
 			pl.second->update();
 		}
 		
+		for (Unit* ene : Enemies) {
+			ene->update(map);
+		}
 
 	}
 }
@@ -661,6 +676,12 @@ void Gamemode::draw(GLuint shaderProgram)
 	for (Ressource* res : Energies) {
 		if (!player->cull(res->getLoc())) {
 			res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
+		}
+	}
+
+	for (Unit* ene : Enemies) {
+		if (!player->cull(ene->getLoc())) {
+			ene->draw(ImLoader::textures[ene->getTexLoc()], shaderProgram);
 		}
 	}
 
@@ -693,6 +714,9 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 	// Check for a key press
 	if (action == GLFW_PRESS)
 	{
+		//For now just send every input
+		client->addInput(key);
+
 		switch (key) {
 		case GLFW_KEY_ESCAPE: // Check if escape was pressed
 			// Close the window. This causes the program to also terminate.
