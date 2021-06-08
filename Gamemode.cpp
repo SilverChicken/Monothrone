@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+
 #include "Map.h"
 #include "Gui.h"
 
@@ -25,10 +26,13 @@
 
 #include "Client.h"
 #include "Server.h"
-
+#include "Menu.h"
 
 unsigned int * ImLoader::textures; //The static array from ImLoader
 
+//Helper functions for starting the threads
+void startClient();
+void startServer();
 
 //int vecSearch(Location * location, std::vector<Location*> & visited);  //Just loops from the back to the front, more likely to find
 //void vecRemove(Ressource * res, std::vector<Ressource*> & vec);
@@ -36,8 +40,13 @@ unsigned int * ImLoader::textures; //The static array from ImLoader
 Gamemode::~Gamemode()
 {
 
+	client->stop();
+	if (isHost) {
+		serv->stop();
+	}
 
-
+	Servthread.join();
+	Clithread.join();
 }
 
 Gamemode & Gamemode::getInstance()
@@ -51,13 +60,28 @@ void Gamemode::init()
 	ImLoader::Loadtextures();
 
 	gui = new Gui();
-	map = new Map();
-	player = new Player(1, map->getLoc(7, 7), map);
-	
-	client = new Client(); //This one we will use no matter what for timing and sessions. Init server later if we chose to host
+	menu = new Menu(gui->getFontRef());
+
+	//Clithread = std::thread();
+	//CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Client::getInstance(), NULL, 0, NULL);
+	Clithread = std::thread(startClient);
 	
 
-	//can do that in player too, eventually should.
+	
+	
+}
+
+void Gamemode::init2()
+{
+	client = Client::getInstance(); //fine since the thread is initialized 
+
+	if (isHost) {
+		Servthread = std::thread(startServer);
+	}
+	
+
+	map = new Map();
+	player = new Player(1, map->getLoc(7, 7), map);
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, ImLoader::textures[Unit::selectLoc]);
@@ -66,6 +90,10 @@ void Gamemode::init()
 	//setup ressources around map
 	SpawnStartRessource(map, MTNRangeCT, Vmtn, NRGRangeCT, Vnrg, CRYRangeCT, Vcry);
 
+
+	if (isHost) {
+		serv = Server::getInstance();
+	}
 
 	//setup basic units
 	//testing out worm spawning
@@ -84,8 +112,11 @@ void Gamemode::init()
 
 	Enemies.push_back(enemy_1);
 	Enemies.push_back(enemy_2);
-	
+
+
 }
+
+
 
 void Gamemode::cleanup()
 {
@@ -611,6 +642,22 @@ void Gamemode::addWall(Wall * newWall)
 	Walls[newWall] = newWall->getOwner();
 }
 
+int Gamemode::getMode()
+{
+	return mode;
+}
+
+int Gamemode::setMode(int m)
+{
+	mode = m;
+	return mode;
+}
+
+void Gamemode::setIsHost(bool h)
+{
+	isHost = h;
+}
+
 Unit * Gamemode::getThrone(int own)
 {
 	return Thrones[own];
@@ -662,7 +709,6 @@ void Gamemode::draw(GLuint shaderProgram)
 	//Currently as virtual call the derived function which then calls the ressource draw with 1 param 
 	//Write for loop for each player but use localPlayer for culling
 
-
 	for (Ressource* res : Mountains) {
 		if (!player->cull(res->getLoc())) {
 			res->draw(ImLoader::textures[res->getTextLoc()], shaderProgram);
@@ -705,7 +751,13 @@ void Gamemode::drawMap()
 
 void Gamemode::drawGui()
 {
-	gui->draw();
+	if (mode == 0) {
+		menu->drawMenu();
+	}
+	else {
+		gui->draw();
+	}
+	
 }
 
 
@@ -714,6 +766,13 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 	// Check for a key press
 	if (action == GLFW_PRESS)
 	{
+
+		if (mode == 0) {
+			menu->menu_key_call(key);
+			return;
+		}
+
+
 		//For now just send every input
 		client->addInput(key);
 
@@ -826,27 +885,12 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 }
 
 
-/*
-
-int vecSearch(Location * location, std::vector<Location*>& list) //linear search from the back
+void startClient()
 {
-	std::vector<Location *>::iterator it;
-	for (it = list.end(); it != list.begin();) {
-		if (*--it == location) {
-			return true;
-		}
-	}
-	return false;
+	Client::getInstance();
 }
 
-void vecRemove(Ressource * res, std::vector<Ressource*>& list) //linear search from the back, erases if found
+void startServer()
 {
-	std::vector<Ressource *>::iterator it;
-	for (it = list.end(); it != list.begin();) {
-		if (*--it == res) {
-			list.erase(it);
-			break;
-		}
-	}
+	Server::getInstance();
 }
-*/

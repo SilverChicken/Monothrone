@@ -67,12 +67,24 @@ void Client::ConstructMessage()
 	}
 }
 
+Client* Client::getInstance()
+{
+	static Client* client;
+	if (client) {
+		return client;
+	}
+	client = new Client();
+	client->run();
+	return client;
+}
+
 int Client::run()
 {
 	
 
 	printf("type w, a, s, or d to move, q to quit\n");
-	bool32 is_running = 1;
+	is_running = true;
+
 	while (is_running)
 	{
 		//Get tick
@@ -195,14 +207,24 @@ int Client::run()
 	
 }
 
+void Client::stop()
+{
+	is_running = false;
+}
+
 void Client::addInput(int key)
 {
 	input = key;
 }
 
+void Client::setServerAddress(char* addi)
+{
+	server_address.sin_addr.S_un.S_addr = inet_addr(addi);
+}
+
 int Client::Startup(const char* Saddress)
 {
-	//Wait for the Server to be configured
+	//Wait for the Server to be configured?
 	//system("pause");
 
 	//Give way to set
@@ -231,7 +253,9 @@ int Client::Startup(const char* Saddress)
 
 	server_address.sin_family = AF_INET;
 	server_address.sin_port = htons(PORT);
-	server_address.sin_addr.S_un.S_addr = inet_addr(Saddress);
+
+	//Assume that Saddress has already been set
+	//server_address.sin_addr.S_un.S_addr = inet_addr(Saddress);
 	//server_address.sin_addr.S_un.S_addr = inet_pton(Saddress);
 
 

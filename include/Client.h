@@ -8,6 +8,9 @@ private:
 	int Startup(const char* Saddress = "127.0.0.1"); //default is local server
 	void Cleanup();
 
+	//Info vars
+	bool is_running = false;
+
 	//Server info
 	SOCKADDR_IN server_address;    //Where this server is
 	SOCKET sock;
@@ -26,14 +29,20 @@ private:
 
 	uint8 input; 
 
+	Client() { Startup(); };
+
 public :	
 
+	static Client* getInstance();
+
 	int run(); //Basically checks if we have input sends either an idle/input/join/leave based on inputs then also unpacks the server msg
+	void stop(); //stops the run loop
+
 
 	void addInput(int key);
 
+	void setServerAddress(char* addi);
 	
-	Client() { Startup(); };
 	~Client() { Cleanup();  };
 };
 

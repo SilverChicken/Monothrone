@@ -165,6 +165,7 @@ void FontLoader::SetColor(float Red, float Green, float Blue)
 	Rd = Red;
 	Gr = Green;
 	Bl = Blue;
+	glColor3f(Rd, Gr, Bl);
 }
 
 void FontLoader::ReverseYAxis(bool State)

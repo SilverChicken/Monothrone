@@ -8,6 +8,10 @@ class Server
 {
 private:
 
+	//Info/Function vars
+	bool is_running = false;
+
+
 	//Time measurement
 	UINT sleep_granularity_ms;
 	bool32 sleep_granularity_was_set;
@@ -41,16 +45,19 @@ private:
 
 	void handleInput();
 
-
+	Server() { Startup(); };
 
 public:
 
-	Server() { Startup(); };
+	static Server* getInstance();
+
+
 	~Server() {	Cleanup();};
 
 	void Cleanup();
 
 	int run();
+	void stop();
 
 	bool IsRunning();
 

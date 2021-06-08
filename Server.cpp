@@ -3,8 +3,8 @@
 
 //Find ways of setting
 //Vars that Server Populates from Input
-uint32 playerID = 0;
-char playerInput = 0;
+//uint32 playerID = 0;
+//char playerInput = 0;
 
 
 //Vars Populated for Output
@@ -14,8 +14,6 @@ char playerInput = 0;
 //selection delta
 
 
-//Info/Function vars
-bool is_running = 1;
 
 
 
@@ -38,7 +36,7 @@ int main() {
 
 int Server::run()
 {
-
+	is_running = true;
 	while (is_running) //This is one tick
 	{
 		//Start measuring time
@@ -152,6 +150,22 @@ int Server::run()
 
 }
 
+void Server::stop()
+{
+	is_running = false;
+}
+
+
+Server* Server::getInstance()
+{
+	static Server* serv;
+	if (serv) {
+		return serv;
+	}
+	serv = new Server();
+	serv->run();
+	return serv;
+}
 
 void Server::Cleanup()
 { //Cleanup ressources

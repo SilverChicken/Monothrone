@@ -9,6 +9,8 @@
 #include <GLFW/glfw3.h>
 
 #include<unordered_map>
+#include <thread>
+
 #include "Timer.h"
 
 
@@ -38,8 +40,10 @@ class Ressource;
 class Wall;
 class Gui;
 
+
 class Client;
 class Server;
+class Menu;
 
 class Gamemode
 {
@@ -53,13 +57,23 @@ private:
 	Client* client = nullptr;
 	bool isHost = false;
 
+	//Threads
+	std::thread Servthread;
+	std::thread Clithread;
+
+
+
 	//Objects we're rendering
 	Map* map = nullptr;
 	Player * player = nullptr;
 	Gui * gui = nullptr;  //-> will need multiple for multiplayer?
+	Menu* menu = nullptr;
+
+	int mode = 0; //0 is menu, 1 is playing
+	
 	
 
-	std::vector<Unit *> Enemies; //Refs to the mountains
+	std::vector<Unit *> Enemies; //Refs to the temp baddies for drawing
 
 	std::unordered_map<int, Unit *> Thrones;
 	std::unordered_map<int, Player *> Players;
@@ -75,7 +89,6 @@ private:
 	void categorizeAccess(); //gets connected components, fills the smaller ones with locs
 	void SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, int Varnrg, int CRY, int Varcry);
 
-
 public:
 
 	~Gamemode();
@@ -83,7 +96,7 @@ public:
 
 
 	void init();
-	
+	void init2();
 	
 
 
@@ -111,7 +124,9 @@ public:
 	void removeRessource(Ressource *);    //Removes Crystal or Energy
 	void addWall(Wall*);
 	
-
+	int getMode();
+	int setMode(int m);
+	void setIsHost(bool h);
 
 	Unit* getThrone(int);
 	Player* getPlayer(int);
@@ -128,5 +143,8 @@ public:
 
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
+
+
+	
 };
 

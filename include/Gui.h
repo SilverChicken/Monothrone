@@ -15,10 +15,12 @@
 #define BINDINGCOUNT 6
 #define UNITCOUNT 15     //Mirror MAX_CLASS_T
 
+#define BUTTONCOUNT 4
 
 class Gui {
 
 private:
+
 	//float toolHeight = 10;
 	const std::string binds[BINDINGCOUNT] = { "Move", "Collect", "Build","Spawn","Consume", "Action" }; //Action names
 
@@ -65,11 +67,12 @@ public:
 	void setBinds(int*); //Sets the curent bindings takes the bindings array from Player
 	void setUnits(std::vector<int>&);    
 
+	FontLoader* getFontRef();
 
 	//Render
 
 	void draw(); //Draws the text (must have shader disabled)
+	//void drawMenu();
 	void drawIcons(GLuint, float xpos, float ypos); //Draws the rest (this needs shader!)
-
 
 };
