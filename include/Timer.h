@@ -3,7 +3,7 @@
 
 //This will be singleton class
 
-#define tickLen 100
+#define tickLen 25
 
 class Timer //This class will be used as a trashy imprecise timer. It increments when Window::idle_callback() is called
 {           //Eventually this will be managed by the Server manager, so everything is synced

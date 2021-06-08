@@ -7,8 +7,6 @@
 
 
 
-
-
 static const float vertices[32] = {                          //For render the tile icons
 		// positions          // texture coords
 		 0.1f,  0.1f, 0.0f,   1.0f, 1.0f,   // top right
@@ -45,7 +43,7 @@ void Gui::init()
 	if (!Font.Load("fonts/Small_Fonts.bff")) {
 		std::cout << "Font failed to Load" << std::endl;
 	}
-	Font.SetColor(0.5f, 0.9f, 0.9f);
+	Font.SetColor(0.9f, 0.9f, 0.9f); //default white
 
 }
 
@@ -130,6 +128,11 @@ void Gui::setUnits(std::vector<int>& unitsInSel)
 	
 }
 
+FontLoader* Gui::getFontRef()
+{
+	return &Font;
+}
+
 void Gui::draw()
 {
 	//draw everything static first then add unit count,, type, bindings and all
@@ -138,7 +141,7 @@ void Gui::draw()
 	
 	Font.SetScreen(WINSIZE,WINSIZE);
 	Font.Select();
-
+	Font.SetColor(0.9f, 0.9f, 0.9f);
 	//Write in terms of WINSIZE? No, be globals that are set by a switch on RESOLUTION set in menus
 
 	Font.Print((char*)"Units: ", 15, 85);   
@@ -209,7 +212,6 @@ void Gui::drawIcons(GLuint shaderprog, float xpos, float ypos)
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 }
-
 
 void Gui::renderSetup() {
 	//rendering

@@ -52,6 +52,10 @@ void Window::initialize_objects()
 // Treat this as a destructor function. Delete dynamically allocated memory here.
 void Window::clean_up()
 {
+	//Make gamemode, client and server cleanup
+
+
+
 	glDeleteProgram(shaderProgram);
 }
 
@@ -129,7 +133,12 @@ void Window::display_callback(GLFWwindow* window)
 	glUseProgram(0); 
 	game->drawGui();
 
-
+	if (game->getMode() == 0) { //then skip the rest of rendering
+		glfwPollEvents();
+		// Swap buffers
+		glfwSwapBuffers(window);
+		return;
+	}
 
 	//resume
 	glUseProgram(shaderProgram);
