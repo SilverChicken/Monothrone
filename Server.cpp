@@ -133,7 +133,7 @@ int Server::run()
 
 
 				//print state
-				printf("Player coord %d, %d \n", client_objects[i].x, client_objects[i].y);
+				//printf("Player coord %d, %d \n", client_objects[i].x, client_objects[i].y);
 
 
 			}

@@ -1,6 +1,7 @@
 #pragma once
 
-#include"Locateable.h"  
+//#include"Locateable.h"  
+#include"PlayerType.h"
 #include<vector>
 #include<list>
 #include<map>
@@ -28,30 +29,30 @@ class Map;
 class Unit;
 
 
-class Player : Locateable
+class Player : public PlayerType
 {
 private:
-	int PID;
-	Map* map = nullptr;
+	//int PID;
+	//Map* map = nullptr;
 
 	//Gameplay Vars
-	int energy;
-	int crystal;
-	bool hasThrone;
+	//int energy;
+	//int crystal;
+	//bool hasThrone;
 	//std::list<Unit*> selection;
 	std::map<Unit*, bool> selection;   //  map of selected units, subset of units map
 
 	//Vector of all units you own? Or set Or Hashmap?
-	std::map<Unit*, bool> units;
+	//std::map<Unit*, bool> units;
 
 	//array of functions that are bound to AZERTY how it it set? Selection. When Selection is updated we iterate through it
 	int* bindings;
 
 
 	//rendering Vars
-	const int textLocs[3] = { 0, 1, 2 };
+	//const int textLocs[3] = { 0, 1, 2 };
 
-	int texLoc;                    //indicates where the tile's texture is within the texture array
+	//int texLoc;                    //indicates where the tile's texture is within the texture array
 	float zoom;
 	int camBoxX;                       //indicates when we move the camera as distance from center
 	int camBoxY;
@@ -65,21 +66,23 @@ public:
 	~Player();
 
 	//gets & sets
-	int getPID();
-	const int getTexLoc();
+	//int getPID();
+	//const int getTexLoc();
 	Location* getLoc();
 	float getZoom();
 	bool setLoc(Location*);
 	bool setLoc(int, int);  //overloads for coordinates
 	bool setLoc(glm::vec2);
 
-	int getCrystal();
-	int getEnergy();
+	//int getCrystal();
+	//int getEnergy();
 
 	//Unit management
 	std::map<Unit*, bool> getSelection();
 	void UpdateSelectedUnits(); //Will also update the GUI
 	void update();
+	//remove a unit only call on death
+
 
 	//Pauses the game(for now)
 	bool pause = false;
@@ -89,15 +92,17 @@ public:
 	bool move(int);
 	bool select(Location*);
 	Unit* deselect();
+	Unit* deselect(Unit*);
 	void deselectAll();
-	bool checkHasThrone();
-	bool incEnergy(int);
-	bool incCrystal(int);
-	bool decEnergy(int);
-	bool decCrystal(int);
+	//bool checkHasThrone();
+	//bool incEnergy(int);
+	//bool incCrystal(int);
+	//bool decEnergy(int);
+	//bool decCrystal(int);
 
 	template <class T> 
 	Unit* spawnUnit(Location * location); 
+	void destroyUnit(Unit* unit);
 
 
 
@@ -120,6 +125,7 @@ private:
 	//Private gameplay fct
 	void updateBindings();
 	void addUnit(Unit*);
+	void removeUnit(Unit*);
 
 	//private render fcts
 	void setBotLeft(Location*);

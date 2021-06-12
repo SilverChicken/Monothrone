@@ -37,6 +37,9 @@ Unit::Unit(int own, Location* loc, Map * map)
 	//Set class identifier
 	classType = UNIT_CLASS_T;
 
+	//set core GP vars that are usually the same
+	range = 1;
+	aggroDist = 4;
 
 }
 
@@ -48,6 +51,11 @@ Unit::~Unit()
 int Unit::getTexLoc()
 {
 	return textLoc;
+}
+
+int Unit::getLifeState()
+{
+	return lifeState;
 }
 
 int Unit::getOwner()
@@ -149,6 +157,11 @@ void Unit::draw(unsigned int texture, GLuint shaderprog)
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, ImLoader::textures[spawnLoc[partAnimState]]);
 	}
+	else if (lifeState == 2) {
+		glUniform1f(glGetUniformLocation(shaderprog, "overlay"), 4.0f);        //Just particle but it's the spawn anim
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, ImLoader::textures[deathLoc[partAnimState]]);
+	}
 	else {
 		glUniform1f(glGetUniformLocation(shaderprog, "overlay"), 0.0f);        //None
 	}
@@ -183,11 +196,18 @@ void Unit::update(Map* map)
 	}
 	else if (lifeState == 2) { //On death make sure to reset particle anim state
 
-		partAnimState = (partAnimState + LIFEANIMSTEP) % DEATHANIMCT;
+		partAnimState = (partAnimState + LIFEANIMSTEP);
 
 		if (partAnimState >= DEATHANIMCT) { //Go into normal mode
 			
 			//Basically destroy and cleanup
+			
+			loc->release(this);
+			game->destroyUnit(this);
+
+			//this lets player know that this was deleted
+			lifeState = 3;
+
 
 		}
 
@@ -197,12 +217,19 @@ void Unit::update(Map* map)
 
 	Location* go;
 
+
+
+
 	if (building && !path.empty()) { //Check if we're buidling before we move possibly optimize and put into mvt routine
 		go = path.front();
 		if (go == target) {
 			path.clear();
 			FinishBuild();
 		}
+	}
+	else if (!building && !collecting) { //only auto attack if idle
+		autoAttack();
+		attack(); 
 	}
 
 
@@ -257,6 +284,11 @@ void Unit::update(Map* map)
 
 
 
+}
+
+void Unit::update2()
+{
+	applyDamage();
 }
 
 bool Unit::select(int PID)
@@ -504,5 +536,88 @@ bool Unit::consume(Unit * food)
 
 
 	return false;
+}
+
+bool Unit::autoAttack()
+{
+
+	//Whenever we are near an enemy we find them
+	Location* target = game->findClosestNotOwned(loc, owner, aggroDist);
+
+	//and we move to them
+	if (target) {
+		move(target, game->getMap());
+		return true;
+	}
+	
+	//there are no enemies about
+	return false;
+
+
+}
+
+bool Unit::attack()
+{
+	//this one attacks the nearest enemy within range, if there is one?
+	Location* target = game->findClosestNotOwned(loc, owner, range);
+
+	//and we damage them if that space is still valid and occupied by a unit that is still not owned by us.
+	if (target) {
+		Locateable* tg = target->getOwner();
+		if (tg) {
+			if (tg->getClassType() >= UNIT_CLASS_T) {
+				Unit* unit = (Unit*)tg; //this is a safe cast because we checked in case of race condition
+				if (unit->owner != owner) {
+					dealDamage(unit); //
+					return true;
+				}
+				
+			}
+		}
+		
+	}
+
+	//We can't attack anyone;
+	return false;
+}
+
+bool Unit::dealDamage(Unit* target)
+{
+	//checks that target is within our range and damages it
+	if (Utils::calcDist(loc, target->getLoc()) <= range) {
+		target->takeDamage(atk);
+		return true;
+	}
+
+	return false;
+}
+
+bool Unit::attackLoc(Location*) //if the unit has a ranged attack very unit specific
+{
+	return false;
+}
+
+int Unit::takeDamage(int dmg)
+{
+	damageTaken += dmg;
+	return 1;
+}
+
+int Unit::applyDamage()
+{
+
+	hp -= damageTaken;
+	damageTaken = 0;
+
+	if (hp <= 0 && lifeState != 3) {
+
+		lifeState = 2;
+		//start death animation
+		//At the end of the animation the destroy unit function will be called
+
+		return 0;
+	}
+
+	return 1;
 }
 

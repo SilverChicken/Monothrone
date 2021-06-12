@@ -192,6 +192,11 @@ void Gui::draw()
 
 void Gui::drawIcons(GLuint shaderprog, float xpos, float ypos)
 {
+
+	//reset the vars so we don't get particle effects lingering
+	glUniform1f(glGetUniformLocation(shaderprog, "overlay"), 0.0f);
+
+
 	//send some info about where you are
 	glUniform2f(glGetUniformLocation(shaderprog, "location"), xpos + 14, ypos - 1.5);  //Make const and zoom mod?
 

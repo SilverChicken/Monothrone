@@ -42,6 +42,8 @@ private:
 protected:
 	int hp;
 	int atk;
+	int range;
+	int aggroDist;
 	int speed;
 
 	Gamemode * game;
@@ -55,7 +57,7 @@ protected:
 	 
 	//Turn flags to state machine struct that is either idle, moving, collecting, carrying, or building?
 	int lifeState = 0; //lifeState indicates spawn animation at 0, normal behavior 1, death anim 2
-
+	int damageTaken = 0;
 
 	//Collect variables and functions
 	bool collecting = false;
@@ -78,6 +80,7 @@ public:
 	virtual ~Unit(); //needs to be virtual but that makes an exception?
 
 	int getTexLoc();
+	int getLifeState();
 	int getOwner();
 
 	static const int selectLoc = 31; //Location of overlay texture for selected units
@@ -85,6 +88,7 @@ public:
 	virtual void draw(unsigned int,GLuint); //if virtual then derived can call without being recast!
 
 	virtual void update(Map*);
+	virtual void update2();
 
 	bool select(int);
 	void deselect();
@@ -104,6 +108,17 @@ public:
 	virtual bool consume(Unit* food);						  // 4- Consume a unit to upgrade internally
 	
 	//5 some random extra action if we need it
+
+	//Gameplay functions
+	virtual bool autoAttack();      //Scans area for enemies and moves to them
+	virtual bool attack();			//Gets a unit within range that is not owned by us and calls attack on it
+	virtual bool dealDamage(Unit *);    //If parameter is within range, will damage that unit
+	virtual bool attackLoc(Location *);
+
+	virtual int takeDamage(int dmg);
+	virtual int applyDamage();
+
+
 	
 };
 

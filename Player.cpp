@@ -75,6 +75,7 @@ Player::~Player()
 
 //gets and sets
 
+/*
 int Player::getPID()
 {
 	return PID;
@@ -84,6 +85,7 @@ const int Player::getTexLoc()
 {
 	return texLoc;
 }
+*/
 
 Location * Player::getLoc()
 {
@@ -120,6 +122,7 @@ bool Player::setLoc(glm::vec2 locate)
 	return false;
 }
 
+/*
 int Player::getCrystal()
 {
 	return crystal;
@@ -129,6 +132,7 @@ int Player::getEnergy()
 {
 	return energy;
 }
+*/
 
 std::map<Unit*, bool> Player::getSelection()
 {
@@ -183,11 +187,25 @@ void Player::addUnit(Unit * newUnit)
 	units[newUnit] = newUnit->isSelected();
 }
 
+void Player::removeUnit(Unit* del)
+{
+	units.erase(del);
+}
+
 void Player::update()
 {
 	if (!pause) { 
-		for (auto it = units.begin(); it != units.end(); it++) {
+		for (auto it = units.begin(); it != units.end(); ) {
 			it->first->update(map); //Works bc virtual -> We don't need explicit types, just matching function definitions!
+
+			//check that the iterator is still valid, or if it was erase we need to not increment it
+			if (it->first->getLifeState() == 3) {
+				units.erase(it++);
+			}
+			else {
+				it++;
+			}
+
 		}
 	}
 }
@@ -309,6 +327,18 @@ Unit * Player::deselect()
 	return nullptr;
 }
 
+Unit* Player::deselect(Unit* unit)
+{				
+	if (selection.find(unit) != selection.end()) {			//Make sure it's currently selected 
+		selection.erase(unit);							//Erase
+		unit->deselect();									//Unit logic for being deselected
+		updateBindings();									//Update the bindings
+		return unit;
+	}
+
+	return nullptr;
+}
+
 void Player::deselectAll()
 {
 	for (auto it = selection.begin(); it != selection.end(); it++) {
@@ -319,21 +349,22 @@ void Player::deselectAll()
 	
 }
 
+/*
+
 bool Player::checkHasThrone()
 {
 	return hasThrone;
 }
 
-bool Player::incEnergy(int)
+bool Player::incEnergy(int val)
 {
-	energy++;
-	
+	energy += val;
 	return true;
 }
 
-bool Player::incCrystal(int)
+bool Player::incCrystal(int val)
 {
-	crystal++;
+	crystal += val;
 	return true;
 }
 
@@ -353,6 +384,25 @@ bool Player::decCrystal(int val)
 		return true;
 	}
 	return false;
+}
+*/
+
+void Player::destroyUnit(Unit* unit)
+{
+	//destroys and cleans up a unit you own
+	if (unit->getOwner() == PID) {
+		//Die animation already finished
+
+
+		//remove references from player, game mode cleanup is already done.
+		deselect(unit);
+
+		//remove from player units map will be done in the current update
+
+		//After this the unit should have exited the scope and be cleaned up!
+		//unit->~Unit(); 
+
+	}
 }
 
 

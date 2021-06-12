@@ -43,9 +43,9 @@ Gamemode::~Gamemode()
 	client->stop();
 	if (isHost) {
 		serv->stop();
+		Servthread.join();
 	}
-
-	Servthread.join();
+	
 	Clithread.join();
 }
 
@@ -106,12 +106,23 @@ void Gamemode::init2()
 	}
 
 
-	//Dummy enemies
-	Unit* enemy_1 = new Worm(0, map->getLoc(8, 5), map);
-	Unit* enemy_2 = new Worm(0, map->getLoc(8, 7), map);
+	//Dummy player2
 
-	Enemies.push_back(enemy_1);
-	Enemies.push_back(enemy_2);
+	/// <summary> We can't support two players. Define main player to figure out displaying, disable the display on second player?  Make a dummy player class that has no controls
+	/// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// </summary>
+
+	PlayerType* p2 = new PlayerType(0, map);
+
+	//Dummy enemies
+	p2->spawnUnit<Worm>(map->getLoc(9, 5));
+	p2->spawnUnit<Worm>(map->getLoc(9, 7));
+
+	//Unit* enemy_1 = new Worm(0, map->getLoc(8, 5), map);
+	//Unit* enemy_2 = new Worm(0, map->getLoc(8, 7), map);
+
+	//Enemies.push_back(enemy_1);
+	//Enemies.push_back(enemy_2);
 
 
 }
@@ -265,7 +276,7 @@ void Gamemode::SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, 
 
 void Gamemode::incRessource(int type, int player)
 {
-	Player * pl = Players.at(player); //should never be null
+	PlayerType * pl = Players.at(player); //should never be null
 	if (type == ENERGY_CLASS_T) {
 		pl->incEnergy(1);
 		gui->setEnergy(pl->getEnergy());  //Updates the Gui 
@@ -300,7 +311,31 @@ void Gamemode::updateGuiUnit(std::vector<int>& selection)
 
 Unit* Gamemode::spawnUnit(int playe, int obj, Location* spawnLoc)
 {
-	Player * pl = Players.at(playe);
+	PlayerType * pl = Players.at(playe);
+
+	if (player == (Player*)pl) {
+		switch (obj) { //NOTE only spawn Unit subclasses
+		case UNIT_CLASS_T:
+			break;
+		case THRONE_CLASS_T:
+			return player->spawnUnit<Throne>(spawnLoc);
+			break;
+		case REFACTORY_CLASS_T:
+			break;
+		case MANUFACTORY_CLASS_T:
+			break;
+		case WORM_CLASS_T:
+			return player->spawnUnit<Worm>(spawnLoc);
+			break;
+		case WORKER_CLASS_T:
+			return player->spawnUnit<Worker>(spawnLoc);
+			break;
+		default:
+			std::cout << "Invalid obj type send to Gamemode::SpawnUnit" << std::endl;
+			break;
+		}
+		return nullptr;
+	}
 
 	switch (obj) { //NOTE only spawn Unit subclasses
 		case UNIT_CLASS_T:
@@ -396,6 +431,84 @@ Location * Gamemode::findClosestType(Location * base, int type)
 	return nullptr; //then the search has failed. we throw an exception, this should basically end the game. Maybe an easter egg?
 	//Basically this is a bit dangerous and it should be handled otherly.
 
+}
+
+Location* Gamemode::findClosestNotOwned(Location* base, int owner, int bound)
+{
+	//Dfs early termination, looking for classT of unit or higher, spins within bound block radius
+
+	std::unordered_map<Location*, bool> visited;
+	std::list<Location*> stack;   //the current stack to look through, should be a deque
+
+	stack.push_back(base);
+
+	int rounds = 2 * bound * (bound + 1); //gets all spots within bound distance
+
+	while (!stack.empty() && rounds >= 0) {
+
+		rounds--;
+		Location* base = stack.front();
+		stack.pop_front();
+		Location* newVert;
+
+		if (base->getOwner() != nullptr) {
+			Locateable* unit = base->getOwner();
+			if (unit->getClassType() >= UNIT_CLASS_T) {
+				Unit* uni = (Unit*)unit; //safe cast now
+				if (uni->getOwner() != owner) {
+					return base;
+				}
+			}
+		}
+
+
+		int x = (int)base->getPos().x;
+		int y = (int)base->getPos().y;
+		int x2 = 0;
+		int y2 = 0;
+
+
+		visited[base] = base->state; //we have now visited this vertex
+
+		if (x > 0) { //there's a vertex on the left
+			x2 = x - 1;
+			y2 = y;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) { //Check if the vertex isn't going to be checked AND hasn't already been
+				stack.push_back(newVert);        //If it wasn't then we add it to the visited list
+			}
+		}
+		if (x < MAPSIZE - 1) { //vertex to the right
+			x2 = x + 1;
+			y2 = y;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				stack.push_back(newVert);
+			}
+		}
+		if (y > 0) {
+			x2 = x;
+			y2 = y - 1;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				stack.push_back(newVert);
+			}
+		}
+		if (y < MAPSIZE - 1) {
+			x2 = x;
+			y2 = y + 1;
+			newVert = map->getLoc(x2, y2);
+			if (!Utils::listSearch(newVert, stack) && visited.find(newVert) == visited.end()) {
+				stack.push_back(newVert);
+			}
+		}
+
+		//Now the vertices are added so back to the top of the while loop!
+
+	}
+	//Getting here means the stack becomes empty :(
+	return nullptr; //then the search has failed. we throw an exception, this should basically end the game. Maybe an easter egg?
+	//Basically this is a bit dangerous and it should be handled otherly.
 }
 
 
@@ -663,7 +776,7 @@ Unit * Gamemode::getThrone(int own)
 	return Thrones[own];
 }
 
-Player * Gamemode::getPlayer(int own)
+PlayerType * Gamemode::getPlayer(int own)
 {
 	return Players[own];
 }
@@ -675,9 +788,18 @@ void Gamemode::addThrone(int own, Unit * throne)
 	}
 }
 
-void Gamemode::addPlayer(int own, Player * player)
+void Gamemode::addPlayer(int own, PlayerType * player)
 {
 	Players[own] = player;
+}
+
+void Gamemode::destroyUnit(Unit* unit)
+{
+	PlayerType* pl = Players.at(unit->getOwner());
+	//do gamemode level cleanup?
+
+
+	pl->destroyUnit(unit);
 }
 
 Map * Gamemode::getMap()
@@ -692,12 +814,13 @@ void Gamemode::update()
 		//Update unit positions mostly and anim?
 
 		//Player will cascade the update to all its units
-		for (std::pair<int, Player*>  pl : Players) { //Or do iterator and at it
+		for (std::pair<int, PlayerType*>  pl : Players) { //Or do iterator and at it
 			pl.second->update();
 		}
 		
-		for (Unit* ene : Enemies) {
-			ene->update(map);
+		//Damage loop or secondary things that needed info from the first loop
+		for (std::pair<int, PlayerType*> pl : Players) { //Or do iterator and at it
+			pl.second->update2();
 		}
 
 	}
@@ -725,11 +848,11 @@ void Gamemode::draw(GLuint shaderProgram)
 		}
 	}
 
-	for (Unit* ene : Enemies) {
-		if (!player->cull(ene->getLoc())) {
-			ene->draw(ImLoader::textures[ene->getTexLoc()], shaderProgram);
-		}
-	}
+	//for (Unit* ene : Enemies) {
+	//	if (!player->cull(ene->getLoc())) {
+	//		ene->draw(ImLoader::textures[ene->getTexLoc()], shaderProgram);
+	//	}
+	//}
 
 	for (auto wall : Walls) {
 		if (!player->cull(wall.first->getLoc())) {
@@ -737,7 +860,15 @@ void Gamemode::draw(GLuint shaderProgram)
 		}
 	}
 
-	player->draw(ImLoader::textures, shaderProgram);
+	for (auto pl : Players) {
+		if (pl.second == (PlayerType*)player) {
+			pl.second->draw(ImLoader::textures, shaderProgram);
+		}
+		else {
+			pl.second->draw(ImLoader::textures, player, shaderProgram);
+		}
+		
+	}
 
 	glm::vec2 camLoc = player->getBotLeft()->getPos();
 	gui->drawIcons(shaderProgram, camLoc.x, camLoc.y);

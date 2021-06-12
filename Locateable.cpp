@@ -61,6 +61,10 @@ Locateable::~Locateable() //this deletes all objects
 	//glDeleteVertexArrays(1, &VAO);
 	//glDeleteBuffers(1, &VBO_vert);
 	//glDeleteBuffers(1, &EBO);
+
+	if (loc) {
+		loc->release(this);
+	}
 }
 
 void Locateable::cleanup()

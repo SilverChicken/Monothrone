@@ -32,6 +32,7 @@
 //Some of these will have a reference to GameMode from which they can call the interactions
 //This class will be held by Window which will then only be in charge of managing GLFW and this class
 class Player;
+class PlayerType;
 class Map;
 class Location;
 class Unit;
@@ -73,10 +74,10 @@ private:
 	
 	
 
-	std::vector<Unit *> Enemies; //Refs to the temp baddies for drawing
+	//std::vector<Unit *> Enemies; //Refs to the temp baddies for drawing
 
 	std::unordered_map<int, Unit *> Thrones;
-	std::unordered_map<int, Player *> Players;
+	std::unordered_map<int, PlayerType *> Players;
 	std::unordered_map<Wall*, int> Walls;
 
 	std::vector<Ressource *> Mountains; //Refs to the mountains
@@ -109,6 +110,8 @@ public:
 
 
 	Location* findClosestType(Location *, int);    //finds nearest locateable of the type passed in as int.
+	Location* findClosestNotOwned(Location*, int, int); //finds nearest Unit that is owned by another player
+
 	//Super specific definition, used to move thru your own units, or like get other units? make take unit and cnd unit
 	Location* findClosestToCnd(Location*, Location*, Unit*, const bool cnd(Unit*, Location*));
 
@@ -129,9 +132,11 @@ public:
 	void setIsHost(bool h);
 
 	Unit* getThrone(int);
-	Player* getPlayer(int);
+	PlayerType* getPlayer(int);
 	void addThrone(int, Unit*);
-	void addPlayer(int, Player*);
+	void addPlayer(int, PlayerType*);
+
+	void destroyUnit(Unit*);
 
 	Map * getMap();
 	
