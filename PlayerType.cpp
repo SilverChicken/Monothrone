@@ -8,6 +8,7 @@ Gamemode* gameRef = &Gamemode::getInstance();
 
 PlayerType::PlayerType()
 {
+	//default constructor for Player to take over
 }
 
 PlayerType::PlayerType(int Npid, Map* mapo)
@@ -56,13 +57,6 @@ int PlayerType::getEnergy()
 	return energy;
 }
 
-/*
-std::map<Unit*, bool> PlayerType::getSelection()
-{
-	return selection;
-}*/
-
-
 
 void PlayerType::update()
 {
@@ -86,24 +80,6 @@ void PlayerType::update2()
 
 	}
 }
-
-/*
-bool PlayerType::select(Location*)
-{
-	//How do we do this?
-	//Checks done on other client side? and the just assign? or forget about selection altogether?
-
-	return false;
-}
-
-Unit* PlayerType::deselect(Unit*)
-{
-	return nullptr;
-}
-
-void PlayerType::deselectAll()
-{
-}*/
 
 bool PlayerType::checkHasThrone()
 {
@@ -150,7 +126,7 @@ void PlayerType::destroyUnit(Unit* unit)
 		//Maybe this function has no use right.
 
 
-		//remove from player units map will be done in the current update
+		//remove from player units map will be done in the current update2
 
 		//After this the unit should have exited the scope and be cleaned up!
 		//unit->~Unit(); 
@@ -177,12 +153,12 @@ void PlayerType::draw(unsigned int* texture, PlayerType* pl, GLuint shaderprog) 
 	}
 }
 
-void PlayerType::addUnit(Unit*)
+void PlayerType::addUnit(Unit* newUnit)
 {
-
+	units[newUnit] = newUnit->isSelected();
 }
 
-void PlayerType::removeUnit(Unit*)
+void PlayerType::removeUnit(Unit* del)
 {
-
+	units.erase(del);
 }

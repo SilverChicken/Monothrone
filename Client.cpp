@@ -6,7 +6,7 @@
 #include <time.h>
 
 
-Timing_Info timing_info;
+//Timing_Info timing_info;
 
 /*
 int main() {
@@ -197,6 +197,18 @@ int Client::run()
 
 		printf("x:%d, y:%d, is_running:%d\n", player_x, player_y, is_running);
 		*/
+
+
+		//tick now to tell the game to do its thing
+		
+		//increment a variable internally
+		//Gamemode will decrement it and check at update?
+		//=== trashy semaphore!!
+		
+		shouldTick++;
+
+		wait_for_tick_end(tick_start_time, &timing_info);
+
 	}
 
 
@@ -210,6 +222,20 @@ int Client::run()
 void Client::stop()
 {
 	is_running = false;
+}
+
+int Client::tick()
+{
+	if (shouldTick) {
+		shouldTick--;
+		return 1;
+	}
+	return 0;
+}
+
+void Client::resetTick()
+{
+	shouldTick = 0;
 }
 
 void Client::addInput(int key)
@@ -260,7 +286,7 @@ int Client::Startup(const char* Saddress)
 
 
 	//Init the timing info currently breaks because this function can only be called once by a process, will work when everything is put together.
-	//timing_info = timing_info_create();
+	timing_info = timing_info_create();
 
 
 	//set recvfrom to not block

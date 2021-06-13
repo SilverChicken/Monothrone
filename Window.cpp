@@ -18,7 +18,7 @@ GLint shaderProgram;
 
 
 //Timer for tick function
-Timer ticker = Timer::getInstance();
+//Timer ticker = Timer::getInstance();
 
 //Objects were rendering
 //Map* map;

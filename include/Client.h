@@ -10,10 +10,13 @@ private:
 
 	//Info vars
 	bool is_running = false;
+	int shouldTick = 0;
 
 	//Server info
 	SOCKADDR_IN server_address;    //Where this server is
 	SOCKET sock;
+
+	Timing_Info timing_info;
 
 	uint8 buffer[SOCKET_BUFFER_SIZE];
 	int bytes_written;
@@ -38,6 +41,9 @@ public :
 	int run(); //Basically checks if we have input sends either an idle/input/join/leave based on inputs then also unpacks the server msg
 	void stop(); //stops the run loop
 
+	//Timing info
+	int tick();
+	void resetTick();
 
 	void addInput(int key);
 

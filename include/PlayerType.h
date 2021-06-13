@@ -25,16 +25,12 @@ protected:
 	int energy;
 	int crystal;
 	bool hasThrone;
-	//std::list<Unit*> selection;
-	//std::map<Unit*, bool> selection;   //  map of selected units, subset of units map
 
 	//Vector of all units you own? Or set Or Hashmap?
 	std::map<Unit*, bool> units;
 
 	//rendering Vars
-	const int textLocs[3] = { 0, 1, 2 };
-
-	int texLoc;                    //indicates where the tile's texture is within the texture array
+	//We don't render this object!
 
 public:
 
@@ -50,16 +46,10 @@ public:
 	int getEnergy();
 
 	//Unit management
-	//std::map<Unit*, bool> getSelection();
 	virtual void update();
 	virtual void update2();
 	
 	//Gameplay fcts
-	//bool move(int);
-	//bool select(Location*);
-	//Unit* deselect();
-	//Unit* deselect(Unit*);
-	//void deselectAll();
 	bool checkHasThrone();
 	bool incEnergy(int);
 	bool incCrystal(int);
@@ -81,6 +71,7 @@ public:
 
 private:
 
+	//unit management
 	void addUnit(Unit*);
 	void removeUnit(Unit*);
 

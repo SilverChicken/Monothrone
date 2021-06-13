@@ -11,7 +11,7 @@
 #include<unordered_map>
 #include <thread>
 
-#include "Timer.h"
+
 
 
 #define MAX_PLAYER 3
@@ -51,7 +51,7 @@ class Gamemode
 private:
 
 	//Timer for tick function
-	Timer ticker = Timer::getInstance();
+	//Timer ticker = Timer::getInstance();
 
 	//Server/Client
 	Server* serv = nullptr;

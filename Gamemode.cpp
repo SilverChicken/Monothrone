@@ -39,8 +39,9 @@ void startServer();
 
 Gamemode::~Gamemode()
 {
-
-	client->stop();
+	if (client) {
+		client->stop();
+	}
 	if (isHost) {
 		serv->stop();
 		Servthread.join();
@@ -118,11 +119,9 @@ void Gamemode::init2()
 	p2->spawnUnit<Worm>(map->getLoc(9, 5));
 	p2->spawnUnit<Worm>(map->getLoc(9, 7));
 
-	//Unit* enemy_1 = new Worm(0, map->getLoc(8, 5), map);
-	//Unit* enemy_2 = new Worm(0, map->getLoc(8, 7), map);
-
-	//Enemies.push_back(enemy_1);
-	//Enemies.push_back(enemy_2);
+	
+	//Make sure to reset the client's tick variable
+	client->resetTick();
 
 
 }
@@ -312,30 +311,6 @@ void Gamemode::updateGuiUnit(std::vector<int>& selection)
 Unit* Gamemode::spawnUnit(int playe, int obj, Location* spawnLoc)
 {
 	PlayerType * pl = Players.at(playe);
-
-	if (player == (Player*)pl) {
-		switch (obj) { //NOTE only spawn Unit subclasses
-		case UNIT_CLASS_T:
-			break;
-		case THRONE_CLASS_T:
-			return player->spawnUnit<Throne>(spawnLoc);
-			break;
-		case REFACTORY_CLASS_T:
-			break;
-		case MANUFACTORY_CLASS_T:
-			break;
-		case WORM_CLASS_T:
-			return player->spawnUnit<Worm>(spawnLoc);
-			break;
-		case WORKER_CLASS_T:
-			return player->spawnUnit<Worker>(spawnLoc);
-			break;
-		default:
-			std::cout << "Invalid obj type send to Gamemode::SpawnUnit" << std::endl;
-			break;
-		}
-		return nullptr;
-	}
 
 	switch (obj) { //NOTE only spawn Unit subclasses
 		case UNIT_CLASS_T:
@@ -809,21 +784,23 @@ Map * Gamemode::getMap()
 
 void Gamemode::update()
 {
-	ticker.inc();
-	if (ticker.state) { //Update all objects! 
+	if (mode == 1) {
+		if (client->tick()) { //Update all objects! 
 		//Update unit positions mostly and anim?
 
 		//Player will cascade the update to all its units
-		for (std::pair<int, PlayerType*>  pl : Players) { //Or do iterator and at it
-			pl.second->update();
-		}
-		
-		//Damage loop or secondary things that needed info from the first loop
-		for (std::pair<int, PlayerType*> pl : Players) { //Or do iterator and at it
-			pl.second->update2();
-		}
+			for (std::pair<int, PlayerType*> pl : Players) { //Or do iterator and at it
+				pl.second->update();
+			}
 
+			//Damage loop or secondary things that needed info from the first loop
+			for (std::pair<int, PlayerType*> pl : Players) { //Or do iterator and at it
+				pl.second->update2();
+			}
+
+		}
 	}
+	
 }
 
 void Gamemode::draw(GLuint shaderProgram)

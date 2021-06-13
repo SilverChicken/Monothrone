@@ -66,8 +66,8 @@ Player::~Player()
 		if (it->first) {
 			delete(it->first);
 		}
-		
 	}
+	units.clear();
 
 	delete(bindings);
 }
@@ -182,6 +182,7 @@ void Player::updateBindings()
 
 }
 
+/*
 void Player::addUnit(Unit * newUnit)
 {
 	units[newUnit] = newUnit->isSelected();
@@ -191,6 +192,7 @@ void Player::removeUnit(Unit* del)
 {
 	units.erase(del);
 }
+*/
 
 void Player::update()
 {

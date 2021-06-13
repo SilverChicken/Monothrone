@@ -50,9 +50,9 @@ private:
 
 
 	//rendering Vars
-	//const int textLocs[3] = { 0, 1, 2 };
+	const int textLocs[3] = { 0, 1, 2 };
 
-	//int texLoc;                    //indicates where the tile's texture is within the texture array
+	int texLoc;                    //indicates where the tile's texture is within the texture array
 	float zoom;
 	int camBoxX;                       //indicates when we move the camera as distance from center
 	int camBoxY;
@@ -100,8 +100,8 @@ public:
 	//bool decEnergy(int);
 	//bool decCrystal(int);
 
-	template <class T> 
-	Unit* spawnUnit(Location * location); 
+	//template <class T> 
+	//Unit* spawnUnit(Location * location); 
 	void destroyUnit(Unit* unit);
 
 
@@ -124,8 +124,8 @@ private:
 
 	//Private gameplay fct
 	void updateBindings();
-	void addUnit(Unit*);
-	void removeUnit(Unit*);
+	//void addUnit(Unit*);
+	//void removeUnit(Unit*);
 
 	//private render fcts
 	void setBotLeft(Location*);
@@ -139,7 +139,7 @@ private:
 
 
 
-
+/*
 //Needs to be defined here because it's a template function
 template<class T>
 inline Unit * Player::spawnUnit(Location * location)
@@ -149,3 +149,4 @@ inline Unit * Player::spawnUnit(Location * location)
 	return unit;
 
 }
+*/

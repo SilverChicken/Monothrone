@@ -343,7 +343,7 @@ void Server::handleInput()
 				//do nothing
 				break;
 			default:
-				printf("unhandled input %c\n from player %d", key, i);
+				printf("unhandled input %c  from player %d \n", key, i);
 				break;
 			}
 

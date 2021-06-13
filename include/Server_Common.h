@@ -156,7 +156,7 @@ typedef unsigned int uint32;
 typedef unsigned short uint16;
 
 
-const uint32	TICKS_PER_SECOND = 15;
+const uint32	TICKS_PER_SECOND = 7;
 const float32	DELTA_TICK = 1.0f / float32(TICKS_PER_SECOND);
 
 const uint16 PORT = 9999;

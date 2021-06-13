@@ -56,7 +56,7 @@ protected:
 	std::list<Location *> path; //could use a stack instead? or a deque is the one
 	 
 	//Turn flags to state machine struct that is either idle, moving, collecting, carrying, or building?
-	int lifeState = 0; //lifeState indicates spawn animation at 0, normal behavior 1, death anim 2
+	int lifeState = 0; //lifeState indicates spawn animation at 0, normal behavior 1, death anim 2, to be deleted 3
 	int damageTaken = 0;
 
 	//Collect variables and functions
