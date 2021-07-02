@@ -12,6 +12,7 @@ private:
 
 public:
 	Energy(Location * location, Map* map);
+	Energy(Location* location, Map* map, bool single);
 	~Energy();
 	int getTextLoc();
 	void spawn(Map * map); // spawn another mountain near current location

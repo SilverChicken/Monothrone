@@ -1,4 +1,6 @@
 #include "Server.h"
+#include "GmToServerClient.h"
+
 #include <timeapi.h>
 
 //Find ways of setting
@@ -64,7 +66,7 @@ int Server::run()
 				break;
 			}
 
-			
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////smth here is not right
 			from_endpoint.address = from.sin_addr.S_un.S_addr;
 			from_endpoint.port = from.sin_port;
 
@@ -153,6 +155,92 @@ int Server::run()
 void Server::stop()
 {
 	is_running = false;
+}
+
+void Server::sendPopMsg()
+{
+	// 0      1 - 4   5 - .... whenever
+	// type   #msgs   type, x, y, owner (if type > UNITCLASST )
+	//Careful, not all messages are same size, check for parsing in client
+
+	std::vector<Populate_Msg> pops;
+	GmToServerClient::createPopInfo(pops);
+
+	//first send count of the populate messages. 
+	if (msgCount == 0) {
+		msgCount = pops.size();
+	}
+	
+	uint32 bytes = 0;
+
+	buffer[0] = (uint8)Server_Message::Populate_Result;
+	bytes++;
+
+	//might be bigger than 1 byte so take 4 slots in case : 16 bits
+	memcpy(&buffer[1], &msgCount, 4);
+	bytes += 4;
+
+	for (Populate_Msg pop : pops) {
+		buffer[bytes] = pop.type;
+		bytes++;
+		buffer[bytes] = pop.x;
+		bytes++;
+		buffer[bytes] = pop.y;
+		bytes++;
+
+		if (pop.type > UNIT_TYPE) {
+			buffer[bytes] = pop.owner;
+			bytes++;
+		}
+
+		//we have one fewer msg to send
+		msgCount--;
+
+		//Check if we've filled buffer up
+		if (bytes >= BUFSIZ - 4 || msgCount == 0) {  //This msg might be broken up into 5/6 chunks or more
+
+
+			//send a chunk to all the clients
+			//Doesn't matter who sent the request, update everyone if performance issue, change rate at which clients send request to pop
+
+
+			for (IP_Endpoint IP : client_endpoints) {
+
+				if (IP.address) {
+					SOCKADDR_IN to;
+					to.sin_family = AF_INET;
+					to.sin_addr.S_un.S_addr = IP.address;
+					to.sin_port = IP.port;
+		
+					
+
+					if (sendto(sock, buffer, bytes, flags, (SOCKADDR*)&to, sizeof(to)) != SOCKET_ERROR)
+					{
+						//then the message sent correctly
+					}
+					else {
+						printf("Failed to send Populate Message to Client at address %d \n", IP.address);
+						printf("WSA error: %d \n", WSAGetLastError());
+					}
+				}
+				
+
+				//regardless we keep going atm
+
+			}
+			//Rebuild the start of the message and update the new count of messages
+
+			bytes = 0;
+
+			memcpy(&buffer[1], &msgCount, 4);
+			bytes += 5;
+			//then we'll start filling it up again!
+			//on the last iteration this is overhead
+
+		}
+
+
+	}
 }
 
 
@@ -295,8 +383,10 @@ void Server::parse()
 
 			//validate here somehow check for illegal chars?
 
-			uint8 key_in = buffer[3];
-			client_inputs[slot].input = key_in;
+			uint8 cmd = buffer[3];
+			client_inputs[slot].input = cmd;
+			client_inputs[slot].x = buffer[4];
+			client_inputs[slot].y = buffer[5];
 			time_since_heard_from_clients[slot] = 0.0f;
 		}
 
@@ -310,6 +400,11 @@ void Server::parse()
 		//send Server_Message::Collision_Result
 		break;
 	}
+	case Client_Message::Populate:
+	{	
+		sendPopMsg();
+		break;
+	}
 	}
 }
 
@@ -319,25 +414,53 @@ void Server::handleInput()
 	for (uint16 i = 0; i < MAX_CLIENTS; ++i)
 	{
 		uint8 key = client_inputs[i].input;
+		int x, y;
+
 		if (client_endpoints[i].address && key) //Make sure we actually got an input
 		{
+
+			x = client_inputs[i].x;
+			y = client_inputs[i].y;
+
 			//Basically do the code from gamemode key callback
 			switch (key)
 			{
-			case (uint8)GLFW_KEY_UP:
-				client_objects[i].y++;
+			case CMD_MOVE:
+				//for player i we tell all units in selection to move to location, like in player! actually exactly in player
+				
+				//Server NOT will hold references to all the players/or get them from gamemode
+				GmToServerClient::sendCommand(CMD_MOVE, i, x, y);
+				//then we make it happen
+
+
+				//Then we construct a message:
+
+
+				//Loop through all of the units of the player that are selected
+
+
+				//for each one we add a delta of their location, and their destination with CMD_MOVE as the command
+
+
+
 				break;
-			case (uint8)GLFW_KEY_DOWN:
-				client_objects[i].y--;
+			case CMD_COLLECT:
 				break;
-			case (uint8)GLFW_KEY_RIGHT:
-				client_objects[i].x++;
+			case CMD_BUILD:		   
 				break;
-			case (uint8)GLFW_KEY_LEFT:
-				client_objects[i].x--;
+			case CMD_SPAWN:		   
 				break;
-			case (uint8)GLFW_KEY_ESCAPE:
-				is_running = false;
+			case CMD_CONSUME:	   
+				break;
+			case CMD_SELECT:	  
+				break;
+			case CMD_DESELECT:	   
+				break;
+			case CMD_DESELECT_ALL: 
+				break;
+			case CMD_PAUSE:		   
+				break;
+			case CMD_LEAVE:		   
 				break;
 			case (uint8)GLFW_KEY_NOINPUT:
 				//do nothing

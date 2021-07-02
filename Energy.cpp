@@ -44,6 +44,24 @@ Energy::Energy(Location * location, Map* map)
 
 }
 
+Energy::Energy(Location* location, Map* map, bool single)
+{
+	//get random texture from array:
+	int texInd = rand() % 3;
+	textLoc = textLocs[texInd];    // 3 is the size of textLocs
+
+	//Set class identifier
+	classType = ENERGY_CLASS_T;
+
+
+	if (setLoc(location)) { //This *should* be true because of this function should not be called except to fill
+		game->addEnergies(this);
+	}
+	else {
+		std::cout << "Energy spawned at taken location: (" << location->getPos().x << ", " << location->getPos().y << ")" << std::endl;
+	}
+}
+
 Energy::~Energy()
 {
 

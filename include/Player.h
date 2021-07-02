@@ -40,7 +40,7 @@ private:
 	//int crystal;
 	//bool hasThrone;
 	//std::list<Unit*> selection;
-	std::map<Unit*, bool> selection;   //  map of selected units, subset of units map
+	//std::map<Unit*, bool> selection;   //  map of selected units, subset of units map
 
 	//Vector of all units you own? Or set Or Hashmap?
 	//std::map<Unit*, bool> units;
@@ -80,12 +80,12 @@ public:
 	//Unit management
 	std::map<Unit*, bool> getSelection();
 	void UpdateSelectedUnits(); //Will also update the GUI
-	void update();
+	//void update();
 	//remove a unit only call on death
 
 
 	//Pauses the game(for now)
-	bool pause = false;
+	//bool pause = false;
 	
 
 	//Gameplay fcts
@@ -107,7 +107,7 @@ public:
 
 
 	//Action button
-	void actionKey(int);  //bindings: Q-0; W-1; E-2; R-3; T-4; Y-5
+	int actionKey(int);  //bindings: Q-0; W-1; E-2; R-3; T-4; Y-5
 
 
 	

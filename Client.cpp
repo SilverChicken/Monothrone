@@ -2,6 +2,7 @@
 
 #include "Client.h"
 #include"Server_Common.h"
+#include "GmToServerClient.h"
 
 #include <time.h>
 
@@ -38,18 +39,15 @@ void Client::ConstructMessage()
 			memcpy(&buffer[bytes_written], &slot, sizeof(slot));
 			bytes_written += sizeof(slot);
 
-
-			//Have input stored in some variable through the GLFW keys
-
-			/*
-			uint8 input = (uint8)g_input.up |
-				((uint8)g_input.down << 1) |
-				((uint8)g_input.left << 2) |
-				((uint8)g_input.right << 3);
-			*/
-
 			buffer[bytes_written] = input;
 			bytes_written++;
+
+			buffer[bytes_written] = x0;
+			bytes_written++;
+
+			buffer[bytes_written] = y0;
+			bytes_written++;
+
 		}
 		else { //set msg state to input or leave and send join message
 
@@ -62,6 +60,14 @@ void Client::ConstructMessage()
 		memcpy(&buffer[bytes_written], &slot, sizeof(slot));
 		bytes_written += sizeof(slot);
 		break;
+	case Client_Message::Populate:
+		buffer[0] = (uint8)Client_Message::Populate;
+		bytes_written = 1;
+		msgType = Client_Message::Input; //we only want to send 1 populate message
+		break;
+	case Client_Message::Collision:
+		break;
+
 	default:
 		break;
 	}
@@ -115,9 +121,14 @@ int Client::run()
 
 		//once we send the input clear it
 		input = GLFW_KEY_NOINPUT;
+		x0 = GLFW_KEY_NOINPUT;
+		y0 = GLFW_KEY_NOINPUT;
 
 		IP_Endpoint from;
 		uint32 bytes_received;
+
+
+
 		while (socket_receive(&sock, buffer, SOCKET_BUFFER_SIZE, &from, &bytes_received))
 		{
 			switch ((Server_Message)buffer[0])
@@ -167,6 +178,73 @@ int Client::run()
 				}
 			}
 			break;
+
+			case Server_Message::Collision_Result:
+			{
+				break;
+			}
+			case Server_Message::Populate_Result:
+			{
+
+				//parse the message into a vector of Populate_Msg
+
+				// 0      1 - 4   5 - .... whenever
+				// type   #msgs   type, owner, x, y
+
+				uint32 readbytes = 1;
+				int msgCountCheck;
+
+				//check that our msgCounts are consistent with what's being sent, if not, we might have 2 sets of pop messages coming in
+				if (popCount == 0) {
+					memcpy(&popCount, &buffer[1], 4); //get the count if it's the first message
+				}
+				else {
+					memcpy(&msgCountCheck, &buffer[1], 4); //get the count if it's the first message
+					if (popCount == msgCountCheck) {
+						//all is well
+					}
+					else {
+						printf("Message Counts did not line up in Populate Result, we got %d expected %d", msgCountCheck, popCount);
+						//probs handle differently if this comes up
+					}
+
+				}
+				readbytes += 4;
+				Populate_Msg pop;
+
+				while (readbytes < bytes_received) {
+					pop.type = buffer[readbytes];
+					readbytes++;
+					pop.x = buffer[readbytes];
+					readbytes++;
+					pop.y = buffer[readbytes];
+					readbytes++;
+					if (pop.type > UNIT_TYPE) {
+						pop.owner = buffer[readbytes];
+						readbytes++;
+					}
+					popCount--;
+					pops.push_back(pop);
+				}
+
+				if (popCount == 0) { //we got em all!
+					//Once we have the last message call the GmToClientServer function to populate the map
+
+					GmToServerClient::populateMap(pops);
+
+					//make sure to clear the vector so we reset it before next populate message burst
+					pops.clear();
+
+					//set the msgType back to input
+					msgType = Client_Message::Input;
+
+				}
+				
+				//else continue waiting for pop messages before we populate
+
+				break;
+			}
+
 			default:
 				printf("invalid Message format \n");
 				break;
@@ -241,6 +319,22 @@ void Client::resetTick()
 void Client::addInput(int key)
 {
 	input = key;
+}
+
+void Client::addLoc(int x, int y)
+{
+	x0 = x;
+	y0 = y;
+}
+
+void Client::sendPopMsg()
+{
+	msgType = Client_Message::Populate;
+}
+
+uint16 Client::getSlot()
+{
+	return slot;
 }
 
 void Client::setServerAddress(char* addi)

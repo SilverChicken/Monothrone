@@ -11,6 +11,7 @@ private:
 
 public:
 	Crystal(Location * location, Map* map);
+	Crystal(Location* location, Map* map, bool single);
 	~Crystal();
 	int getTextLoc();
 	void spawn(Map * map); // spawn another mountain near current location

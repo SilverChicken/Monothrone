@@ -194,23 +194,25 @@ void Player::removeUnit(Unit* del)
 }
 */
 
+/*
 void Player::update()
 {
-	if (!pause) { 
-		for (auto it = units.begin(); it != units.end(); ) {
-			it->first->update(map); //Works bc virtual -> We don't need explicit types, just matching function definitions!
+	//this function no longer gets used, the parent's is used instead and that one is ther right one. Eventually delete this
+
+	for (auto it = units.begin(); it != units.end(); ) {
+		it->first->update(map); //Works bc virtual -> We don't need explicit types, just matching function definitions!
 
 			//check that the iterator is still valid, or if it was erase we need to not increment it
-			if (it->first->getLifeState() == 3) {
-				units.erase(it++);
-			}
-			else {
-				it++;
-			}
-
+		if (it->first->getLifeState() == 3) {
+			units.erase(it++);
 		}
+		else {
+			it++;
+		}
+
 	}
-}
+
+}*/
 
 
 //Gameplay fcts
@@ -408,35 +410,35 @@ void Player::destroyUnit(Unit* unit)
 }
 
 
-void Player::actionKey(int key)
-{
+int Player::actionKey(int key) 
+{ //returns the action that was taken
 	switch (bindings[key]) { //Eventually define these as CONSTANTS for readability
 		case MOVE_LOC://Move
 			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
 				it->first->move(loc, map); //Virtual so it will call the appropriate derived
 			}
-			break;
+			return MOVE_LOC;
 		case COLLECT_LOC://Collect
 			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
 				it->first->collect(loc, map); //Virtual so it will call the appropriate derived
 			}
-			break;
+			return COLLECT_LOC;
 		case BUILD_LOC://Build
 			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
 				it->first->build(loc, 0); //Placeholder obj for now
 			}
-			break;
+			return BUILD_LOC;
 		case SPAWN_LOC://Spawn
 			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
 				it->first->spawn(loc, 0); //Placeholder obj for now
 			}
-			break;
+			return CONSUME_LOC;
 		case CONSUME_LOC://Consume
-			break;
+			return CONSUME_LOC;
 		case 5://Currently not accessible
-			break;
+			return 5;
 		default:
-			break;
+			return -1;
 
 	}
 

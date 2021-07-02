@@ -43,6 +43,24 @@ Crystal::Crystal(Location * location, Map* map)
 
 }
 
+Crystal::Crystal(Location* location, Map* map, bool single)
+{
+	//get random texture from array:
+	int texInd = rand() % 3;
+	textLoc = textLocs[texInd];    // 4 is the size of textLocs
+
+	//Set class identifier
+	classType = CRYSTAL_CLASS_T;
+
+
+	if (setLoc(location)) { //This *should* be true because of this function should not be called except to fill
+		game->addCrystals(this);
+	}
+	else {
+		std::cout << "Crystal spawned at taken location: (" << location->getPos().x << ", " << location->getPos().y << ")" << std::endl;
+	}
+}
+
 
 Crystal::~Crystal()
 {

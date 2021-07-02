@@ -1,4 +1,4 @@
-#pragma 
+#pragma once
 
 
 #include "Locateable.h"
@@ -25,12 +25,16 @@ protected:
 	int energy;
 	int crystal;
 	bool hasThrone;
+	std::map<Unit*, bool> selection; //selection to know which units carry out the action
 
 	//Vector of all units you own? Or set Or Hashmap?
 	std::map<Unit*, bool> units;
 
 	//rendering Vars
 	//We don't render this object!
+
+
+	
 
 public:
 
@@ -55,6 +59,14 @@ public:
 	bool incCrystal(int);
 	bool decEnergy(int);
 	bool decCrystal(int);
+
+	virtual bool select(Location*);
+	virtual Unit* deselect();
+	virtual Unit* deselect(Unit*);
+	virtual void deselectAll();
+
+	int perform_action(int);
+	
  
 
 	//template can't be  

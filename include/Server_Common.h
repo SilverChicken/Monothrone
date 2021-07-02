@@ -11,7 +11,7 @@
 
 
 
-//GLFW key definitions kept consistent through game, server & client
+//GLFW key definitions kept consistent through game, server & client NOT NECESSARY
 
 
 /* The unknown key */
@@ -144,9 +144,22 @@
 #define GLFW_KEY_LAST               GLFW_KEY_MENU
 
 
+//These are consistent with the ACTION_LOC constants defined in Player
+#define CMD_MOVE			0
+#define CMD_COLLECT			1
+#define CMD_BUILD			2
+#define CMD_SPAWN			3
+#define CMD_CONSUME			4
+
+#define CMD_SELECT			5
+#define CMD_DESELECT		6
+#define CMD_DESELECT_ALL	7
+#define CMD_PAUSE			8
+#define CMD_LEAVE			9
+
 
 #define SOCKET_BUFFER_SIZE 1024			//Max amount we'll send
-#define MAX_CLIENTS 5
+#define MAX_CLIENTS 3
 #define CLIENT_TIMEOUT 5                //5 seconds of no messages = timeout
 
 typedef char uint8;
@@ -190,14 +203,16 @@ enum class Client_Message : uint8
 	Join,       // tell server we're new here
 	Leave,      // tell server we're leaving
 	Input,      // tell server our user input
-	Collision   // tell server there is an upcoming collision: gonna run into a thing/movement is blocked
+	Collision,  // tell server there is an upcoming collision: gonna run into a thing/movement is blocked
+	Populate    // tell server we need to populate the map
 };
 
 enum class Server_Message : uint8
 {
 	Join_Result,       // tell client they're accepted/rejected
 	State,             // tell client game state = list of deltas about what's going on
-	Collision_Result   // tell client what happened in regards to the collision
+	Collision_Result,  // tell client what happened in regards to the collision
+	Populate_Result,   // tell client where everything is
 };
 
 
@@ -207,9 +222,9 @@ struct Player_State
 	int x, y;
 	bool valid;
 
+	//keep track of all selected units?
+
 };
-
-
 
 struct Delta_State
 {
@@ -218,6 +233,14 @@ struct Delta_State
 	uint8 actionCode; //any other info about the change: selected, deselected, destroyed, spawned, collected/ing... careful that the type supports it
 };
 
+struct Populate_Msg 
+{
+	uint8 type;    //what object is match CLASSTYPE
+	uint8 owner;   //does it have an owner? if not -1
+	uint8 x, y;    //location
+};
+
+
 //Information we get from Client
 
 //For now we take 1 input at a time, we can configure that in the future
@@ -225,7 +248,16 @@ struct Delta_State
 struct Player_Input
 {
 	uint8 input; // What key was pressed?
+	//keypress is super not enough to determine what's happening
+	//So this will be the command: move, select deselect....
+
+	uint8 x, y; //and this is the location where the action is made
+
+
 	//from this the server figures out what action was mean by the keypress and sends back the delta
+
+	
+
 
 };
 

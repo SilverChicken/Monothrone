@@ -46,6 +46,8 @@ class Client;
 class Server;
 class Menu;
 
+struct Populate_Msg;
+
 class Gamemode
 {
 private:
@@ -71,7 +73,8 @@ private:
 	Menu* menu = nullptr;
 
 	int mode = 0; //0 is menu, 1 is playing
-	
+	int localPlayer = 0; //set to whichever our local player is
+	bool pause = false;
 	
 
 	//std::vector<Unit *> Enemies; //Refs to the temp baddies for drawing
@@ -107,7 +110,9 @@ public:
 	void updateGuiUnit(std::vector<int>&);
 	Unit* spawnUnit(int player, int obj, Location* spawnLoc);
 	
-
+	//Interface Server/Rest of world
+	void createPopulateInfo(std::vector<Populate_Msg>& out);
+	void populateMap(std::vector<Populate_Msg>& in);
 
 	Location* findClosestType(Location *, int);    //finds nearest locateable of the type passed in as int.
 	Location* findClosestNotOwned(Location*, int, int); //finds nearest Unit that is owned by another player
@@ -146,8 +151,8 @@ public:
 	void drawMap();
 	void drawGui();
 
-	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
+	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods); //this is local, will send info to server & the rest
+	void key_action_remote(int key, int pl, int x, int y); //this is remote, will apply info sent from server
 
 
 	

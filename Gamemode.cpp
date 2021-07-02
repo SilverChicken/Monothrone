@@ -75,22 +75,80 @@ void Gamemode::init()
 void Gamemode::init2()
 {
 	client = Client::getInstance(); //fine since the thread is initialized 
+	
+	map = new Map();
 
 	if (isHost) {
 		Servthread = std::thread(startServer);
+
+		//only generate if we're host, otherwise we'll populate the map from a long message from the server
+		//setup ressources around map
+		SpawnStartRessource(map, MTNRangeCT, Vmtn, NRGRangeCT, Vnrg, CRYRangeCT, Vcry); //This functions serves to delay the requests from client to make sure we've joined?
+
+
+
+		//First populate is only RESSOURCES. Next ones can have both
+
+		
+
+
 	}
+
+
+	//Check connection first
+
+
+	
+	//now the server is definitely inited and so is the client so we'll ask to populate the maps
+	//client->sendPopMsg();  //we will then populate our map. This may take a hot second, so add a delay
+	
 	
 
-	map = new Map();
-	player = new Player(1, map->getLoc(7, 7), map);
+	//we need to wait some time to make sure that the client has had time to connect to the host:
+
+
+	//WAITROOM -> spin here for a bit to make sure pop is done
+
+
+	//create the dummy players when the connect if you are the server
+
+	//else create your playerTypes
+
+
+
+
+	//send a populate message to all clients who are connected once everyone who has connected is connected
+	if (isHost) {
+		serv = Server::getInstance(); //should be init by now
+		serv->sendPopMsg();
+	}
+	
+	
+
+	//only create your own Player after waitroom
+
+
+
+	//Then we send deltas for the things we just created?
+
+
+	
+	
+	
+	
 
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, ImLoader::textures[Unit::selectLoc]);
 	glActiveTexture(GL_TEXTURE0);
 
-	//setup ressources around map
-	SpawnStartRessource(map, MTNRangeCT, Vmtn, NRGRangeCT, Vnrg, CRYRangeCT, Vcry);
+	
 
+	
+	//Check that we have correctly connected to the HOST if not abort?
+	//use slot to init PID! have utils for random faraway points
+	player = new Player(client->getSlot(), map->getLoc(7, 7), map);
+
+	localPlayer = client->getSlot();
 
 	if (isHost) {
 		serv = Server::getInstance();
@@ -270,6 +328,7 @@ void Gamemode::SpawnStartRessource(Map * mapping, int MTN, int VarMtn, int NRG, 
 		res = new Energy(mapping->getLoc(x, y), mapping);
 	}
 
+	mapping->setIsPop(true);
 
 }
 
@@ -333,6 +392,146 @@ Unit* Gamemode::spawnUnit(int playe, int obj, Location* spawnLoc)
 			break;
 	}
 	return nullptr;
+}
+
+void Gamemode::createPopulateInfo(std::vector<Populate_Msg>& out)
+{
+
+	if (!map->getIsPop()) {
+		
+		//don't populate it and the server will notice
+
+		return;
+	}
+
+
+	//just in case we clear the vector
+	out.clear();
+
+	Location* loc;
+	Locateable* obj;
+	Unit* unit;
+
+	//now we iterate through map populating pop and pushing it
+	//May be smarter to just iterate through Mountains, Energies, Crystals, Player->units ?
+	for (int i = 0; i < MAPSIZE; i++) {
+		for (int j = 0; j < MAPSIZE; j++) {
+
+			loc = map->getLoc(i, j);
+			obj = loc->getOwner();
+
+			if (obj) {
+				Populate_Msg pop;            ///////////////////////CHECK THAT THIS WORKS TO FILL THE VECTOR
+				pop.type = obj->getClassType();
+				pop.x = i;
+				pop.y = j;
+				
+				if (pop.type >= UNIT_CLASS_T) {
+					unit = (Unit*)obj;
+					pop.owner = unit->getOwner();
+				}
+				else {
+					pop.owner = -1;
+				}
+
+				//add entry to vector since there's an object there
+				out.push_back(pop);
+			}
+		}
+	}
+}
+
+void Gamemode::populateMap(std::vector<Populate_Msg>& in)
+{
+
+	Location* loc;
+
+
+	for (Populate_Msg pop : in) {
+
+		loc = map->getLoc(pop.x, pop.y);
+
+		if (!loc->state) {
+			continue;
+		}
+
+		switch (pop.type) {
+		case LOCATEABLE_CLASS_T:
+		{
+			//this should never happen
+		}
+			break;
+		case MOUNTAIN_CLASS_T:
+		{
+			Mountain* mount = new Mountain(loc, map, true);
+			break;
+		}
+		case ENERGY_CLASS_T:
+		{
+			Energy* energ = new Energy(loc, map, true);
+			break;
+		}
+		case CRYSTAL_CLASS_T:
+		{
+			Crystal* cry = new Crystal(loc, map, true);
+			break;
+		}
+		case UNIT_CLASS_T:
+		{
+			//should never happen either
+			break; 
+		}
+		case THRONE_CLASS_T:
+		{
+			if (pop.owner <= MAX_CLIENTS) {
+				PlayerType* pl = getPlayer(pop.owner);
+				pl->spawnUnit<Throne>(loc);
+			}
+			break;
+		}
+		case REFACTORY_CLASS_T:
+		{
+			if (pop.owner <= MAX_CLIENTS) {
+				PlayerType* pl = getPlayer(pop.owner);
+				//pl->spawnUnit<Refactory>(loc);
+			}
+			break;
+		}
+		case MANUFACTORY_CLASS_T:
+		{
+			break;
+		}
+		case WORM_CLASS_T:
+		{
+			if (pop.owner <= MAX_CLIENTS) {
+				PlayerType* pl = getPlayer(pop.owner);
+				pl->spawnUnit<Worm>(loc);
+			}
+			break;
+		}
+		case WORKER_CLASS_T:
+		{
+			break;
+		}
+		default:
+		{
+			//Ignore faulty entry? will be caught on the verification
+			break;
+		}
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 Location * Gamemode::findClosestType(Location * base, int type)
@@ -784,7 +983,7 @@ Map * Gamemode::getMap()
 
 void Gamemode::update()
 {
-	if (mode == 1) {
+	if (mode == 1 && !pause) {
 		if (client->tick()) { //Update all objects! 
 		//Update unit positions mostly and anim?
 
@@ -871,6 +1070,10 @@ void Gamemode::drawGui()
 
 void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
+
+	///IF we are late and have sync issues between local actions and remote actions, we'll stop doing significant things locally and will send every visible action as a request to the server which it will then give us a result for.
+
+
 	// Check for a key press
 	if (action == GLFW_PRESS)
 	{
@@ -882,10 +1085,16 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 
 
 		//For now just send every input
-		client->addInput(key);
+		//client->addInput(key);
+
+		int input;
 
 		switch (key) {
 		case GLFW_KEY_ESCAPE: // Check if escape was pressed
+
+			//Tell the server we're leaving
+			client->addInput(CMD_LEAVE);
+
 			// Close the window. This causes the program to also terminate.
 			glfwSetWindowShouldClose(window, GL_TRUE);
 
@@ -893,6 +1102,8 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 			cleanup();
 
 			break;
+
+		//strictly local operations happen here, write an inputAction function for remote operations
 
 		case GLFW_KEY_UP:
 			//move UP
@@ -914,53 +1125,69 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 			player->move(2);
 			break;
 
-		case GLFW_KEY_ENTER:
-			player->select(player->getLoc());
-			break;
-
-		case GLFW_KEY_LEFT_SHIFT:
-			player->deselect();
-			break;
-
-		case GLFW_KEY_LEFT_CONTROL:
-			player->deselectAll();
-			break;
-
 		case GLFW_KEY_N:
 
 			std::cout << "Breakpoint" << std::endl;
 			//player->incEnergy(5);
 			break;
 
+		case GLFW_KEY_ENTER:
+
+			//tell the server
+			client->addInput(CMD_SELECT);
+			client->addLoc((int)player->getLoc()->getPos().x, (int)player->getLoc()->getPos().y);
+
+			player->select(player->getLoc());
+			break;
+
+		case GLFW_KEY_LEFT_SHIFT:
+			client->addInput(CMD_DESELECT);
+			player->deselect();
+			break;
+
+		case GLFW_KEY_LEFT_CONTROL:
+			client->addInput(CMD_DESELECT_ALL);
+			player->deselectAll();
+			break;
+
 		case GLFW_KEY_Q:
-			player->actionKey(0);
+			input = player->actionKey(0);
+			client->addInput(input);
 			break;
 
 		case GLFW_KEY_W:
-			player->actionKey(1);
+			input = player->actionKey(1);
+			client->addInput(input);
 			break;
 
 		case GLFW_KEY_E:
-			player->actionKey(2);
+			input = player->actionKey(2);
+			client->addInput(input);
 			break;
 
 		case GLFW_KEY_R:
-			player->actionKey(3);
+			input = player->actionKey(3);
+			client->addInput(input);
 			break;
 
 		case GLFW_KEY_T:
-			player->actionKey(4);
+			input = player->actionKey(4);
+			client->addInput(input);
 			break;
 
 		case GLFW_KEY_Y:
-			player->actionKey(5);
+			input = player->actionKey(5);
+			client->addInput(input);
 			break;
 
 		case GLFW_KEY_P:
-			player->pause = !player->pause;
+			client->addInput(CMD_PAUSE);
+			pause = !pause;
 			break;
 
 		default:
+			//some redundancy of the checks here can clean up between callback and action
+			//key_action(key, action, localPlayer);
 			break;
 		}
 	}
@@ -992,6 +1219,88 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 	}
 }
 
+void Gamemode::key_action_remote(int key, int pl, int x, int y)
+{
+
+	// This is called for remote actions that we received from the server or from client if we are the server
+
+
+	PlayerType* play = getPlayer(pl);
+
+	int input;
+
+	switch (key) {
+	case GLFW_KEY_ESCAPE: // Check if escape was pressed
+
+		//this should already have been caught in the local version
+
+		break;
+
+	case GLFW_KEY_ENTER:
+
+		//client->addInput(CMD_SELECT);
+		//client->addLoc((int)player->getLoc()->getPos().x, (int)player->getLoc()->getPos().y);
+
+		play->select(map->getLoc(x, y));
+		break;
+
+	case GLFW_KEY_LEFT_SHIFT:
+		//client->addInput(CMD_DESELECT);
+		player->deselect();
+		break;
+
+	case GLFW_KEY_LEFT_CONTROL:
+		//client->addInput(CMD_DESELECT_ALL);
+		player->deselectAll();
+		break;
+
+	case GLFW_KEY_N:
+
+		std::cout << "Breakpoint" << std::endl;
+		//player->incEnergy(5);
+		break;
+
+	case GLFW_KEY_Q:
+		input = player->actionKey(0);
+		//client->addInput(input);
+		break;
+
+	case GLFW_KEY_W:
+		input = player->actionKey(1);
+		//client->addInput(input);
+		break;
+
+	case GLFW_KEY_E:
+		input = player->actionKey(2);
+		//client->addInput(input);
+		break;
+
+	case GLFW_KEY_R:
+		input = player->actionKey(3);
+		//client->addInput(input);
+		break;
+
+	case GLFW_KEY_T:
+		input = player->actionKey(4);
+		//client->addInput(input);
+		break;
+
+	case GLFW_KEY_Y:
+		input = player->actionKey(5);
+		//client->addInput(input);
+		break;
+
+	case GLFW_KEY_P:
+		//client->addInput(CMD_PAUSE);
+		pause = !pause;
+		break;
+
+	default:
+		break;
+	}
+
+}
+
 
 void startClient()
 {
@@ -1000,5 +1309,5 @@ void startClient()
 
 void startServer()
 {
-	Server::getInstance();
+	 Server::getInstance();
 }

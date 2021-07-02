@@ -1,6 +1,6 @@
 #pragma once
 #include "Server_Common.h"
-
+#include <vector>
 
 class Client
 {
@@ -30,7 +30,14 @@ private:
 
 	void ConstructMessage();
 
+
+	//gameplay vars
 	uint8 input; 
+	int x0, y0;
+
+	//temp variables for populating 
+	int popCount = 0;
+	std::vector<Populate_Msg> pops;
 
 	Client() { Startup(); };
 
@@ -45,7 +52,12 @@ public :
 	int tick();
 	void resetTick();
 
+	//Control function for gamemode to use
 	void addInput(int key);
+	void addLoc(int x, int y);
+	void sendPopMsg();
+
+	uint16 getSlot();
 
 	void setServerAddress(char* addi);
 	

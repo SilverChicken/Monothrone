@@ -106,6 +106,16 @@ void Map::init()
 
 
 
+bool Map::getIsPop()
+{
+	return isPop;
+}
+
+void Map::setIsPop(bool val)
+{
+	isPop = val;
+}
+
 Location * Map::getLoc(glm::vec2 pos)
 {
 	return getLoc(int(pos.x),int(pos.y));
@@ -373,9 +383,10 @@ Location * Map::findClosest(Location * base, int bound)
 		}
 
 	}	//Now the vertices are added so back to the top of the while loop!
+	return nullptr;
 }
 
-Location * Map::findClosestTo(Location * start, Location * target, int bound)
+Location * Map::findClosestTo(Location * start, Location * target, unsigned int bound)
 {
 	//Priority queue, look till free, go toward second location -> min distance
 

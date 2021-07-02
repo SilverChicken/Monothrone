@@ -37,17 +37,9 @@ private:
 		0, 1, 3,   // first triangle
 		1, 2, 3    // second triangle
 	};
-	Location* map[MAPSIZE][MAPSIZE];    //2D array 
-	//Location ** map;
-	//std::vector<Ressource *> Mountains; //Refs to the mountains
-	//std::vector<Ressource *> Crystals;  //Refs to the crystals
-	//std::vector<Ressource *> Energies;  //Refs to the energies
+	Location* map[MAPSIZE][MAPSIZE];    //2D array 	
 
-	//std::unordered_map<int, Unit *> Thrones;
-	//std::unordered_map<int, Player *> Players;
-
-	
-
+	bool isPop = false;
 
 public:
 	Map();  //setup drawing of shapes too
@@ -58,32 +50,10 @@ public:
 
 
 	//gets and sets
-
+	bool getIsPop();
+	void setIsPop(bool val);
 	Location* getLoc(glm::vec2);               //2 ways of accessing into the array
 	Location* getLoc(int x, int y);
-
-	//std::vector<Ressource *> getMountains();
-	//std::vector<Ressource *> getCrystals();
-	//std::vector<Ressource *> getEnergies();
-	//bool addMountain(Ressource *);        //------------------ Mountain
-	//bool addCrystals(Ressource *);        //------------------ Crystal
-	//bool addEnergies(Ressource *);        //Called whenever an Energy is Spawned
-
-	/*
-	Unit* getThrone(int);
-	Player* getPlayer(int);
-	void addThrone(int, Unit*);
-	void addPlayer(int, Player*);
-	*/
-
-	//render/gameplay fct
-
-	/*
-	//do we actually need getBox?
-	bool ** getBox(glm::vec2, glm::vec2);          //returns the Array of booleans based on whether or not each location is occupied 
-	bool ** getBox(int x, int y, int x2, int y2);  //-> the inputs are the size of the box
-	//Currently unusused
-	*/
 
 	bool isAdjacent(Location*, Location*);   //Tells you if A and B are adjacent tiles
 
@@ -93,7 +63,7 @@ public:
 
 	//Write bounded versions for bounded search
 	Location* findClosest(Location*, int bound);              //Same as findClosest but search bounded to 'bound' steps
-	Location* findClosestTo(Location*, Location*, int bound); 
+	Location* findClosestTo(Location*, Location*, unsigned int bound); 
 
 	void draw();
 

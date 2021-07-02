@@ -32,6 +32,7 @@ private:
 
 	//Temp
 	uint32 player_x = 0, player_y = 0;
+	int msgCount = 0; //for populate message counting
 
 	
 	uint8 buffer[SOCKET_BUFFER_SIZE];
@@ -58,6 +59,7 @@ public:
 
 	int run();
 	void stop();
+	void sendPopMsg();
 
 	bool IsRunning();
 
