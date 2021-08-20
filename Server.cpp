@@ -80,11 +80,16 @@ int Server::run()
 		//Create the state packet
 		buffer[0] = (uint8)Server_Message::State;
 		uint32 bytes_written = 1;
+
+
+		//basically fill with Player_State
 		for (uint16 i = 0; i < MAX_CLIENTS; ++i)
 		{
+
+			/*
 			if (client_endpoints[i].address)
 			{
-				//basically fill with Player_State
+				
 
 				memcpy(&buffer[bytes_written], &i, sizeof(i));
 				bytes_written += sizeof(i);
@@ -97,15 +102,37 @@ int Server::run()
 
 
 			}
+			*/
 
-			//And fill with non-player dependent state
-
-			//
-			//
-			//
-
+			
 
 		}
+
+		//And fill with non-player dependent state
+		for (Delta_State delt : deltas) {
+
+			memcpy(&buffer[bytes_written], &delt.playerCode, sizeof(delt.playerCode));
+			bytes_written += sizeof(delt.playerCode);
+
+			memcpy(&buffer[bytes_written], &delt.x0, sizeof(delt.x0));
+			bytes_written += sizeof(delt.x0);
+
+			memcpy(&buffer[bytes_written], &delt.y0, sizeof(delt.y0));
+			bytes_written += sizeof(delt.y0);
+
+			memcpy(&buffer[bytes_written], &delt.x1, sizeof(delt.x1));
+			bytes_written += sizeof(delt.x1);
+
+			memcpy(&buffer[bytes_written], &delt.y1, sizeof(delt.y1));
+			bytes_written += sizeof(delt.y1);
+
+			memcpy(&buffer[bytes_written], &delt.actionCode, sizeof(delt.actionCode));
+			bytes_written += sizeof(delt.actionCode);
+
+		}
+
+		//clear it so that we don't do things multiple times
+		deltas.clear();
 
 
 		// send back to client ALL CLIENTS
@@ -122,6 +149,13 @@ int Server::run()
 				
 				//Build message here for specific client
 
+				if (client_endpoints[i].address == local_address.sin_addr.S_un.S_addr) {
+
+					//basically we don't need to tell the host twice since the server already updated? Change if this causes sync issues.
+					continue;
+
+
+				}
 
 
 
@@ -416,59 +450,51 @@ void Server::handleInput()
 		uint8 key = client_inputs[i].input;
 		int x, y;
 
-		if (client_endpoints[i].address && key) //Make sure we actually got an input
+		if (client_endpoints[i].address && key ) //Make sure we actually got an input
 		{
 
-			x = client_inputs[i].x;
-			y = client_inputs[i].y;
+			if (key == GLFW_KEY_NOINPUT) {
 
-			//Basically do the code from gamemode key callback
-			switch (key)
-			{
-			case CMD_MOVE:
-				//for player i we tell all units in selection to move to location, like in player! actually exactly in player
-				
-				//Server NOT will hold references to all the players/or get them from gamemode
-				GmToServerClient::sendCommand(CMD_MOVE, i, x, y);
-				//then we make it happen
-
-
-				//Then we construct a message:
-
-
-				//Loop through all of the units of the player that are selected
-
-
-				//for each one we add a delta of their location, and their destination with CMD_MOVE as the command
-
-
-
-				break;
-			case CMD_COLLECT:
-				break;
-			case CMD_BUILD:		   
-				break;
-			case CMD_SPAWN:		   
-				break;
-			case CMD_CONSUME:	   
-				break;
-			case CMD_SELECT:	  
-				break;
-			case CMD_DESELECT:	   
-				break;
-			case CMD_DESELECT_ALL: 
-				break;
-			case CMD_PAUSE:		   
-				break;
-			case CMD_LEAVE:		   
-				break;
-			case (uint8)GLFW_KEY_NOINPUT:
 				//do nothing
-				break;
-			default:
-				printf("unhandled input %c  from player %d \n", key, i);
-				break;
+
 			}
+			else if (key == CMD_LEAVE) {
+
+				//disconnect from server and cleanup
+
+
+
+
+			}
+			else if (key <= CMD_MAXCODE) {
+				x = client_inputs[i].x;
+				y = client_inputs[i].y;
+
+				//Basically do the code from gamemode key callback - but with different codes and remotely
+
+				//for player i we tell all units in selection to move to location, like in player! actually exactly in player
+
+				GmToServerClient::sendCommand(key, i, x, y);
+
+
+				//Then we construct a piece of the update message: we add a delta to the list of deltas!
+
+
+				// Have classcode for player and they will move all their selection!, actually some actions will just be player based
+
+
+				Delta_State delt = { i, 0, 0, x, y, key };
+
+				deltas.push_back(delt); //saves the player action delta
+
+				//send to all clients except the client who sent the message? OR send to all clients except Host? probs later for sync
+				//NO send to all clients at the end of the tick
+			}
+			else {
+				printf("unhandled input %c  from player %d \n", key, i);
+			}
+				
+
 
 			time_since_heard_from_clients[i] += DELTA_TICK;
 			if (time_since_heard_from_clients[i] > CLIENT_TIMEOUT)

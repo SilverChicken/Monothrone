@@ -19,6 +19,7 @@
 #define KEY_LEFT   2
 
 #define MOVE_LOC     0
+#define MOVE_LOC_RM  6
 #define COLLECT_LOC  1
 #define BUILD_LOC    2
 #define SPAWN_LOC    3
@@ -90,9 +91,14 @@ public:
 
 	//Gameplay fcts
 	bool move(int);
-	bool select(Location*);
-	Unit* deselect();
+	Location* selectLocal(Location*);
+	Location* select(Location*);
+
+	Unit* deselectLocal(Location*);
+	Unit* deselect(Location*);
+
 	Unit* deselect(Unit*);
+
 	void deselectAll();
 	//bool checkHasThrone();
 	//bool incEnergy(int);

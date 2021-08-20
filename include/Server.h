@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Server_Common.h"
+#include <vector>
 
 
 
@@ -22,6 +23,9 @@ private:
 	SOCKET sock;
 
 	Timing_Info timing_info;
+
+	//Game info
+	std::vector<Delta_State> deltas;
 
 
 	//Temp saves

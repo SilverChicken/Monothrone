@@ -73,6 +73,18 @@ void Client::ConstructMessage()
 	}
 }
 
+void Client::processDeltas()
+{
+	for (Delta_State delt : C_deltas) {
+
+		GmToServerClient::sendCommand(delt.actionCode, delt.playerCode, delt.x1, delt.y1);
+
+	}
+	C_deltas.clear();
+
+
+}
+
 Client* Client::getInstance()
 {
 	static Client* client;
@@ -88,7 +100,6 @@ int Client::run()
 {
 	
 
-	printf("type w, a, s, or d to move, q to quit\n");
 	is_running = true;
 
 	while (is_running)
@@ -145,6 +156,7 @@ int Client::run()
 						msgType = Client_Message::Input;
 					}
 
+					printf("Player %i joined\n", slot);
 					
 
 				}
@@ -156,26 +168,48 @@ int Client::run()
 			break;
 			case Server_Message::State:
 			{
-				num_objects = 0;
+				//num_objects = 0;
 				uint32 bytes_read = 1;
 				while (bytes_read < bytes_received)
 				{
-					uint16 id; // unused
-					memcpy(&id, &buffer[bytes_read], sizeof(id));
-					bytes_read += sizeof(id);
+					//We should be seeing a list of deltas, which we will use to populate our deltas which we then apply in the next step.
+					Delta_State delt;
 
-					memcpy(&objects[num_objects].x,
+
+					memcpy(&delt.playerCode, &buffer[bytes_read], sizeof(delt.playerCode));
+					bytes_read += sizeof(delt.playerCode);
+
+					memcpy(&delt.x0,
 						&buffer[bytes_read],
-						sizeof(objects[num_objects].x));
-					bytes_read += sizeof(objects[num_objects].x);
+						sizeof(delt.x0));
+					bytes_read += sizeof(delt.x0);
 
-					memcpy(&objects[num_objects].y,
+					memcpy(&delt.y0,
 						&buffer[bytes_read],
-						sizeof(objects[num_objects].y));
-					bytes_read += sizeof(objects[num_objects].y);
+						sizeof(delt.y0));
+					bytes_read += sizeof(delt.y0);
 
-					++num_objects;
+					memcpy(&delt.x1,
+						&buffer[bytes_read],
+						sizeof(delt.x1));
+					bytes_read += sizeof(delt.x1);
+
+					memcpy(&delt.y1,
+						&buffer[bytes_read],
+						sizeof(delt.y1));
+					bytes_read += sizeof(delt.y1);
+
+					memcpy(&delt.actionCode,
+						&buffer[bytes_read],
+						sizeof(delt.actionCode));
+					bytes_read += sizeof(delt.actionCode);
+
+					C_deltas.push_back(delt);
+					//make sure the clear C_deltas later 
 				}
+
+				processDeltas();
+
 			}
 			break;
 
@@ -199,7 +233,7 @@ int Client::run()
 					memcpy(&popCount, &buffer[1], 4); //get the count if it's the first message
 				}
 				else {
-					memcpy(&msgCountCheck, &buffer[1], 4); //get the count if it's the first message
+					memcpy(&msgCountCheck, &buffer[1], 4); //check the count if it's not the first message
 					if (popCount == msgCountCheck) {
 						//all is well
 					}
@@ -241,6 +275,8 @@ int Client::run()
 				}
 				
 				//else continue waiting for pop messages before we populate
+
+				printf("Population message processed %d of %d\n", pops.size(), popCount + pops.size());
 
 				break;
 			}

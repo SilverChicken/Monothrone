@@ -171,11 +171,11 @@ void Gamemode::init2()
 	/// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// </summary>
 
-	PlayerType* p2 = new PlayerType(0, map);
+	//PlayerType* p2 = new PlayerType(0, map);
 
 	//Dummy enemies
-	p2->spawnUnit<Worm>(map->getLoc(9, 5));
-	p2->spawnUnit<Worm>(map->getLoc(9, 7));
+	//p2->spawnUnit<Worm>(map->getLoc(9, 5)); 
+	//p2->spawnUnit<Worm>(map->getLoc(9, 7));
 
 	
 	//Make sure to reset the client's tick variable
@@ -1088,6 +1088,8 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 		//client->addInput(key);
 
 		int input;
+		Location* tempLoc;
+		Unit* tempU;
 
 		switch (key) {
 		case GLFW_KEY_ESCAPE: // Check if escape was pressed
@@ -1133,50 +1135,88 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 
 		case GLFW_KEY_ENTER:
 
-			//tell the server
-			client->addInput(CMD_SELECT);
-			client->addLoc((int)player->getLoc()->getPos().x, (int)player->getLoc()->getPos().y);
+			//THIS MUST BE THE FINAL LOCATION WE ARE SELECTING. Make a function that returns jsut that //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+			//client->addLoc((int)player->getLoc()->getPos().x, (int)player->getLoc()->getPos().y);
 
-			player->select(player->getLoc());
+			//maybe don't do this part and let server handle it? etc in the rest probably the best thing to do, only do things that the sever tells us, everything else is just a request
+			//so select just returns which location to select from
+
+			tempLoc = player->selectLocal(player->getLoc());
+			if (tempLoc) {
+
+				//tell the server
+				client->addInput(CMD_SELECT);
+				client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
+			}
+			
+
 			break;
 
 		case GLFW_KEY_LEFT_SHIFT:
 			client->addInput(CMD_DESELECT);
-			player->deselect();
+
+			//addloc statement needed here
+			tempU = player->deselectLocal(player->getLoc());
+			if (tempU) {
+				tempLoc = tempU->getLoc();
+				client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
+			}
+			
+
 			break;
 
 		case GLFW_KEY_LEFT_CONTROL:
 			client->addInput(CMD_DESELECT_ALL);
-			player->deselectAll();
+			//player->deselectAll();
 			break;
 
 		case GLFW_KEY_Q:
 			input = player->actionKey(0);
 			client->addInput(input);
+			tempLoc = player->getLoc();
+			client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
+
+
+
+			//add loc for player's location?
+
 			break;
 
 		case GLFW_KEY_W:
+
+			//maybe don't call just translate? -> depends on lateness 
+
 			input = player->actionKey(1);
+			tempLoc = player->getLoc();
+			client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
 			client->addInput(input);
 			break;
 
 		case GLFW_KEY_E:
 			input = player->actionKey(2);
+			tempLoc = player->getLoc();
+			client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
 			client->addInput(input);
 			break;
 
 		case GLFW_KEY_R:
 			input = player->actionKey(3);
+			tempLoc = player->getLoc();
+			client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
 			client->addInput(input);
 			break;
 
 		case GLFW_KEY_T:
 			input = player->actionKey(4);
+			tempLoc = player->getLoc();
+			client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
 			client->addInput(input);
 			break;
 
 		case GLFW_KEY_Y:
 			input = player->actionKey(5);
+			tempLoc = player->getLoc();
+			client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
 			client->addInput(input);
 			break;
 
@@ -1230,13 +1270,8 @@ void Gamemode::key_action_remote(int key, int pl, int x, int y)
 	int input;
 
 	switch (key) {
-	case GLFW_KEY_ESCAPE: // Check if escape was pressed
 
-		//this should already have been caught in the local version
-
-		break;
-
-	case GLFW_KEY_ENTER:
+	case CMD_SELECT:
 
 		//client->addInput(CMD_SELECT);
 		//client->addLoc((int)player->getLoc()->getPos().x, (int)player->getLoc()->getPos().y);
@@ -1244,58 +1279,24 @@ void Gamemode::key_action_remote(int key, int pl, int x, int y)
 		play->select(map->getLoc(x, y));
 		break;
 
-	case GLFW_KEY_LEFT_SHIFT:
+	case CMD_DESELECT:
 		//client->addInput(CMD_DESELECT);
-		player->deselect();
+		play->deselect(map->getLoc(x, y));
 		break;
 
-	case GLFW_KEY_LEFT_CONTROL:
+	case CMD_DESELECT_ALL:
 		//client->addInput(CMD_DESELECT_ALL);
-		player->deselectAll();
+		play->deselectAll();
 		break;
 
-	case GLFW_KEY_N:
-
-		std::cout << "Breakpoint" << std::endl;
-		//player->incEnergy(5);
-		break;
-
-	case GLFW_KEY_Q:
-		input = player->actionKey(0);
-		//client->addInput(input);
-		break;
-
-	case GLFW_KEY_W:
-		input = player->actionKey(1);
-		//client->addInput(input);
-		break;
-
-	case GLFW_KEY_E:
-		input = player->actionKey(2);
-		//client->addInput(input);
-		break;
-
-	case GLFW_KEY_R:
-		input = player->actionKey(3);
-		//client->addInput(input);
-		break;
-
-	case GLFW_KEY_T:
-		input = player->actionKey(4);
-		//client->addInput(input);
-		break;
-
-	case GLFW_KEY_Y:
-		input = player->actionKey(5);
-		//client->addInput(input);
-		break;
-
-	case GLFW_KEY_P:
+	case CMD_PAUSE:
 		//client->addInput(CMD_PAUSE);
 		pause = !pause;
 		break;
 
 	default:
+		//default catches all the perform actions
+		play->perform_action(key, map->getLoc(x,y));
 		break;
 	}
 

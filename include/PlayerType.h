@@ -11,7 +11,7 @@ class Player;
 
 //fully   class, unites Opponent and Player under 1 interface
 //Later we will refactor this general functionality into this class so Player is less busy
-
+//This class holds all functions that are remotely called when processing deltas from server
 
 
 class PlayerType : public Locateable
@@ -60,12 +60,12 @@ public:
 	bool decEnergy(int);
 	bool decCrystal(int);
 
-	virtual bool select(Location*);
-	virtual Unit* deselect();
+	virtual Location* select(Location*);   //This is the same as player::selectRemote
+	virtual Unit* deselect(Location*);
 	virtual Unit* deselect(Unit*);
 	virtual void deselectAll();
 
-	int perform_action(int);
+	int perform_action(int cmd, Location* loc);
 	
  
 

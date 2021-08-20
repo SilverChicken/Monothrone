@@ -34,13 +34,13 @@ bool Worm::collect(Location * location, Map* map)
 	return Unit::collect(location, map);
 }
 
-bool Worm::build(Location*, int obj)
+bool Worm::build(Location* location, int obj)
 {
 
-	return false;
+	return Unit::build(location, obj);
 }
 
-Unit * Worm::spawn(Location*, int obj)
+Unit * Worm::spawn(Location* location, int obj)
 {
 
 	return nullptr;

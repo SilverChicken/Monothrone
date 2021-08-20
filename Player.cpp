@@ -268,35 +268,82 @@ bool Player::move(int dir)
 	return false;
 }
 
-bool Player::select(Location* location)
-{
+Location* Player::selectLocal(Location* location)
+{ //returns the location we tried to select from
 	Locateable* unit = location->getOwner();
 	if ( unit == nullptr) {
-		return false;
+		return location; //this may cause an issue?   
 	}
 	else if(unit->getClassType() >= MINUNITCLASST) {  //4 is the code for units, all ints above are subclasses of unit
 		Unit * target = (Unit*)unit;      //Then this is a safe cast
 
 		if (selection.find(target) == selection.end()) {
-			if (target->select(PID)) { //make sure it wasn't already selected just double checks
-				selection[target] = true;
-				updateBindings();									//Update the bindings
-				return true;
-			}
+			return location;  //just return the location we wanted to select from -> this will be an issue if the object moves
+
 		}
 		else { //it was already selected
 
 			const bool selectCond(Unit*, Location *);
+			Location* newSel = playerGame->findClosestToCnd(location, loc, target, selectCond, 145); //this bounds with distance 8
+			return newSel;
+			
+		}
+	}
+	//return nullptr;
+}
+
+
+Location* Player::select(Location* location)
+{ //selects at the given location, returns location
+	Locateable* unit = location->getOwner();
+	if (unit == nullptr) {
+		return location;
+	}
+	else if (unit->getClassType() >= MINUNITCLASST) {  //4 is the code for units, all ints above are subclasses of unit
+		Unit* target = (Unit*)unit;      //Then this is a safe cast
+
+		if (selection.find(target) == selection.end()) {
+			if (target->select(PID)) { //make sure it wasn't already selected just double checks
+				selection[target] = true;
+				updateBindings();									//Update the bindings
+				return location;
+			}
+		}
+	}
+	return false;
+}
+
+/*
+Location* Player::select(Location* location)
+{ //returns the location we tried to select from
+	Locateable* unit = location->getOwner();
+	if (unit == nullptr) {
+		return location;
+	}
+	else if (unit->getClassType() >= MINUNITCLASST) {  //4 is the code for units, all ints above are subclasses of unit
+		Unit* target = (Unit*)unit;      //Then this is a safe cast
+
+		if (selection.find(target) == selection.end()) {
+			if (target->select(PID)) { //make sure it wasn't already selected just double checks
+				selection[target] = true;
+				updateBindings();									//Update the bindings
+				return location;
+			}
+		}
+		else { //it was already selected
+
+			const bool selectCond(Unit*, Location*);
 			Location* newSel = playerGame->findClosestToCnd(location, loc, target, selectCond);
 			if (newSel) { //If we;re out of the unit then don't
 				select(newSel); //select the closest one which is this one.
 			//but what if we run out? Bound the search
 			}
-			
+
 		}
 	}
 	return false;
 }
+*/
 
 const bool selectCond(Unit* Utype, Location * location) { //needs another parameter, or a unit pointer instead
 	Locateable* locate = location->getOwner();
@@ -313,15 +360,32 @@ const bool selectCond(Unit* Utype, Location * location) { //needs another parame
 
 
 
-Unit * Player::deselect()
+Unit * Player::deselectLocal(Location* location)
 {
-	Locateable* unit = loc->getOwner();
+	Locateable* unit = location->getOwner();
 	if (unit == nullptr) {
 		return nullptr;
 	}
 	else if (unit->getClassType() >= MINUNITCLASST) {						//This is the code for units
 		Unit * target = (Unit*)unit;							//Then this is a safe cast					
 		if(selection.find(target) != selection.end()){			//Make sure it's currently selected 
+			return target;
+		}
+	}
+	return nullptr;
+}
+
+
+
+Unit * Player::deselect(Location* location)
+{
+	Locateable* unit = location->getOwner();
+	if (unit == nullptr) {
+		return nullptr;
+	}
+	else if (unit->getClassType() >= MINUNITCLASST) {						//This is the code for units
+		Unit * target = (Unit*)unit;							//Then this is a safe cast
+		if(selection.find(target) != selection.end()){			//Make sure it's currently selected
 			selection.erase(target);							//Erase
 			target->deselect();									//Unit logic for being deselected
 			updateBindings();									//Update the bindings
@@ -330,6 +394,8 @@ Unit * Player::deselect()
 	}
 	return nullptr;
 }
+
+
 
 Unit* Player::deselect(Unit* unit)
 {				
@@ -412,27 +478,31 @@ void Player::destroyUnit(Unit* unit)
 
 int Player::actionKey(int key) 
 { //returns the action that was taken
-	switch (bindings[key]) { //Eventually define these as CONSTANTS for readability
+	switch (bindings[key]) { 
 		case MOVE_LOC://Move
+			/*
 			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
 				it->first->move(loc, map); //Virtual so it will call the appropriate derived
-			}
-			return MOVE_LOC;
+			}*/
+			return MOVE_LOC_RM;
 		case COLLECT_LOC://Collect
+			/*
 			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
 				it->first->collect(loc, map); //Virtual so it will call the appropriate derived
-			}
+			}*/
 			return COLLECT_LOC;
 		case BUILD_LOC://Build
+			/*
 			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
 				it->first->build(loc, 0); //Placeholder obj for now
-			}
+			}*/
 			return BUILD_LOC;
 		case SPAWN_LOC://Spawn
+			/*
 			for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
 				it->first->spawn(loc, 0); //Placeholder obj for now
-			}
-			return CONSUME_LOC;
+			}*/
+			return SPAWN_LOC;
 		case CONSUME_LOC://Consume
 			return CONSUME_LOC;
 		case 5://Currently not accessible

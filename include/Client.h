@@ -22,13 +22,16 @@ private:
 	int bytes_written;
 	int flags = 0;
 
-	Player_State objects[MAX_CLIENTS];
-	uint32 num_objects = 0;
+
+	std::vector<Delta_State> C_deltas;
+	//Player_State objects[MAX_CLIENTS];
+	//uint32 num_objects = 0;
 	uint16 slot = 0xFFFF;
 
 	Client_Message msgType = Client_Message::Join;
 
 	void ConstructMessage();
+	void processDeltas();
 
 
 	//gameplay vars
