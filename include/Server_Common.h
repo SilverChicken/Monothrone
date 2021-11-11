@@ -1,6 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <WinSock2.h>
+#include "ServerKeyCodes.h"
 
 
 
@@ -10,31 +11,6 @@
 
 
 
-
-//GLFW key definitions kept consistent through game, server & client NOT NECESSARY
-
-
-/* The unknown key */
-#define GLFW_KEY_UNKNOWN            -1
-#define GLFW_KEY_NOINPUT            GLFW_KEY_UNKNOWN
-
-
-//These are consistent with the ACTION_LOC constants defined in Player
-#define CMD_MOVE			6
-#define CMD_COLLECT			1
-#define CMD_BUILD			2
-#define CMD_SPAWN			3
-#define CMD_CONSUME			4
-
-#define CMD_SELECT			5
-#define CMD_DESELECT		10
-#define CMD_DESELECT_ALL	7
-#define CMD_PAUSE			8
-#define CMD_LEAVE			9
-
-
-
-#define CMD_MAXCODE			9
 
 #define SOCKET_BUFFER_SIZE 1024			//Max amount we'll send
 #define MAX_CLIENTS 3
@@ -81,6 +57,7 @@ enum class Client_Message : uint8
 	Join,       // tell server we're new here
 	Leave,      // tell server we're leaving
 	Input,      // tell server our user input
+	Event,      // tell the server an event has occured
 	Collision,  // tell server there is an upcoming collision: gonna run into a thing/movement is blocked
 	Populate    // tell server we need to populate the map
 };
@@ -110,7 +87,7 @@ struct Delta_State
 	//maybe only one location is necessary
 	uint8 playerCode; //We must know which player is being selected
 
-	uint8 x0, y0;     //initial position of object-> where we fetch the object from 
+	uint8 x0, y0;     //initial position of object-> where we fetch the object from ?
 	uint8 x1, y1;	  //final position if required for action, otherwise -1 -1 (for move will be destination)
 	uint8 actionCode; //any other info about the change: selected, deselected, destroyed, spawned, collected/ing... careful that the type supports it
 };

@@ -1,6 +1,6 @@
 #include "Worker.h"
 
-Worker::Worker(int owner, Location * loc, Map * map):Unit(owner, loc, map)
+Worker::Worker(int owner, Location * loc):Unit(owner, loc)
 {
 	hp = 3;
 	atk = 1;
@@ -41,14 +41,14 @@ void Worker::update(Map * map)
 	Unit::update(map);
 }
 
-bool Worker::move(Location * location, Map * map)
+bool Worker::move(Location * location)
 {
-	return Unit::move(location, map);
+	return Unit::move(location);
 }
 
-bool Worker::collect(Location * location, Map * map)
+bool Worker::collect(Location * location)
 {
-	return Unit::collect(location, map);
+	return Unit::collect(location);
 }
 
 bool Worker::build(Location*, int obj)

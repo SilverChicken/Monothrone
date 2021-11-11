@@ -11,7 +11,7 @@ private:
 	//Player* playerRef;
 
 public:
-	Throne(int, Location*, Map* map);
+	Throne(int, Location*);
 	~Throne();
 
 	//Interfacing with Player
@@ -23,8 +23,8 @@ public:
 
 	void draw(unsigned int, GLuint);
 
-	bool move(Location*, Map*);						  // 0- Move to Location
-	bool collect(Location *, Map*);					  // 1- Collect something at Location
+	bool move(Location*);						  // 0- Move to Location
+	bool collect(Location *);					  // 1- Collect something at Location
 	bool build(Location*, int obj);		  // 2- Build obj *string* at x,y
 	Unit* spawn(Location *, int obj);   // 3- Spawn a unit *string* at a location
 	bool consume(Unit* food);						  // 4- Consume a unit to upgrade internally

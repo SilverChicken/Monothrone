@@ -66,7 +66,6 @@ int Server::run()
 				break;
 			}
 
-			//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////smth here is not right
 			from_endpoint.address = from.sin_addr.S_un.S_addr;
 			from_endpoint.port = from.sin_port;
 
@@ -326,18 +325,18 @@ int Server::Startup()
 	u_long enabled = 1;
 	ioctlsocket(sock, FIONBIO, &enabled);
 
-	printf("Server has Startup");
+	printf("Server has Startup \n");
 	return 0;
 }
 
-void Server::parse()
+void Server::parse() //here we validate the input as much as possible
 {
 	switch ((Client_Message)buffer[0])
 	{
 	case Client_Message::Join:
 	{
 		//not many players so loop through the endpoints to make sure we don't already have this player
-
+		//there is nothing more to validate on this message for now
 
 		uint16 slot = uint16(-1);
 		for (uint16 i = 0; i < MAX_CLIENTS; ++i) //Find free slot in client array
@@ -355,16 +354,43 @@ void Server::parse()
 		buffer[0] = (uint8)Server_Message::Join_Result;
 		if (slot != uint16(-1))
 		{
+
+			int bytes_written = 4;
+
 			buffer[1] = 1;
 			memcpy(&buffer[2], &slot, 2);  //if found send index
 
+
+			//now for every player that we currently have we send their IP, and player number
+
+			for (uint16 plSlot = 0; plSlot < MAX_CLIENTS; plSlot++) {
+				int numPlayers = 0;
+				//
+				if (client_endpoints[plSlot].address) {
+					memcpy(&buffer[4 + numPlayers * 6], &plSlot, 2);
+					memcpy(&buffer[6 + numPlayers * 6], &client_endpoints[plSlot].address, 4);
+					numPlayers++;
+
+					//we don't send the port information for now, since we don't need it?
+
+					bytes_written += 6;
+				}
+			}
+
+			buffer[bytes_written++] = 'z'; //this will tell us to stop reading?
+			
+
+
 			flags = 0;
-			if (sendto(sock, buffer, 4, flags, (SOCKADDR*)&from, from_size) != SOCKET_ERROR)
+			if (sendto(sock, buffer, bytes_written, flags, (SOCKADDR*)&from, from_size) != SOCKET_ERROR)  //send this to all current players for menu and playerType setup?
 			{
 				client_endpoints[slot] = from_endpoint;
 				time_since_heard_from_clients[slot] = 0.0f;
 				client_objects[slot] = {};
 				client_inputs[slot] = {};
+
+				//and update our waitroom?
+
 			}
 		}
 		else  //else tell that the request was rejected.
@@ -415,9 +441,10 @@ void Server::parse()
 
 			//printf("input received");
 
-			//validate here somehow check for illegal chars?
+			//validate here somehow check for illegal chars? this will happen later in parse/handleinput
 
 			uint8 cmd = buffer[3];
+
 			client_inputs[slot].input = cmd;
 			client_inputs[slot].x = buffer[4];
 			client_inputs[slot].y = buffer[5];
@@ -439,13 +466,19 @@ void Server::parse()
 		sendPopMsg();
 		break;
 	}
+	default:
+	{
+		printf("Invalid first bit in parse(), was %d", buffer[0]);
+		break;
+	}
+
 	}
 }
 
 void Server::handleInput()
 {
 	//Handle the inputs
-	for (uint16 i = 0; i < MAX_CLIENTS; ++i)
+	for (uint8 i = 0; i < MAX_CLIENTS; ++i)
 	{
 		uint8 key = client_inputs[i].input;
 		int x, y;

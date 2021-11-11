@@ -46,6 +46,9 @@ protected:
 	int aggroDist;
 	int speed;
 
+	//To get reference across clients
+	int ID;
+
 	Gamemode * game;
 
 	//Anim vars
@@ -58,11 +61,14 @@ protected:
 	//Turn flags to state machine struct that is either idle, moving, collecting, carrying, or building?
 	int lifeState = 0; //lifeState indicates spawn animation at 0, normal behavior 1, death anim 2, to be deleted 3
 	int damageTaken = 0;
+	int cause;         //Tracks which Player dealt damage last  
 
 	//Collect variables and functions
 	bool collecting = false;
 	int carrying = 0;           //0- nothing, 3- crystal, 2- energy  
 	bool FinishCollect(Map* map);       //Called once the unit has arrived and is adjacent to a collectible
+	void findNewCollect();
+
 
 	//Build variables and functions
 	bool building = false;
@@ -76,12 +82,15 @@ protected:
 	bool actions[ACTIONCOUNT];
 
 public:
-	Unit(int, Location*, Map*);
+	Unit(int, Location*);
 	virtual ~Unit(); //needs to be virtual but that makes an exception?
 
+	void setID(int id);
+	int getID();
 	int getTexLoc();
 	int getLifeState();
 	int getOwner();
+	Location* getTarget();
 
 	static const int selectLoc = 31; //Location of overlay texture for selected units
 
@@ -97,9 +106,9 @@ public:
 	//ALL possible abilities
 	bool* getActions();
 	
-	virtual bool move(Location *, Map*);   // 0- Move
+	virtual bool move(Location *);   // 0- Move
 	
-	virtual bool collect(Location *, Map*);  // 1- Collect something at (x,y)  maybe actually takes a ressource pointer
+	virtual bool collect(Location *);  // 1- Collect something at (x,y)  maybe actually takes a ressource pointer
 
 	virtual bool build(Location *, int obj);		  // 2- Build locateable of classID obj at x,y
 	
@@ -115,7 +124,7 @@ public:
 	virtual bool dealDamage(Unit *);    //If parameter is within range, will damage that unit
 	virtual bool attackLoc(Location *);
 
-	virtual int takeDamage(int dmg);
+	virtual int takeDamage(int dmg, int cause);
 	virtual int applyDamage();
 
 

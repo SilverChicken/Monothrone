@@ -1,6 +1,6 @@
 #include "Worm.h"
  
-Worm::Worm(int owner, Location* loc, Map* map) :Unit(owner, loc, map)
+Worm::Worm(int owner, Location* loc) :Unit(owner, loc)
 {
 	hp = 1;
 	atk = 1;
@@ -24,14 +24,14 @@ Worm::~Worm()
 	//delete[] actions;
 }
 
-bool Worm::move(Location* location, Map* map)
+bool Worm::move(Location* location)
 {
-	return Unit::move(location, map);
+	return Unit::move(location);
 }
 
-bool Worm::collect(Location * location, Map* map)
+bool Worm::collect(Location * location)
 {
-	return Unit::collect(location, map);
+	return Unit::collect(location);
 }
 
 bool Worm::build(Location* location, int obj)

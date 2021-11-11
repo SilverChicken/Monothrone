@@ -18,52 +18,93 @@ Menu::~Menu()
 
 void Menu::drawMenu()
 {
-	Font->SetScreen(WINSIZE, WINSIZE);
-	Font->Select();
+	switch (menuMode) {
+	case 0:
+		Font->SetScreen(WINSIZE, WINSIZE);
+		Font->Select();
 
-	//Write in terms of WINSIZE? No, be globals that are set by a switch on RESOLUTION set in menus
-	Font->SetColor(0.9f, 0.1f, 0.9f);
-	Font->Print((char*)"MONOTHRONE", 300, 560);
+		//Write in terms of WINSIZE? No, be globals that are set by a switch on RESOLUTION set in menus
+		Font->SetColor(0.9f, 0.1f, 0.9f);
+		Font->Print((char*)"MONOTHRONE", 300, 560);
 
-	Font->SetColor(0.9f, 0.9f, 0.9f);
+		Font->SetColor(0.9f, 0.9f, 0.9f);
 
-	//Draw each button
+		//Draw each button
 
-	if (current_button == 0) {
-		Font->SetColor(0.1f, 0.99f, 0.2f);
+		if (current_button == 0) {
+			Font->SetColor(0.1f, 0.99f, 0.2f);
+		}
+		Font->Print((char*)"HOST", 200, 500);
+
+		Font->SetColor(0.9f, 0.9f, 0.9f);
+
+		if (current_button == 1) {
+			Font->SetColor(0.1f, 0.99f, 0.2f);
+		}
+
+		Font->Print((char*)"JOIN", 200, 400);
+
+		Font->SetColor(0.9f, 0.9f, 0.9f);
+
+		if (current_button == 2) {
+			Font->SetColor(0.1f, 0.99f, 0.2f);
+		}
+
+		Font->Print((char*)"OPTIONS", 200, 300);
+
+		Font->SetColor(0.9f, 0.9f, 0.9f);
+
+		if (current_button == 3) {
+			Font->SetColor(0.1f, 0.99f, 0.2f);
+		}
+
+		Font->Print((char*)"EXIT", 200, 200);
+
+
+		Font->SetColor(0.1f, 0.9f, 0.9f);
+
+		if (IPbuffer) {
+			Font->Print(IPbuffer, 300, 400);
+		}
+		break;
+	case 1:
+	{
+		Font->SetScreen(WINSIZE, WINSIZE);
+		Font->Select();
+
+		//Write in terms of WINSIZE? No, be globals that are set by a switch on RESOLUTION set in menus
+		Font->SetColor(0.8f, 0.8f, 0.8f);
+		Font->Print((char*)"Wait Room", 50, 570);
+		Font->Print((char*)"Waiting for Players", 50, 540);
+
+		int i = 0;
+		for (MenuPlayerRep player : players) {
+			Font->Print(player.strRep, 50, 450 - i * 15);
+			i++;
+		}
+
+
+		if (current_button == 0) {
+			Font->SetColor(0.1f, 0.99f, 0.2f);
+		}
+
+		Font->Print((char*)"Start Game", 400, 200);
+		Font->SetColor(0.7f, 0.7f, 0.7f);
+
+		if (current_button == 1) {
+			Font->SetColor(0.1f, 0.99f, 0.2f);
+		}
+
+		Font->Print((char*)"Exit", 400, 170);
+		Font->SetColor(0.7f, 0.7f, 0.7f);
+
+		break;
 	}
-	Font->Print((char*)"HOST", 200, 500);
-
-	Font->SetColor(0.9f, 0.9f, 0.9f);
-
-	if (current_button == 1) {
-		Font->SetColor(0.1f, 0.99f, 0.2f);
+	case 2:
+		break;
 	}
 
-	Font->Print((char*)"JOIN", 200, 400);
-
-	Font->SetColor(0.9f, 0.9f, 0.9f);
-
-	if (current_button == 2) {
-		Font->SetColor(0.1f, 0.99f, 0.2f);
-	}
-
-	Font->Print((char*)"OPTIONS", 200, 300);
-
-	Font->SetColor(0.9f, 0.9f, 0.9f);
-
-	if (current_button == 3) {
-		Font->SetColor(0.1f, 0.99f, 0.2f);
-	}
-
-	Font->Print((char*)"EXIT", 200, 200);
-
-
-	Font->SetColor(0.1f, 0.9f, 0.9f);
-
-	if (IPbuffer) {
-		Font->Print(IPbuffer, 300, 400);
-	}
+	
 }
 
 /*
@@ -76,13 +117,24 @@ void Menu::setIPbuffer(char key, int place)
 
 int Menu::changeButton(int dir)
 {
-	current_button = (BUTTONCOUNT + current_button + dir) % BUTTONCOUNT;
+	switch(menuMode) {
+	case 0:
+		current_button = (BUTTONCOUNT_0 + current_button + dir) % BUTTONCOUNT_0;
+		break;
+	case 1:
+		current_button = (BUTTONCOUNT_1 + current_button + dir) % BUTTONCOUNT_1;
+		break;
+	case 2:
+		current_button = (BUTTONCOUNT_2 + current_button + dir) % BUTTONCOUNT_2;
+		break;
+	}
+	
 	return current_button;
 }
 
 void Menu::menu_key_call(int key)
 {
-	if (charCount > 0) {
+	if (charCount > 0 && menuMode == 0) {
 		in = key;
 		selectMenuButton(1); //select JOIN and add to the input
 		return;
@@ -110,105 +162,157 @@ void Menu::menu_key_call(int key)
 
 void Menu::selectMenuButton(int index)
 {
-	Client* client;
-	Gamemode* gm;
+	switch (menuMode) {
+	case 0:
+	{
+		Client* client;
+		Gamemode* gm;
 
-	if (index < 2) {
-		client = Client::getInstance();
-		gm = &Gamemode::getInstance();
-	}
-	
-
-	switch (index) {
-	case 0: //HOST
-		//Startup the server, set the server address to local address and init the game, set mode to 1;
+		if (index < 2) {
+			client = Client::getInstance();
+			gm = &Gamemode::getInstance();
+		}
 
 
-		//create a new thread to manage the server
-		//Servthread = std::thread(Server::getInstance()); 
-		//serv = Server::getInstance();
-		
+		switch (index) {
+		case 0: //HOST
+			//Startup the server, set the server address to local address and init the game, set mode to 1;
 
-		client->setServerAddress("127.0.0.1");
+			
 
-		//create a new thread to manage the client
-		//Clithread = std::thread(client->run()); 
+			client->setServerAddress("127.0.0.1");
+
+			//thread creation happens in gamemode, esp the server happens later so it doesn't fail
 
 
-		gm->setIsHost(true);
-		gm->setMode(1);
-		gm->init2();
+			gm->setIsHost(true);
 
-		break;
-	case 1: //JOIN
-		//Have user input IP address showing characters each tick show the buffer, add dots automatically? at second press enter reset client serv addi & set mode 1
+			menuMode = 1;
 
-		if (in == GLFW_KEY_ENTER && charCount >= 7) { //idk about len
-			//Idk how to validate an IP
+			//gm->setMode(1);
+			gm->init2();
 
-			//validate IP 
-			for (int i = 0; i < charCount; i++) {
-				if ((IPbuffer[i] < '0' || IPbuffer[i] > '9') && IPbuffer[i] != '.') {
-					//Not a valid IP for sure
-					std::fill_n(IPbuffer, 16, ' '); //refill buffer
+			break;
+		case 1: //JOIN
+			//Have user input IP address showing characters each tick show the buffer, add dots automatically? at second press enter reset client serv addi & set mode 1
 
-					charCount = 0; //reset the selection
+			if (in == GLFW_KEY_ENTER && charCount >= 7) { //idk about len
+				//Idk how to validate an IP
 
-					return;
+				//validate IP 
+				for (int i = 0; i < charCount; i++) {
+					if ((IPbuffer[i] < '0' || IPbuffer[i] > '9') && IPbuffer[i] != '.') {
+						//Not a valid IP for sure
+						std::fill_n(IPbuffer, 16, ' '); //refill buffer
 
+						charCount = 0; //reset the selection
+
+						return;
+
+					}
 				}
+
+				client->setServerAddress(IPbuffer);
+
+
+				//test connection?
+				//and send to wait room? -> wait room need to get some info from server and game mode
+
+				menuMode = 1;
+				
+				
+
+
+
+				//Setup map?
+				gm->setIsHost(false);
+				gm->setMode(1);
+
+
+				//Somehow make sure that we are connected
+
+
+				gm->init2();
+				std::fill_n(IPbuffer, 16, ' '); //refill buffer
+				charCount = 0;
+				break;
+
 			}
 
-			client->setServerAddress(IPbuffer);
+			//check numlock codes
+			if (in > 255) {
+				in = in - 16;
+			}
+
+			if (IPbuffer[0] <= 0) { //first input was the enter key or other trash
+				IPbuffer[0] = in;
+				charCount = 1;
+				break;
+			}
+
+			//otherwise we've already got at least 1 character and key is already got
+			IPbuffer[charCount] = in;
+			charCount++;
 
 
-			//test connection?
-			//create a new thread?
 
-			//Clithread = std::thread(client->run());
-
-			//Setup map?
-			gm->setIsHost(false);
-			gm->setMode(1);
-
-
-			//Somehow make sure that we are connected
-
-
-			gm->init2();
-			std::fill_n(IPbuffer, 16, ' '); //refill buffer
-			charCount = 0;
 			break;
+		case 2: //OPTIONS
+			//Open other menu do later
 
-		}
+			//set the menuMode
 
-		//check numlock codes
-		if (in > 255) {
-			in = in - 16;
-		}
+			break;
+		case 3: //EXIT
+			//End the game in gamemode, ensure ressource cleanup
+			gm = &Gamemode::getInstance();
 
-		if (IPbuffer[0] <= 0) { //first input was the enter key or other trash
-			IPbuffer[0] = in;
-			charCount = 1;
+			break;
+		default:
 			break;
 		}
-
-		//otherwise we've already got at least 1 character and key is already got
-		IPbuffer[charCount] = in;
-		charCount++;
-
-
-
-		break;
-	case 2: //OPTIONS
-		//Open other menu do later
-		break;
-	case 3: //EXIT
-		//End the game in gamemode, ensure ressource cleanup
-		break;
-	default:
 		break;
 	}
+	case 1: //We are in waitroom
+	{
+		switch (index) {
+		case 0:
+		{
+			Gamemode* gm = &Gamemode::getInstance();
+			gm->setMode(1);
+			gm->init3();
+			break;
+		}
+		case 1:
+			break;
+		default :
+			break;
+		}
+
+
+		break;
+	}
+	case 2:
+	{
+		break;
+	}
+	}
+
+	
+}
+
+void Menu::addPlayer(int slot, char* address)
+{
+	MenuPlayerRep pl = MenuPlayerRep(slot, address);
+
+	//make sure we haven't already added it
+	for (MenuPlayerRep p : players) {
+		if (p == pl) {
+			return;
+		}
+	}
+
+	players.push_back(pl);
 }
 
 

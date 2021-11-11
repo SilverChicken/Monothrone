@@ -4,6 +4,7 @@
 #include "Locateable.h"
 
 #include <map>
+#include <vector>
 
 class Unit;
 class Map;
@@ -27,11 +28,25 @@ protected:
 	bool hasThrone;
 	std::map<Unit*, bool> selection; //selection to know which units carry out the action
 
+
+
 	//Vector of all units you own? Or set Or Hashmap?
-	std::map<Unit*, bool> units;
+	//std::map<Unit*, bool> units;
+	std::map<int, Unit*> units;
 
 	//rendering Vars
 	//We don't render this object!
+
+///////////////////////////////////////////////////////////////////////////MOVE TO PLAYER
+
+	//Unit ID management
+private:
+	int currentId = 0;
+	std::vector<int> freeIds; //free Ids that are below the currentId
+	void checkFreeIds();
+
+protected:
+	int getNextId();
 
 
 	
@@ -45,9 +60,10 @@ public:
 	//gets & sets
 	int getPID();
 
-
 	int getCrystal();
 	int getEnergy();
+	std::vector<Unit*> getSelection(); //returns a vector of selected units
+
 
 	//Unit management
 	virtual void update();
@@ -95,8 +111,9 @@ private:
 template<class T>
 inline Unit* PlayerType::spawnUnit(Location* location)
 {
-	Unit* unit = new T(PID, location, map);
-	units[unit] = false;                       //Adds the unit to the list of current units
+	Unit* unit = new T(PID, location);
+	unit->setID(getNextId());
+	units[unit->getID()] = unit;                       //Adds the unit to the list of current units
 	return unit;
 
 }

@@ -63,7 +63,7 @@ void Client::ConstructMessage()
 	case Client_Message::Populate:
 		buffer[0] = (uint8)Client_Message::Populate;
 		bytes_written = 1;
-		msgType = Client_Message::Input; //we only want to send 1 populate message
+		msgType = Client_Message::Input; //we only want to send 1 populate message and Input is neutral
 		break;
 	case Client_Message::Collision:
 		break;
@@ -77,7 +77,13 @@ void Client::processDeltas()
 {
 	for (Delta_State delt : C_deltas) {
 
-		GmToServerClient::sendCommand(delt.actionCode, delt.playerCode, delt.x1, delt.y1);
+		//check if actionCode is valid, if playerCode is valid will be checked after
+
+		if (delt.actionCode <= CMD_MAXCODE) {
+			GmToServerClient::sendCommand(delt.actionCode, delt.playerCode, delt.x1, delt.y1);
+		}
+
+		
 
 	}
 	C_deltas.clear();
@@ -148,16 +154,38 @@ int Client::run()
 			{
 				if (buffer[1])
 				{
-					memcpy(&slot, &buffer[2], sizeof(slot));
+					memcpy(&slot, &buffer[2], sizeof(slot)); //check that it's valid first instead?
 
 					//Check validity of slot, move into input mode
+					uint32 bytes_read = 2 + sizeof(slot);
 
-					if (slot < MAX_CLIENTS) {
-						msgType = Client_Message::Input;
+					if (slot < MAX_CLIENTS && slot >= 0) { 
+						//msgType = Client_Message::Input;   //maybe don't immediately start sending input for waitroom
+						
+
+						//Now get the other players that we've been told about
+						while (buffer[bytes_read] != 'z') { //the final character that was added in
+							uint16 pSlot;
+							memcpy(&pSlot, &buffer[bytes_read], sizeof(slot));
+							bytes_read += sizeof(slot);
+							if (pSlot < MAX_CLIENTS && pSlot >= 0) {
+								memcpy(&player_endpoints[pSlot].address, &buffer[bytes_read], sizeof(client_address));
+								if (pSlot == slot) {
+									client_address = player_endpoints[pSlot].address;
+								}
+								GmToServerClient::addPlayerToMenu(pSlot, player_endpoints[pSlot].address);  //our address how do we get it?
+							}
+
+
+						}
+
+						//printf("Client Joined Server as player %i\n", slot);
+
 					}
-
-					printf("Player %i joined\n", slot);
-					
+					else {
+						printf("Invalid slot %i\n", slot);
+						printf("problem buffer %s\n", buffer);
+					}
 
 				}
 				else
@@ -173,6 +201,7 @@ int Client::run()
 				while (bytes_read < bytes_received)
 				{
 					//We should be seeing a list of deltas, which we will use to populate our deltas which we then apply in the next step.
+					//Validation will be done when we apply the deltas
 					Delta_State delt;
 
 
@@ -273,10 +302,13 @@ int Client::run()
 					msgType = Client_Message::Input;
 
 				}
-				
-				//else continue waiting for pop messages before we populate
+				else {
+					//else continue waiting for pop messages before we populate
 
-				printf("Population message processed %d of %d\n", pops.size(), popCount + pops.size());
+					printf("Population message processed %d of %d\n", pops.size(), popCount + pops.size());
+				}
+				
+				
 
 				break;
 			}
@@ -376,6 +408,16 @@ uint16 Client::getSlot()
 void Client::setServerAddress(char* addi)
 {
 	server_address.sin_addr.S_un.S_addr = inet_addr(addi);
+}
+
+void Client::beginInput()
+{
+	msgType = Client_Message::Input;
+}
+
+void Client::requestJoin()
+{
+	msgType = Client_Message::Join;
 }
 
 int Client::Startup(const char* Saddress)

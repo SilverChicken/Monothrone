@@ -3,14 +3,47 @@
 #include "Unit.h"
 #include "Player.h"
 
-#include "Server_Common.h" //just for the command codes not a fan, will change dep
+#include "ServerKeyCodes.h" //just for the command codes not a fan, will change dep
 
 
 Gamemode* gameRef = &Gamemode::getInstance();
 
+
+void PlayerType::checkFreeIds()
+{
+	int i = 0;
+	while (i < currentId) {
+		auto found = units.find(i);
+		if (found == units.end()) {
+			freeIds.push_back(i);
+		}
+	}
+}
+
+int PlayerType::getNextId()
+{
+	int result;
+	if (currentId % 10 == 9 && freeIds.empty()) {
+		checkFreeIds();
+	}
+
+	if(!freeIds.empty()) {
+		result = freeIds.back();
+		freeIds.pop_back();
+		return result;
+	}
+	else {
+		result = currentId;
+		currentId++;
+		return result;
+	}
+	
+}
+
+
 PlayerType::PlayerType()
 {
-	//default constructor for Player to take over
+	//default constructor for Player to take over should never be called
 }
 
 PlayerType::PlayerType(int Npid, Map* mapo)
@@ -36,9 +69,9 @@ PlayerType::PlayerType(int Npid, Map* mapo)
 
 PlayerType::~PlayerType()
 {
-	for (std::map<Unit*, bool>::iterator it = units.begin(); it != units.end(); ++it) {
-		if (it->first) {
-			delete(it->first);
+	for (std::map<int, Unit*>::iterator it = units.begin(); it != units.end(); ++it) {
+		if (it->second) {
+			delete(it->second);
 		}
 
 	}
@@ -59,21 +92,31 @@ int PlayerType::getEnergy()
 	return energy;
 }
 
+std::vector<Unit*> PlayerType::getSelection()
+{
+
+	std::vector<Unit*> out;
+	for (auto tuple : selection) {
+		out.push_back(tuple.first);
+	}
+	return out;
+}
+
 
 void PlayerType::update()
 {
 	for (auto it = units.begin(); it != units.end(); it++) {
-		it->first->update(map); //Works bc virtual -> We don't need explicit types, just matching function definitions!
+		it->second->update(map); //Works bc virtual -> We don't need explicit types, just matching function definitions!
 	}
 }
 
 void PlayerType::update2()
 {
 	for (auto it = units.begin(); it != units.end(); ) {
-		it->first->update2(); //Apply damage and other stuff
+		it->second->update2(); //Apply damage and other stuff
 
 		//check that the iterator is still valid, or if it was erase we need to not increment it
-		if (it->first->getLifeState() == 3) {
+		if (it->second->getLifeState() == 3) {
 			units.erase(it++);
 		}
 		else {
@@ -194,12 +237,12 @@ int PlayerType::perform_action(int cmd, Location* aloc)
 	switch (cmd) { 
 	case CMD_MOVE://Move
 		for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
-			it->first->move(aloc, map); //Virtual so it will call the appropriate derived
+			it->first->move(aloc); //Virtual so it will call the appropriate derived
 		}
 		return MOVE_LOC;
 	case CMD_COLLECT://Collect
 		for (std::map<Unit*, bool>::iterator it = selection.begin(); it != selection.end(); ++it) {
-			it->first->collect(aloc, map); //Virtual so it will call the appropriate derived
+			it->first->collect(aloc); //Virtual so it will call the appropriate derived
 		}
 		return COLLECT_LOC;
 	case CMD_BUILD://Build
@@ -253,18 +296,18 @@ void PlayerType::draw(unsigned int* texture, PlayerType* pl, GLuint shaderprog) 
 	Player* player = (Player*)pl;
 
 	for (auto it = units.begin(); it != units.end(); it++) {
-		if (!player->cull(it->first->getLoc())) {
-			it->first->draw(texture[it->first->getTexLoc()], shaderprog);
+		if (!player->cull(it->second->getLoc())) {
+			it->second->draw(texture[it->second->getTexLoc()], shaderprog);
 		}
 	}
 }
 
 void PlayerType::addUnit(Unit* newUnit)
 {
-	units[newUnit] = newUnit->isSelected();
+	units[newUnit->getID()] = newUnit;
 }
 
 void PlayerType::removeUnit(Unit* del)
 {
-	units.erase(del);
+	units.erase(del->getID());
 }

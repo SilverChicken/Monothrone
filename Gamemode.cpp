@@ -115,13 +115,13 @@ void Gamemode::init2()
 	//else create your playerTypes
 
 
+	if (isHost) {
+		serv = Server::getInstance();
+	}
 
 
 	//send a populate message to all clients who are connected once everyone who has connected is connected
-	if (isHost) {
-		serv = Server::getInstance(); //should be init by now
-		serv->sendPopMsg();
-	}
+	client->sendPopMsg(); //request pop as soon as we connect
 	
 	
 
@@ -137,14 +137,25 @@ void Gamemode::init2()
 	
 	
 
+
+
+
+}
+
+void Gamemode::init3()
+{
+
+	//Set the extra textures
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_2D, ImLoader::textures[Unit::selectLoc]);
 	glActiveTexture(GL_TEXTURE0);
 
-	
 
-	
+
+
 	//Check that we have correctly connected to the HOST if not abort?
+	//In init3 we should already necessarily be connected 
+	
 	//use slot to init PID! have utils for random faraway points
 	player = new Player(client->getSlot(), map->getLoc(7, 7), map);
 
@@ -168,8 +179,7 @@ void Gamemode::init2()
 	//Dummy player2
 
 	/// <summary> We can't support two players. Define main player to figure out displaying, disable the display on second player?  Make a dummy player class that has no controls
-	/// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// </summary>
+
 
 	//PlayerType* p2 = new PlayerType(0, map);
 
@@ -177,11 +187,11 @@ void Gamemode::init2()
 	//p2->spawnUnit<Worm>(map->getLoc(9, 5)); 
 	//p2->spawnUnit<Worm>(map->getLoc(9, 7));
 
-	
+
 	//Make sure to reset the client's tick variable
 	client->resetTick();
 
-
+	client->beginInput();
 }
 
 
@@ -394,6 +404,12 @@ Unit* Gamemode::spawnUnit(int playe, int obj, Location* spawnLoc)
 	return nullptr;
 }
 
+void Gamemode::getSelection(int player, std::vector<Unit*>& out) 
+{
+	PlayerType* pl = Players.at(player);
+	out = pl->getSelection();
+}
+
 void Gamemode::createPopulateInfo(std::vector<Populate_Msg>& out)
 {
 
@@ -532,6 +548,11 @@ void Gamemode::populateMap(std::vector<Populate_Msg>& in)
 
 
 
+}
+
+void Gamemode::addMenuPlayer(int slot, char* address)
+{
+	menu->addPlayer(slot, address);
 }
 
 Location * Gamemode::findClosestType(Location * base, int type)
@@ -950,9 +971,15 @@ Unit * Gamemode::getThrone(int own)
 	return Thrones[own];
 }
 
-PlayerType * Gamemode::getPlayer(int own)
+PlayerType * Gamemode::getPlayer(int own) //makes sure that this player exists
 {
-	return Players[own];
+	if (Players.count(own)) {
+		return Players[own];
+	}
+	else {
+		return nullptr;
+	}
+	
 }
 
 void Gamemode::addThrone(int own, Unit * throne)
@@ -974,6 +1001,14 @@ void Gamemode::destroyUnit(Unit* unit)
 
 
 	pl->destroyUnit(unit);
+}
+
+void Gamemode::takeDamageUnit(Unit* unit, int amount, int cause)
+{
+	//Our unit is damaged, we need to tell the others
+
+	//send our unit's ID, the amount of dmg and the cause. Our PID will be sent as well
+
 }
 
 Map * Gamemode::getMap()
@@ -998,6 +1033,9 @@ void Gamemode::update()
 			}
 
 		}
+	}
+	else if (mode == 0 && client) {
+		client->requestJoin(); //keep trying to join by default while in menu
 	}
 	
 }
@@ -1146,7 +1184,7 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 
 				//tell the server
 				client->addInput(CMD_SELECT);
-				client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
+				client->addLoc((int)tempLoc->getPos().x, (int)tempLoc->getPos().y);
 			}
 			
 
@@ -1159,7 +1197,7 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 			tempU = player->deselectLocal(player->getLoc());
 			if (tempU) {
 				tempLoc = tempU->getLoc();
-				client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
+				client->addLoc((int)tempLoc->getPos().x, (int)tempLoc->getPos().y);
 			}
 			
 
@@ -1174,7 +1212,7 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 			input = player->actionKey(0);
 			client->addInput(input);
 			tempLoc = player->getLoc();
-			client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
+			client->addLoc((int)tempLoc->getPos().x, (int)tempLoc->getPos().y);
 
 
 
@@ -1188,35 +1226,35 @@ void Gamemode::key_callback(GLFWwindow * window, int key, int scancode, int acti
 
 			input = player->actionKey(1);
 			tempLoc = player->getLoc();
-			client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
+			client->addLoc((int)tempLoc->getPos().x, (int)tempLoc->getPos().y);
 			client->addInput(input);
 			break;
 
 		case GLFW_KEY_E:
 			input = player->actionKey(2);
 			tempLoc = player->getLoc();
-			client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
+			client->addLoc((int)tempLoc->getPos().x, (int)tempLoc->getPos().y);
 			client->addInput(input);
 			break;
 
 		case GLFW_KEY_R:
 			input = player->actionKey(3);
 			tempLoc = player->getLoc();
-			client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
+			client->addLoc((int)tempLoc->getPos().x, (int)tempLoc->getPos().y);
 			client->addInput(input);
 			break;
 
 		case GLFW_KEY_T:
 			input = player->actionKey(4);
 			tempLoc = player->getLoc();
-			client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
+			client->addLoc((int)tempLoc->getPos().x, (int)tempLoc->getPos().y);
 			client->addInput(input);
 			break;
 
 		case GLFW_KEY_Y:
 			input = player->actionKey(5);
 			tempLoc = player->getLoc();
-			client->addLoc(tempLoc->getPos().x, tempLoc->getPos().y);
+			client->addLoc((int)tempLoc->getPos().x, (int)tempLoc->getPos().y);
 			client->addInput(input);
 			break;
 
@@ -1267,7 +1305,12 @@ void Gamemode::key_action_remote(int key, int pl, int x, int y)
 
 	PlayerType* play = getPlayer(pl);
 
-	int input;
+	if (!play) { //if invalid player code we stop
+		printf("Player %i does not exist in key_action_remote \n", pl);
+		return;
+	}
+
+	//int input;
 
 	switch (key) {
 

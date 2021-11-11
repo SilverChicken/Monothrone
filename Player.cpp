@@ -62,9 +62,9 @@ Player::Player(int Npid, Location* location, Map * mapo)
 
 Player::~Player()
 {
-	for (std::map<Unit*, bool>::iterator it = units.begin(); it != units.end(); ++it) {
-		if (it->first) {
-			delete(it->first);
+	for (std::map<int, Unit*>::iterator it = units.begin(); it != units.end(); ++it) {
+		if (it->second) {
+			delete(it->second);
 		}
 	}
 	units.clear();
@@ -640,8 +640,8 @@ void Player::draw(unsigned int* texture, GLuint shaderprog)
 	//All unit draws are the same!
 
 	for (auto it = units.begin(); it != units.end(); it++) {
-		if (!cull(it->first->getLoc())) {
-			it->first->draw(texture[it->first->getTexLoc()], shaderprog);
+		if (!cull(it->second->getLoc())) {
+			it->second->draw(texture[it->second->getTexLoc()], shaderprog);
 		}
 	}
 

@@ -24,15 +24,16 @@
 
 
 
-Unit::Unit(int own, Location* loc, Map * map)
+Unit::Unit(int own, Location* loc)
 {
 	owner = own;
 	animState = own;                //Initialize animState to owner as state 0
 	partAnimState = own;            //For Spawn animation we also want it init to owner
-	setLoc(map->findClosest(loc));  //This will always be true;
+	
 	selected = false;
 
 	game = &Gamemode::getInstance();
+	setLoc(game->getMap()->findClosest(loc));  //This will always be true;
 
 	//Set class identifier
 	classType = UNIT_CLASS_T;
@@ -63,6 +64,20 @@ int Unit::getOwner()
 	return owner;
 }
 
+Location* Unit::getTarget()
+{
+	return target;
+}
+
+void Unit::setID(int id)
+{
+	ID = id;
+}
+
+int Unit::getID()
+{
+	return ID;
+}
 
 bool Unit::swap(Location * swapLocation) //This is go
 {
@@ -82,12 +97,23 @@ bool Unit::swap(Location * swapLocation) //This is go
 				//update will take care of popping the location from path.
 				if (otherU->path.empty()) {
 					swapLoc(otherU);
-					return true;
+					//tell the otherU, as it is not moving to move back to the location that was taken? what if this makes an infinite loop?
+					if (!path.empty()) { //We only let the other unit take the spot back if this isn't our final spot -> pbs with cycles of 3?
+
+						if (swapLocation != target) { //Currently we take priority
+							bool collectSave = otherU->collecting; //don't change collect state
+							otherU->move(swapLocation);
+							otherU->collecting = collectSave;
+							return true;
+						}
+						return false;
+					}
+					
 				}
 				//what if they are also moving?
-				else if (otherU->path.front() == loc) {//then check their path.front  if it's our location then we perform the swap and pop their front
+				else if (otherU->path.front() == loc && otherU->path.size() != 1) {//then check their path.front  if it's our location then we perform the swap and pop their front, don't allow if it's the last location, should be fine on move
 					swapLoc(otherU);
-					otherU->path.pop_front();
+					otherU->path.pop_front(); /////DANGER this can cause empty path 
 					return true;
 				}
 
@@ -103,18 +129,48 @@ bool Unit::swap(Location * swapLocation) //This is go
 }
 
 //Not a member for sending reasons
-const bool moveCond(Unit* thisOwn, Location * target) //thisOwn is the owner of the unit probably moving
+const bool moveStartCond(Unit* thisOwn, Location* target)
 {
-	if (target->state) {
+	if (target->state) { 
+
+		//BUT it might be the target location of some other unit!
+		std::vector<Unit*> selection;
+		Gamemode* game = &Gamemode::getInstance();
+		game->getSelection(thisOwn->getOwner(), selection);
+
+		//loop through all others in selection of our owner
+		for (Unit* other : selection) {
+			if (other->getTarget() == target) {
+				return false;
+			}
+		}
 		return true;
 	}
 	Locateable* other = target->getOwner();
 	if (other) {
 		if (other->getClassType() >= UNIT_CLASS_T) {
 			Unit* otherU = (Unit*)other; //safe cast make dynamic?
-			//if (otherU == thisOwn) { //make sure we're not finding ourselves?
-			//	return false;
-			//}
+			if (otherU->getOwner() == thisOwn->getOwner() && otherU->getActions()[0]) { //same owner and it can move
+				//then we are swappable!
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
+const bool moveCond(Unit* thisOwn, Location * target) //thisOwn is the owner of the unit probably moving
+{
+	if (target->state) {
+
+		return true;
+
+	}
+	Locateable* other = target->getOwner();
+	if (other) {
+		if (other->getClassType() >= UNIT_CLASS_T) {
+			Unit* otherU = (Unit*)other; //safe cast make dynamic?
 			if (otherU->getOwner() == thisOwn->getOwner() && otherU->getActions()[0]) { //same owner and it can move
 				//then we are swappable!
 				return true;
@@ -196,7 +252,7 @@ void Unit::update(Map* map)
 	}
 	else if (lifeState == 2) { //On death make sure to reset particle anim state
 
-		partAnimState = (partAnimState + LIFEANIMSTEP);
+		partAnimState = (cause + LIFEANIMSTEP);
 
 		if (partAnimState >= DEATHANIMCT) { //Go into normal mode
 			
@@ -246,7 +302,7 @@ void Unit::update(Map* map)
 			if (swap(go)) { //if taken by someone swappable
 				path.pop_front(); //Then movement was success!
 				moveTries = 0;
-			} else if(moveTries > 2) {//move() here to target again after n tries -> ends up looking really weird, since issues at end of mvt
+			} else if(moveTries > 5) {//move() here to target again after n tries -> ends up looking really weird, since issues at end of mvt
 				path.clear(); //give up
 			}
 		}
@@ -259,6 +315,10 @@ void Unit::update(Map* map)
 		if (map->isAdjacent(loc, collectTarget)) {
 			FinishCollect(map);
 		}
+		else {//if we are at the end of our movement but not yet adjacent then we try to move again
+			findNewCollect();
+			collect(collectTarget);
+		}
 	}
 
 	if (carrying) { //Then it's Crystal or Energy
@@ -269,10 +329,13 @@ void Unit::update(Map* map)
 			game->incRessource(carrying, owner);
 			go = game->findClosestType(collectTarget, carrying);
 			if (go) {
-				collect(go, map);  // restarts loop if valid ressource exists
+				collect(go);  // restarts loop if valid ressource exists
 			}
 			
 			carrying = 0; //no longer carrying
+
+		}
+		else if (path.empty()) { //we're carrying but stopped moving? this can happen on accident, 
 
 		}
 	}
@@ -315,14 +378,15 @@ bool * Unit::getActions()
 	return actions;
 }
 
-bool Unit::move(Location* targetLoc, Map* map)
+bool Unit::move(Location* targetLoc)
 {
 
-	//target = map->findClosestTo(targetLoc, loc); //Dont't call this
+	
 	//Locally declared function!
 	const bool moveCond(Unit*, Location *);
+	const bool moveStartCond(Unit*, Location*);
 
-	target = game->findClosestToCnd(targetLoc, loc, this, moveCond);
+	target = game->findClosestToCnd(targetLoc, loc, this, moveStartCond);
 
 	if (!target) {
 		return false; //Shouldn't ever happen
@@ -342,7 +406,8 @@ bool Unit::move(Location* targetLoc, Map* map)
 	glm::vec2 newPos;
 	Location* newLoc;
 
-	collecting = false;   //If we were collecting then are sent to another destination, we stop collecting;
+	collecting = false;   //If we were collecting then are sent to another destination, we stop collecting; 
+	//!!!! -> this will disable collecting if we have to do multiple moves to get to the ressource we want
 
 	stack.push(std::pair<Location*,float>(loc, 0.0f)); //add the start location
 	from.emplace(loc, nullptr);
@@ -368,6 +433,7 @@ bool Unit::move(Location* targetLoc, Map* map)
 		}
 
 		newCost = cost.at(current) + 1;
+		Map* map = game->getMap();
 
 		for (glm::vec2 dir: dirs) {
 			newPos = current->getPos() + dir;    //Make sure we aren't running off the map
@@ -388,17 +454,23 @@ bool Unit::move(Location* targetLoc, Map* map)
 	return false;
 }
 
-bool Unit::collect(Location * location, Map* map)
+bool Unit::collect(Location * location)
 {
 	Locateable* locOwner = location->getOwner();
 
 	if (locOwner == nullptr) {
+
+		//then find a valid one instead or not for now
+		//collectTarget = location;
+		//findNewCollect();
+		//collect(collectTarget);
+
 		return false;
 	}
 
-	if (locOwner->getClassType() <= MAXRESCLASST && locOwner->getClassType() >= 2) { //2&3 are collectible ressources, else mountain
+	if (locOwner->getClassType() <= MAXRESCLASST && locOwner->getClassType() > MOUNTAIN_CLASS_T) { //2&3 are collectible ressources, else mountain
 		collectTarget = location;
-		move(location, map);  //Set movement to the ressource
+		move(location);  //Set movement to the ressource
 		collecting = true;    //Set internal flag and trigger collection once we are at location
 		return true;
 	}
@@ -408,28 +480,12 @@ bool Unit::collect(Location * location, Map* map)
 
 
 
-bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target 
+bool Unit::FinishCollect(Map* map)  //We beleive? that we are adjacent to target 
 {
 	Locateable* locOwner = collectTarget->getOwner();
 	//this can still be nullptr!!!
 	if (!locOwner) {
-		//find closest between energy and crystal?
-		Location* newTE = (game->findClosestType(collectTarget, ENERGY_CLASS_T));
-		Location* newTC = (game->findClosestType(collectTarget, CRYSTAL_CLASS_T));
-		//But eventually these will return null!!!
-
-		if (!newTE && !newTC) {
-		}
-		else if (!newTE) {
-			collect(newTC, map);
-		}
-		else if (!newTC) {
-			collect(newTE, map);
-		}
-		else { //both valid
-			bool whichT = Utils::calcDist(loc, newTC) < Utils::calcDist(loc, newTE);
-			collect( whichT ? newTC : newTE, map); //which one are we going for?
-		}
+		findNewCollect();
 
 		return false;
 	}
@@ -456,14 +512,39 @@ bool Unit::FinishCollect(Map* map)  //We know that we are adjacent to target
 
 		//If we have a throneRef then we move back to the throne to cash it in
                     
-		move(game->getThrone(owner)->getLoc(), map);    //This is why we need to pass map
+		move(game->getThrone(owner)->getLoc());   
 		
 		//Call another function once we are adjacent to Throne to return the ressource
 
 		return true;
 	}
-	else {
+	else { //this case happens when we accidentally try to collect from another unit and stops the loop so just find new Collect
+
+		findNewCollect();
+
 		return false;
+	}
+}
+
+void Unit::findNewCollect()
+{
+	Map* map = game->getMap();
+	//find closest between energy and crystal?
+	Location* newTE = (game->findClosestType(collectTarget, ENERGY_CLASS_T));
+	Location* newTC = (game->findClosestType(collectTarget, CRYSTAL_CLASS_T));
+	//But eventually these will return null!!!
+
+	if (!newTE && !newTC) {
+	}
+	else if (!newTE) {
+		collect(newTC);
+	}
+	else if (!newTC) {
+		collect(newTE);
+	}
+	else { //both valid
+		bool whichT = Utils::calcDist(loc, newTC) < Utils::calcDist(loc, newTE);
+		collect(whichT ? newTC : newTE); //which one are we going for?
 	}
 }
 
@@ -493,7 +574,7 @@ bool Unit::build(Location * location, int obj)
 		
 	
 	building = true;				//Flag that it's building
-	move(location, game->getMap()); //Move to location
+	move(location); //Move to location
 
 	//move until 1 away from location!!! when path has size1 we call the finishBuild function
 
@@ -506,7 +587,7 @@ Unit* Unit::spawn(Location * location, int obj)
 	//This one doesn't allow movement
 
 	//Find a free spot adjacent-> getlocation!!!
-	Location* spawnLoc = game->getMap()->findClosest(location);
+	Location* spawnLoc = game->getMap()->findClosest(location);   //we only spawn on top of ourselves for the moment, may have alt implementation in specific unit
 	//Don't check distance so that we can wallhack
 	//if no locations return then there are no free locations
 	
@@ -546,7 +627,7 @@ bool Unit::autoAttack()
 
 	//and we move to them
 	if (target) {
-		move(target, game->getMap());
+		move(target);
 		return true;
 	}
 	
@@ -585,7 +666,7 @@ bool Unit::dealDamage(Unit* target)
 {
 	//checks that target is within our range and damages it
 	if (Utils::calcDist(loc, target->getLoc()) <= range) {
-		target->takeDamage(atk);
+		target->takeDamage(atk, owner);
 		return true;
 	}
 
@@ -597,9 +678,10 @@ bool Unit::attackLoc(Location*) //if the unit has a ranged attack very unit spec
 	return false;
 }
 
-int Unit::takeDamage(int dmg)
+int Unit::takeDamage(int dmg, int _cause)
 {
 	damageTaken += dmg;
+	cause = _cause;
 	return 1;
 }
 
@@ -607,7 +689,10 @@ int Unit::applyDamage()
 {
 
 	hp -= damageTaken;
+	game->takeDamageUnit(this, damageTaken, cause);
 	damageTaken = 0;
+
+	
 
 	if (hp <= 0 && lifeState != 3) {
 

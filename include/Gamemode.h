@@ -99,8 +99,9 @@ public:
 	static Gamemode& getInstance();
 
 
-	void init();
-	void init2();
+	void init();    //Load pre-stuff and start client
+	void init2();   //start server and do the connection
+	void init3();   //Create the map and place all the ressource it, communicate it to all parties
 	
 
 
@@ -109,10 +110,14 @@ public:
 	void updateGuiBind(int* pBind);
 	void updateGuiUnit(std::vector<int>&);
 	Unit* spawnUnit(int player, int obj, Location* spawnLoc);
+	void getSelection(int player, std::vector<Unit*>& out);
 	
 	//Interface Server/Rest of world
 	void createPopulateInfo(std::vector<Populate_Msg>& out);
 	void populateMap(std::vector<Populate_Msg>& in);
+
+	//Interface with Menu
+	void addMenuPlayer(int slot, char* address);
 
 	Location* findClosestType(Location *, int);    //finds nearest locateable of the type passed in as int.
 	Location* findClosestNotOwned(Location*, int, int); //finds nearest Unit that is owned by another player
@@ -142,6 +147,7 @@ public:
 	void addPlayer(int, PlayerType*);
 
 	void destroyUnit(Unit*);
+	void takeDamageUnit(Unit*, int amount, int cause);
 
 	Map * getMap();
 	

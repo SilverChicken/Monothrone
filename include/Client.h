@@ -7,7 +7,7 @@ class Client
 private:
 	int Startup(const char* Saddress = "127.0.0.1"); //default is local server
 	void Cleanup();
-
+	
 	//Info vars
 	bool is_running = false;
 	int shouldTick = 0;
@@ -15,6 +15,10 @@ private:
 	//Server info
 	SOCKADDR_IN server_address;    //Where this server is
 	SOCKET sock;
+
+	//Other Player info
+	IP_Endpoint player_endpoints[MAX_CLIENTS];
+	uint32 client_address = 0;
 
 	Timing_Info timing_info;
 
@@ -47,6 +51,7 @@ private:
 public :	
 
 	static Client* getInstance();
+	~Client() { Cleanup(); };
 
 	int run(); //Basically checks if we have input sends either an idle/input/join/leave based on inputs then also unpacks the server msg
 	void stop(); //stops the run loop
@@ -59,11 +64,13 @@ public :
 	void addInput(int key);
 	void addLoc(int x, int y);
 	void sendPopMsg();
+	void beginInput();
+	void requestJoin(); //Also gets info from waitroom lobby
 
 	uint16 getSlot();
 
 	void setServerAddress(char* addi);
 	
-	~Client() { Cleanup();  };
+	
 };
 

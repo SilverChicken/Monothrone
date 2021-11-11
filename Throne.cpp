@@ -5,7 +5,7 @@
 #include "Gamemode.h"
 
 
-Throne::Throne(int owner, Location * loc, Map * map):Unit(owner, loc, map)
+Throne::Throne(int owner, Location * loc):Unit(owner, loc)
 {
 	hp = 25;
 	atk = 0;
@@ -39,12 +39,12 @@ void Throne::draw(unsigned int texture, GLuint shaderprog)
 	Unit::draw(texture, shaderprog);
 }
 
-bool Throne::move(Location *, Map *)
+bool Throne::move(Location *)
 {
 	return false;
 }
 
-bool Throne::collect(Location *, Map*)
+bool Throne::collect(Location *)
 {
 	return false;
 }
@@ -64,7 +64,7 @@ Unit* Throne::spawn(Location * location, int obj)
 
 		
 		//for now just spawn Worms
-		return Unit::spawn(location, WORM_CLASS_T);
+		return Unit::spawn(loc, WORM_CLASS_T);
 
 
 
