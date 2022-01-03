@@ -1003,11 +1003,21 @@ void Gamemode::destroyUnit(Unit* unit)
 	pl->destroyUnit(unit);
 }
 
-void Gamemode::takeDamageUnit(Unit* unit, int amount, int cause)
+void Gamemode::dealDamageUnit(Unit* unit, int amount, int cause) //This gets called on a client side
 {
 	//Our unit is damaged, we need to tell the others
-
+	client->addEventype(EVT_DAMAGE);
+	client->addEventArgs(0, unit->getID());
+	client->addEventArgs(1, amount);
+	client->addEventArgs(2, cause);
+	client->sendEvent();
 	//send our unit's ID, the amount of dmg and the cause. Our PID will be sent as well
+
+}
+
+void Gamemode::unitSpawned(Unit*)
+{
+	//Send unit ID, owner, and location? and type
 
 }
 
@@ -1315,20 +1325,14 @@ void Gamemode::key_action_remote(int key, int pl, int x, int y)
 	switch (key) {
 
 	case CMD_SELECT:
-
-		//client->addInput(CMD_SELECT);
-		//client->addLoc((int)player->getLoc()->getPos().x, (int)player->getLoc()->getPos().y);
-
 		play->select(map->getLoc(x, y));
 		break;
 
 	case CMD_DESELECT:
-		//client->addInput(CMD_DESELECT);
 		play->deselect(map->getLoc(x, y));
 		break;
 
 	case CMD_DESELECT_ALL:
-		//client->addInput(CMD_DESELECT_ALL);
 		play->deselectAll();
 		break;
 
@@ -1343,6 +1347,31 @@ void Gamemode::key_action_remote(int key, int pl, int x, int y)
 		break;
 	}
 
+}
+
+void Gamemode::event_remote(int type, int player, int x, int y, int arg0, int arg1, int arg2, int arg3)
+{
+	switch (type) {
+	case EVT_DAMAGE:
+	{
+		Unit* target = Players[player]->getUnitById(arg0);
+		int amount = arg1;
+		int cause = arg2;
+		target->takeDamage(amount, cause);
+		break;
+	}
+	case EVT_DEATH:
+	{
+		break;
+	}
+	case EVT_SPAWN:
+	{
+		break;
+	}
+	default:
+		printf("Invalid event type, was %d", type);
+		break;
+	}
 }
 
 

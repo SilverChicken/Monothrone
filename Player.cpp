@@ -289,7 +289,7 @@ Location* Player::selectLocal(Location* location)
 			
 		}
 	}
-	//return nullptr;
+	return nullptr;
 }
 
 

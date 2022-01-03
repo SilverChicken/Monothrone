@@ -23,6 +23,7 @@ private:
 	Timing_Info timing_info;
 
 	uint8 buffer[SOCKET_BUFFER_SIZE];
+	uint8 eventBuffer[SOCKET_BUFFER_SIZE];
 	int bytes_written;
 	int flags = 0;
 
@@ -35,12 +36,13 @@ private:
 	Client_Message msgType = Client_Message::Join;
 
 	void ConstructMessage();
+	void sendBuffer();
 	void processDeltas();
 
 
 	//gameplay vars
-	uint8 input; 
-	int x0, y0;
+	Player_Input input;
+	Event_Info event_info;
 
 	//temp variables for populating 
 	int popCount = 0;
@@ -64,6 +66,10 @@ public :
 	void addInput(int key);
 	void addLoc(int x, int y);
 	void sendPopMsg();
+	void sendEvent();
+	void addEventype(int type);
+	void addEventArgs(int argNum, uint16 arg);
+	void addEventLoc(int x, int y);
 	void beginInput();
 	void requestJoin(); //Also gets info from waitroom lobby
 

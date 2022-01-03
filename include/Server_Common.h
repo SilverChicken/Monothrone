@@ -120,6 +120,14 @@ struct Player_Input
 
 };
 
+struct Event_Info {
+	//We get the player from the address that send us this, when server receives the player will be empty
+	uint8 type;
+	uint8 player;
+	uint8 x, y;
+	uint16 arg0, arg1, arg2, arg3;
+	//arguments for different events: unit type, cause...
+};
 
 
 //WSA functions

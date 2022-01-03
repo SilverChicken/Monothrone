@@ -454,6 +454,22 @@ void Server::parse() //here we validate the input as much as possible
 
 		break;
 	}
+	case Client_Message::Event:
+	{
+		Event_Info evt;
+		memcpy(&evt.player, &buffer[1], 2);
+		evt.type = buffer[3];
+		evt.x = buffer[4];
+		evt.y = buffer[5];
+		memcpy(&evt.arg0, &buffer[6], 2);
+		memcpy(&evt.arg1, &buffer[8], 2);
+		memcpy(&evt.arg2, &buffer[10], 2);
+		memcpy(&evt.arg3, &buffer[12], 2);
+
+		handleEvent(evt);
+
+		break;
+	}
 	case Client_Message::Collision:
 	{
 		
@@ -541,5 +557,10 @@ void Server::handleInput()
 		}
 
 	}
+}
+
+void Server::handleEvent(Event_Info evt)
+{
+	GmToServerClient::sendEvent(evt.type, evt.player, evt.x, evt.y, evt.arg0, evt.arg1, evt.arg2, evt.arg3);
 }
 

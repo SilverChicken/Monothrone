@@ -49,6 +49,7 @@ private:
 	void parse();
 
 	void handleInput();
+	void handleEvent(Event_Info evt);
 
 	Server() { Startup(); };
 

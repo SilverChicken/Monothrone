@@ -21,6 +21,7 @@ public:
 
 	//Pass player command infos onto the Gamdemode
 	static void sendCommand(int cmd, int pl, int x, int y);
+	static void sendEvent(int type, int player, int x, int y, int arg0, int arg1, int arg2, int arg3);
 
 };
 

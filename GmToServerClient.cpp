@@ -45,3 +45,9 @@ void GmToServerClient::sendCommand(int cmd, int pl, int x, int y)
 	Gamemode* game = &Gamemode::getInstance();
 	game->key_action_remote(cmd, pl, x, y);
 }
+
+void GmToServerClient::sendEvent(int type, int player, int x, int y, int arg0, int arg1, int arg2, int arg3)
+{
+	Gamemode* game = &Gamemode::getInstance();
+	game->event_remote(type, player, x, y, arg0, arg1, arg2, arg3);
+}

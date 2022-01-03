@@ -147,7 +147,8 @@ public:
 	void addPlayer(int, PlayerType*);
 
 	void destroyUnit(Unit*);
-	void takeDamageUnit(Unit*, int amount, int cause);
+	void dealDamageUnit(Unit*, int amount, int cause);
+	void unitSpawned(Unit*);
 
 	Map * getMap();
 	
@@ -159,7 +160,7 @@ public:
 
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods); //this is local, will send info to server & the rest
 	void key_action_remote(int key, int pl, int x, int y); //this is remote, will apply info sent from server
-
+	void event_remote(int type, int player, int x, int y, int arg0, int arg1, int arg2, int arg3);
 
 	
 };

@@ -20,5 +20,11 @@
 #define CMD_LEAVE			9
 
 
-
 #define CMD_MAXCODE			10
+
+
+#define EVT_DAMAGE			1
+#define EVT_DEATH			2
+#define EVT_SPAWN			3
+
+#define EVT_MAXCODE			3 

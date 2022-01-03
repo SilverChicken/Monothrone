@@ -1,7 +1,8 @@
 //#include "PlayerType.h"
-#include "Gamemode.h"
+
 #include "Unit.h"
 #include "Player.h"
+#include <stdexcept>
 
 #include "ServerKeyCodes.h" //just for the command codes not a fan, will change dep
 
@@ -102,6 +103,19 @@ std::vector<Unit*> PlayerType::getSelection()
 	return out;
 }
 
+
+Unit* PlayerType::getUnitById(int id)
+{
+	try {
+		return units.at(id);
+	}
+	catch(std::out_of_range&)
+	{
+		printf("UnitID not found");
+		return nullptr;
+	}
+
+}
 
 void PlayerType::update()
 {

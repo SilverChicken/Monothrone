@@ -649,7 +649,7 @@ bool Unit::attack()
 			if (tg->getClassType() >= UNIT_CLASS_T) {
 				Unit* unit = (Unit*)tg; //this is a safe cast because we checked in case of race condition
 				if (unit->owner != owner) {
-					dealDamage(unit); //
+					dealDamage(unit); //This makes the event call
 					return true;
 				}
 				
@@ -666,7 +666,8 @@ bool Unit::dealDamage(Unit* target)
 {
 	//checks that target is within our range and damages it
 	if (Utils::calcDist(loc, target->getLoc()) <= range) {
-		target->takeDamage(atk, owner);
+		//target->takeDamage(atk, owner);
+		game->dealDamageUnit(target, atk, owner);
 		return true;
 	}
 
@@ -689,7 +690,6 @@ int Unit::applyDamage()
 {
 
 	hp -= damageTaken;
-	game->takeDamageUnit(this, damageTaken, cause);
 	damageTaken = 0;
 
 	

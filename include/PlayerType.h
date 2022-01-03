@@ -2,6 +2,7 @@
 
 
 #include "Locateable.h"
+#include "Gamemode.h"
 
 #include <map>
 #include <vector>
@@ -66,6 +67,7 @@ public:
 
 
 	//Unit management
+	Unit* getUnitById(int id);
 	virtual void update();
 	virtual void update2();
 	
@@ -114,6 +116,11 @@ inline Unit* PlayerType::spawnUnit(Location* location)
 	Unit* unit = new T(PID, location);
 	unit->setID(getNextId());
 	units[unit->getID()] = unit;                       //Adds the unit to the list of current units
+
+
+	//Notify the server that we have spawned this unit, at this location? with this code.
+	//if()
+
 	return unit;
 
 }
