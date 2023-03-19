@@ -3,18 +3,13 @@
 #include <WinSock2.h>
 #include "ServerKeyCodes.h"
 
-
-
 #pragma comment(lib, "winmm.lib")
 #pragma comment(lib, "wsock32.lib")
-
-
-
-
 
 #define SOCKET_BUFFER_SIZE 1024			//Max amount we'll send
 #define MAX_CLIENTS 3
 #define CLIENT_TIMEOUT 5                //5 seconds of no messages = timeout
+#define MAX_RETRY 5
 
 typedef char uint8;
 typedef bool bool32;
@@ -62,6 +57,8 @@ enum class Client_Message : uint8
 	Populate    // tell server we need to populate the map
 };
 
+
+//delete this
 enum class Server_Message : uint8
 {
 	Join_Result,       // tell client they're accepted/rejected
@@ -81,6 +78,7 @@ struct Player_State
 
 };
 
+//Remove
 struct Delta_State
 {
 
@@ -120,6 +118,8 @@ struct Player_Input
 
 };
 
+
+//Remove
 struct Event_Info {
 	//We get the player from the address that send us this, when server receives the player will be empty
 	uint8 type;

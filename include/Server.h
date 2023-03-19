@@ -2,6 +2,7 @@
 
 #include "Server_Common.h"
 #include <vector>
+#include <mutex>
 
 
 
@@ -12,6 +13,8 @@ private:
 	//Info/Function vars
 	bool is_running = false;
 
+	//REMOVE
+	std::mutex event_mtx;
 
 	//Time measurement
 	UINT sleep_granularity_ms;
@@ -25,8 +28,10 @@ private:
 	Timing_Info timing_info;
 
 	//Game info
-	std::vector<Delta_State> deltas;
 
+	//REMOVE
+	std::vector<Delta_State> deltas;
+	Event_Info event_info;
 
 	//Temp saves
 	IP_Endpoint from_endpoint;    //used to store most recent message
@@ -40,16 +45,25 @@ private:
 
 	
 	uint8 buffer[SOCKET_BUFFER_SIZE];
-
+	//remove
+	uint8 eventBuffer[SOCKET_BUFFER_SIZE];
 	
 
 
 	int Startup(); //Currently start and doesn't stop running
+	bool SendWithRetry(uint8* buf);
 
 	void parse();
 
 	void handleInput();
 	void handleEvent(Event_Info evt);
+
+	//Remove all
+	//Event emission and management
+	void sendEvent();
+	void addEventype(int type);
+	void addEventArgs(int argNum, uint16 arg);
+	void addEventLoc(int x, int y);
 
 	Server() { Startup(); };
 

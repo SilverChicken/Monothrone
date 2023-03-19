@@ -7,7 +7,8 @@ class Client
 private:
 	int Startup(const char* Saddress = "127.0.0.1"); //default is local server
 	void Cleanup();
-	
+	bool SendWithRetry(uint8* buf);
+
 	//Info vars
 	bool is_running = false;
 	int shouldTick = 0;
@@ -23,7 +24,6 @@ private:
 	Timing_Info timing_info;
 
 	uint8 buffer[SOCKET_BUFFER_SIZE];
-	uint8 eventBuffer[SOCKET_BUFFER_SIZE];
 	int bytes_written;
 	int flags = 0;
 
@@ -42,7 +42,6 @@ private:
 
 	//gameplay vars
 	Player_Input input;
-	Event_Info event_info;
 
 	//temp variables for populating 
 	int popCount = 0;
@@ -66,10 +65,12 @@ public :
 	void addInput(int key);
 	void addLoc(int x, int y);
 	void sendPopMsg();
+
+	//Event emission and management
 	void sendEvent();
 	void addEventype(int type);
 	void addEventArgs(int argNum, uint16 arg);
-	void addEventLoc(int x, int y);
+	
 	void beginInput();
 	void requestJoin(); //Also gets info from waitroom lobby
 

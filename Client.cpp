@@ -126,14 +126,11 @@ int Client::run()
 
 		// send to server
 		
-		
-		SOCKADDR* to = (SOCKADDR*)&server_address;
-		int to_length = sizeof(server_address);
-		if (sendto(sock, buffer, bytes_written, flags, to, to_length) == SOCKET_ERROR)     //sendto succeeds but the connextion closes ans server never receives anything?
+		if (SendWithRetry(buffer))     //sendto succeeds but the connextion closes ans server never receives anything?
 		{
 			printf("Message %d failed to send \n", msgType);
 			printf("sendto failed: %d", WSAGetLastError());
-			return 1;
+			//return 1;
 		}
 
 		//once we send the input clear it
@@ -415,91 +412,21 @@ void Client::beginInput()
 	msgType = Client_Message::Input;
 }
 
-void Client::sendEvent()
-{
-
-	//Is there a race condition here? Maybe. Add synchronisation and then maybe share buffer?
-
-	if (slot != 0xFFFF)
-	{
-		eventBuffer[0] = (uint8)Client_Message::Event;
-		bytes_written = 1;
-
-		memcpy(&buffer[bytes_written], &slot, sizeof(slot));
-		bytes_written += sizeof(slot);
-
-		buffer[bytes_written] = event_info.type;
-		bytes_written++;
-
-		buffer[bytes_written] = event_info.x;
-		bytes_written++;
-
-		buffer[bytes_written] = event_info.y;
-		bytes_written++;
-
-		memcpy(&buffer[bytes_written], &event_info.arg0, sizeof(event_info.arg0));
-		bytes_written += sizeof(event_info.arg0);
-		memcpy(&buffer[bytes_written], &event_info.arg0, sizeof(event_info.arg0));
-		bytes_written += sizeof(event_info.arg1);
-		memcpy(&buffer[bytes_written], &event_info.arg0, sizeof(event_info.arg0));
-		bytes_written += sizeof(event_info.arg2);
-		memcpy(&buffer[bytes_written], &event_info.arg0, sizeof(event_info.arg0));
-		bytes_written += sizeof(event_info.arg3);
-
-	}
-	else { //Retry join and cache message?
-
-	}
-
-
-	//We immediately send events as they are multiple per tick
-
-	SOCKADDR* to = (SOCKADDR*)&server_address;
-	int to_length = sizeof(server_address);
-	if (sendto(sock, eventBuffer, bytes_written, flags, to, to_length) == SOCKET_ERROR) 
-	{
-		printf("Event Message %d failed to send \n", event_info.type);
-		printf("sendto failed: %d", WSAGetLastError());
-	}
-
-}
-
 void Client::requestJoin()
 {
 	msgType = Client_Message::Join;
 }
 
+void Client::sendEvent()
+{
+}
+
 void Client::addEventype(int type)
 {
-	event_info.type = type;
 }
 
 void Client::addEventArgs(int argNum, uint16 arg)
 {
-	switch (argNum) {
-	case 0:
-		event_info.arg0 = arg;
-		break;
-	case 1:
-		event_info.arg1 = arg;
-		break;
-	case 2:
-		event_info.arg2 = arg;
-		break;
-	case 3:
-		event_info.arg3 = arg;
-		break;
-
-	default:
-		printf("Invalid Arg index: %i \n", argNum);
-		break;
-	}
-}
-
-void Client::addEventLoc(int x, int y)
-{
-	event_info.x = x;
-	event_info.y = y;
 }
 
 int Client::Startup(const char* Saddress)
@@ -555,5 +482,21 @@ int Client::Startup(const char* Saddress)
 void Client::Cleanup()
 {
 	WSACleanup();
+}
+
+bool Client::SendWithRetry(uint8* buf)
+{
+	int tries = 0;
+	SOCKADDR* to = (SOCKADDR*)&server_address;
+	int to_length = sizeof(server_address);
+	while (tries < MAX_RETRY) {
+		if (sendto(sock, buffer, bytes_written, flags, to, to_length) == SOCKET_ERROR)
+		{
+			tries++;
+			continue;
+		}
+		return true;
+	}
+	return false;
 }
 

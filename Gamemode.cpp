@@ -1349,15 +1349,23 @@ void Gamemode::key_action_remote(int key, int pl, int x, int y)
 
 }
 
-void Gamemode::event_remote(int type, int player, int x, int y, int arg0, int arg1, int arg2, int arg3)
+void Gamemode::server_event_remote(int type, int player, int x, int y, int arg0, int arg1, int arg2, int arg3)
 {
+	//This should ONLY be called by the server which applies the events locally and sends notices to other clients
 	switch (type) {
 	case EVT_DAMAGE:
 	{
 		Unit* target = Players[player]->getUnitById(arg0);
 		int amount = arg1;
 		int cause = arg2;
+		//Validate that this is possible
+
+
+		
 		target->takeDamage(amount, cause);
+		//Notify clients that this has happened
+
+
 		break;
 	}
 	case EVT_DEATH:
@@ -1367,11 +1375,16 @@ void Gamemode::event_remote(int type, int player, int x, int y, int arg0, int ar
 	case EVT_SPAWN:
 	{
 		break;
-	}
+	} 
 	default:
 		printf("Invalid event type, was %d", type);
 		break;
 	}
+}
+
+void Gamemode::event_remote(int type, int player, int x, int y, int arg0, int arg1, int arg2, int arg3)
+{
+
 }
 
 

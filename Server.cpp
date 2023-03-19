@@ -27,6 +27,9 @@ float32 time_since_heard_from_clients[MAX_CLIENTS];
 Player_State client_objects[MAX_CLIENTS];
 Player_Input client_inputs[MAX_CLIENTS];
 
+std::condition_variable condition_variable;
+int event_bytes_written;
+
 /*
 int main() {
 	Server* serv = new Server();
@@ -564,3 +567,96 @@ void Server::handleEvent(Event_Info evt)
 	GmToServerClient::sendEvent(evt.type, evt.player, evt.x, evt.y, evt.arg0, evt.arg1, evt.arg2, evt.arg3);
 }
 
+void Server::sendEvent()
+{
+
+	//Is there a race condition here? Maybe. Add synchronisation and then maybe share buffer? Or just keep seperate buffer
+	//Race condition is now what if we have multiple events to send? we need to consolidate events into a single function and synchornize it.
+
+
+	eventBuffer[0] = (uint8)Client_Message::Event;
+	event_bytes_written = 1;
+
+	eventBuffer[event_bytes_written] = event_info.type;
+	event_bytes_written++;
+
+	eventBuffer[event_bytes_written] = event_info.x;
+	event_bytes_written++;
+
+	eventBuffer[event_bytes_written] = event_info.y;
+	event_bytes_written++;
+
+	memcpy(&eventBuffer[event_bytes_written], &event_info.arg0, sizeof(event_info.arg0));
+	event_bytes_written += sizeof(event_info.arg0);
+	memcpy(&eventBuffer[event_bytes_written], &event_info.arg0, sizeof(event_info.arg0));
+	event_bytes_written += sizeof(event_info.arg1);
+	memcpy(&eventBuffer[event_bytes_written], &event_info.arg0, sizeof(event_info.arg0));
+	event_bytes_written += sizeof(event_info.arg2);
+	memcpy(&eventBuffer[event_bytes_written], &event_info.arg0, sizeof(event_info.arg0));
+	event_bytes_written += sizeof(event_info.arg3);
+
+	//We immediately send events as they are multiple per tick
+
+	if(SendWithRetry(eventBuffer))
+	{
+		printf("Message Event failed to send\n");
+		printf("sendto failed: %d", WSAGetLastError());
+		//cache message?
+	}
+
+	condition_variable.notify_one();
+}
+
+void Server::addEventype(int type)
+{
+	std::unique_lock<std::mutex> lck(event_mtx);
+	condition_variable.wait(lck);
+	event_info.type = type;
+}
+
+void Server::addEventArgs(int argNum, uint16 arg)
+{
+	switch (argNum) {
+	case 0:
+		event_info.arg0 = arg;
+		break;
+	case 1:
+		event_info.arg1 = arg;
+		break;
+	case 2:
+		event_info.arg2 = arg;
+		break;
+	case 3:
+		event_info.arg3 = arg;
+		break;
+
+	default:
+		printf("Invalid Arg index: %i \n", argNum);
+		break;
+	}
+}
+
+void Server::addEventLoc(int x, int y)
+{
+	event_info.x = x;
+	event_info.y = y;
+}
+
+bool Server::SendWithRetry(uint8* buf)
+{
+	for each(IP_Endpoint client in client_endpoints) {
+		int tries = 0;
+		SOCKADDR* to = (SOCKADDR*)&client.address;
+		int to_length = sizeof(client.address);
+		while (tries < MAX_RETRY) {
+			if (sendto(sock, buffer, event_bytes_written, flags, to, to_length) == SOCKET_ERROR)
+			{
+				tries++;
+				continue;
+			}
+			return true;
+		}
+		return false;
+	}
+
+}
